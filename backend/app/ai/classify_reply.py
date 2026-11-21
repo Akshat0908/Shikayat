@@ -49,7 +49,7 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     else:
         result.resolution_status='unresolved'
     has_reference=reference or bool(re.search(r'\bticket\s*(?:id|no\.?|number|#|:|-)?\s*[:#-]?\s*[a-z0-9][a-z0-9-]*\d[a-z0-9-]*',lower)) or bool(result.ticket_id)
-    has_date=bool(result.promised_date or re.search(r'\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b|\b\d+\s*(?:working |business )?days?\b',lower))
+    has_date=bool(re.search(r'\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b|\b\d+\s*(?:working |business )?days?\b|\b(?:\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2})\b',lower))
     concrete=bool(result.concrete_action and result.concrete_action.casefold() in lower and not re.search(r'forward|concerned team|look(?:ing)? into|investigat|review|earliest',result.concrete_action.casefold()))
     vague_promise=bool(re.search(r'\b(?:will|shall|promise)\b.{0,80}\b(?:refund|resolve|credit|replace|deliver)\w*\b',lower)) and not (amount or has_date or has_reference or result.offered_amount_inr is not None)
     if result.reply_type in ('acknowledgment','deflection'):

@@ -32,7 +32,8 @@ def promise_from_reply(text: str, extracted_date: str | None, received_at: datet
                 candidate=date.fromisoformat(extracted_date)
                 # Require the supplied year/month/day or a recognizable written date in the sentence.
                 forms=(candidate.isoformat(),candidate.strftime('%d/%m/%Y'),candidate.strftime('%d-%m-%Y'),candidate.strftime('%d %B %Y'),candidate.strftime('%d %b %Y'))
-                if any(form.casefold() in sentence.casefold() for form in forms): target=candidate
+                yearless=(f'{candidate.day} {candidate:%B}',f'{candidate.day} {candidate:%b}',f'{candidate:%B} {candidate.day}',f'{candidate:%b} {candidate.day}')
+                if any(form.casefold() in sentence.casefold() for form in forms) or (candidate.year==received_at.year and any(re.search(r'(?<!\d)'+re.escape(form)+r'(?!\d)',sentence,re.I) for form in yearless)): target=candidate
             except ValueError: pass
         if target and target>=received_at.date():
             grace=datetime.combine(target+timedelta(days=1),time.max,tzinfo=timezone.utc)

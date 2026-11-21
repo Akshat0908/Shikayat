@@ -102,3 +102,13 @@ def test_full_refund_offer_beyond_redress_gets_pushback(tmp_path,monkeypatch):
         asyncio.run(workers.receive(app,{'case_id':cid,'message_id':'<reply>','sender':'demo@example.test','subject':'Re: Refund','body':text}))
         assert len(sent)==1 and text in sent[0][2] and deadline.date().isoformat() in sent[0][2]
         with Session(app.state.engine) as s: assert s.get(Case,cid).facts_json['promise']['pushback_sent']
+
+
+def test_extracted_yearless_date_and_fabricated_date():
+    from backend.app.ai.classify_reply import ReplyAnalysis,enforce_forensics
+    now=datetime(2026,11,20,tzinfo=timezone.utc)
+    promise=promise_from_reply('We will refund by 25 November.','2026-11-25',now,None)
+    assert promise and promise.promised_date.isoformat()=='2026-11-25'
+    text='We acknowledge your complaint and will refund you soon.'
+    analysis=ReplyAnalysis(reply_type='acknowledgment',acknowledged=True,original_remedy=None,promised_action='refund',refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',promised_date='2026-11-25',concrete_action='will refund you soon')
+    assert enforce_forensics(analysis,text,4299,'refund').reply_type=='deflection'
