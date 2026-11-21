@@ -60,3 +60,9 @@ The image builds Next.js then copies its export into the Python runtime. On EC2,
 ## Next
 
 Implement deterministic deadlines, strength and policy, then evidence intake and structured AI extraction. The target is a product built solo in 26 hours at Builders 2026 (OpenAI × Equal AI). Code freeze: **22 November 2026, 2:00 PM IST**.
+
+## Mock UI walkthrough
+
+The frontend now runs entirely on typed fixtures in `frontend/lib/mock.ts` and the provisional response contracts in `frontend/lib/types.ts`. Choose ShopKart, review/edit the email, approve the mock send, then use **Simulate next** for deflection, escalation and the offer. Confirm receipt in chat to close the case. **+48h** advances the visible demo clock; reset clears the in-memory cases. All delivery and recovery are explicitly simulated. Refresh resets the case workspace; onboarding dismissal is remembered locally.
+
+Image attachments and MediaRecorder voice notes stay in the browser. Uploaded evidence is not extracted yet; choose a sample for the scripted journey. Microphone recording needs localhost or HTTPS and permission. Legal citations are omitted until their sources are verified. These TypeScript contracts must be aligned with future case API routes when those routes are implemented.
