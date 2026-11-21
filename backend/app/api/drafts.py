@@ -1,4 +1,5 @@
 from datetime import timedelta
+import hashlib
 from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import Session, select
 from pydantic import BaseModel, Field
@@ -62,6 +63,11 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
         email=EmailDraft.model_validate(events[0].payload_json)
         previous=session.exec(select(Message).where(Message.case_id==case_id,Message.direction=='out').order_by(Message.sent_at.desc())).first()
+        if previous is None:
+            confirmed=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='recipient_confirmed').order_by(Event.at.desc())).first()
+            fingerprint=hashlib.sha256((contact.get('email') or '').strip().casefold().encode()).hexdigest()
+            if not confirmed or confirmed.payload_json.get('contact_hash')!=fingerprint or confirmed.payload_json.get('level')!=case.level.value:
+                raise HTTPException(409,'Confirm the verified recipient before the first send')
     try:
         message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
     except ValueError as e: raise HTTPException(422,str(e)) from e
@@ -76,6 +82,20 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
         case.status=CaseStatus.WAITING;session.add(case);session.commit()
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
+
+@router.post('/{case_id}/confirm-recipient')
+async def confirm_recipient(case_id: str, request: Request) -> dict:
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        company=next((c for c in load_companies() if c['id']==case.company_id),None)
+        if not company or case.level.value not in ('L2','L3'): raise HTTPException(422,'Recipient requires review')
+        contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
+        if not contact.get('verified') or not contact.get('email'): raise HTTPException(422,'Recipient requires verification')
+        digest=hashlib.sha256(contact['email'].strip().casefold().encode()).hexdigest()
+        session.add(Event(case_id=case_id,actor='user',type='recipient_confirmed',title='Recipient confirmed',reason='User confirmed the verified recipient before sending.',payload_json={'contact_hash':digest,'level':case.level.value}));session.commit()
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'confirmed','source_url':contact.get('source_url'),'last_checked':contact.get('last_checked'),'verified':contact['verified']}
 
 @router.get('/{case_id}')
 def get_case(case_id: str, request: Request) -> Case:

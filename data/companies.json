@@ -13,14 +13,16 @@
       "email": null,
       "source_url": null,
       "verified": true,
-      "email_env": "DEMO_COMPANY_EMAIL"
+      "email_env": "DEMO_COMPANY_EMAIL",
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
       "verified": true,
-      "email_env": "DEMO_COMPANY_EMAIL"
+      "email_env": "DEMO_COMPANY_EMAIL",
+      "last_checked": null
     },
     "regulator_route": [
       "nch",
@@ -40,13 +42,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -63,13 +67,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -86,13 +92,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -109,13 +117,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -132,13 +142,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -155,13 +167,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -178,13 +192,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -201,13 +217,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -224,13 +242,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -247,13 +267,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -270,13 +292,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -293,13 +317,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -316,13 +342,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -339,13 +367,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -362,13 +392,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -385,13 +417,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -408,13 +442,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -431,13 +467,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -454,13 +492,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -477,13 +517,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -500,13 +542,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -523,13 +567,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -546,13 +592,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -569,13 +617,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
@@ -592,13 +642,15 @@
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "nodal_officer": {
       "name": null,
       "email": null,
       "source_url": null,
-      "verified": false
+      "verified": false,
+      "last_checked": null
     },
     "regulator_route": null,
     "demo": false
