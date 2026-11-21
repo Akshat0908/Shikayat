@@ -35,7 +35,7 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     # A reply can acknowledge the complaint without resolving it.  Do not
     # confuse an automated receipt with a substantive response.
     response_signal=bool(re.search(r'\b(?:regret|sorry|apologi[sz]|concern|complaint|grievance|ticket|forwarded|looking into|investigat|refund request|issue|inconvenience)\b', lower))
-    result.acknowledged=bool(result.acknowledged or response_signal)
+    result.acknowledged=bool(result.acknowledged or response_signal or result.reply_type in ('evidence_request','partial_offer','substantive_resolution','rejection'))
     amount=bool(re.search(r'(?:₹|rs\.?|inr)\s*[\d,]+|[\d,]+\s*(?:rupees|inr)',lower))
     reference=bool(re.search(r'\b(?:utr|transaction|txn|reference|ref)\s*(?:id|no\.?|number|#|:|-)?\s*[:#-]?\s*[a-z0-9][a-z0-9-]{3,}',lower))
     completed=bool(re.search(r'\b(?:refund(?:ed)?|refunded)\b.{0,70}\b(?:completed|credited|successfully processed|successfully refunded)\b|\b(?:completed|credited)\b.{0,50}\brefund\b',lower))
@@ -50,8 +50,9 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
         result.resolution_status='unresolved'
     has_reference=reference or bool(re.search(r'\bticket\s*(?:id|no\.?|number|#|:|-)?\s*[:#-]?\s*[a-z0-9][a-z0-9-]*\d[a-z0-9-]*',lower)) or bool(result.ticket_id)
     has_date=bool(result.promised_date or re.search(r'\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b|\b\d+\s*(?:working |business )?days?\b',lower))
+    concrete=bool(result.concrete_action and result.concrete_action.casefold() in lower and not re.search(r'forward|concerned team|look(?:ing)? into|investigat|review|earliest',result.concrete_action.casefold()))
     if result.reply_type in ('acknowledgment','deflection'):
-        if result.acknowledged and not (amount or result.offered_amount_inr is not None or has_date or has_reference or result.concrete_action) and response_signal and not re.search(r'\bautomat(?:ed|ic)\b',lower):
+        if result.acknowledged and not (amount or result.offered_amount_inr is not None or has_date or has_reference or concrete) and response_signal and not re.search(r'\bautomat(?:ed|ic)\b',lower):
             result.reply_type='deflection';result.reason='Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.'
         elif result.reply_type=='deflection':
             result.reply_type='acknowledgment';result.reason='The reply acknowledges the complaint and includes a reference, date, amount or concrete action.'

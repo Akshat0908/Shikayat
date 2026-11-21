@@ -32,3 +32,8 @@ def test_acknowledgment_and_concrete_details(text,expected):
     checked=enforce_forensics(result,text,4299,'refund')
     assert checked.acknowledged is True
     assert checked.reply_type == expected
+
+def test_recommended_action_is_not_a_company_commitment():
+    text='We regret the inconvenience. Your concern was forwarded to the concerned team.'
+    result=ReplyAnalysis(reply_type='acknowledgment',acknowledged=False,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='follow up',reason='test',concrete_action='Ask for refund confirmation')
+    assert enforce_forensics(result,text,4299,'refund').reply_type=='deflection'

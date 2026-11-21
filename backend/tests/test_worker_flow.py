@@ -4,7 +4,8 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session,select
 from backend.app.main import create_app
 from backend.app.config import Settings
-from backend.app.models import Case,Message,CaseStatus
+from backend.app.models import Case,Message,CaseStatus,Deadline
+from datetime import datetime, timedelta, timezone
 from backend.app.ai.classify_reply import ReplyAnalysis
 from backend.app.ai.draft_complaint import EmailDraft
 from backend.app import workers
@@ -29,8 +30,11 @@ def test_reply_flow(tmp_path: Path,monkeypatch) -> None:
     with TestClient(app):
         with Session(app.state.engine) as session:
             case=Case(title='Refund',company_id='shopkart',amount_inr=4299,status=CaseStatus.WAITING);session.add(case);session.commit();id=case.id
+            session.add(Deadline(case_id=id,kind='ack_48h',due_at=datetime.now(timezone.utc)+timedelta(days=2),status='running'));session.commit()
         for i,(body,expected) in enumerate([('stall',CaseStatus.WAITING),('stall',CaseStatus.ESCALATED),('offer',CaseStatus.AWAITING_RECEIPT)]):
             asyncio.run(workers.receive(app,dict(case_id=id,message_id=f'<reply-{i}>',sender='demo@example.test',subject='Refund',body=body)))
             with Session(app.state.engine) as session:
                 assert session.get(Case,id).status==expected
+                if i==0:
+                    assert session.exec(select(Deadline).where(Deadline.case_id==id)).first().status=='met'
         assert count==2
