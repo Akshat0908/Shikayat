@@ -57,7 +57,8 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
         elif result.reply_type=='deflection':
             result.reply_type='acknowledgment';result.reason='The reply acknowledges the complaint and includes a reference, date, amount or concrete action.'
     if remedy:
-        result.original_remedy=remedy.capitalize() + (f' of ₹{demanded:,.0f}' if demanded is not None and float(demanded).is_integer() else f' of ₹{demanded:,.2f}' if demanded is not None else '')
+        from .draft_complaint import indian_amount
+        result.original_remedy=remedy.capitalize() + (f' of {indian_amount(float(demanded))}' if demanded is not None else '')
     result.category={'acknowledgment':'acknowledged','deflection':'deflection','evidence_request':'info_requested','partial_offer':'partial_resolution','substantive_resolution':'resolution_offered','rejection':'rejected'}[result.reply_type]
     return result
 

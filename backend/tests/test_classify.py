@@ -37,3 +37,11 @@ def test_recommended_action_is_not_a_company_commitment():
     text='We regret the inconvenience. Your concern was forwarded to the concerned team.'
     result=ReplyAnalysis(reply_type='acknowledgment',acknowledged=False,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='follow up',reason='test',concrete_action='Ask for refund confirmation')
     assert enforce_forensics(result,text,4299,'refund').reply_type=='deflection'
+
+def test_scripted_replies_support_followup_and_escalation():
+    from backend.app.demo.company_bot import REPLIES
+    for text in REPLIES[:2]:
+        result=ReplyAnalysis(reply_type='deflection',acknowledged=False,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='follow up',reason='test')
+        checked=enforce_forensics(result,text,4299,'refund')
+        assert checked.acknowledged and checked.reply_type=='deflection'
+        assert checked.original_remedy=='Refund of ₹4,299'

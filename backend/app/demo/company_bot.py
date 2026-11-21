@@ -11,7 +11,7 @@ from ..models import Message, Event
 
 REPLIES=[
  'We regret the inconvenience caused. Your concern has been forwarded to the concerned team and will be addressed at the earliest.',
- 'Your concern remains with the concerned team. New ticket DEMO-T205. We will respond at the earliest.',
+ 'Your concern remains with the concerned team. We will respond at the earliest.',
  'Refund of INR {amount} has been initiated. Reference RFN-DEMO-104. It will be credited in 5–7 working days.',
 ]
 
