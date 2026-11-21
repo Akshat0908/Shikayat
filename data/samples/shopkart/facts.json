@@ -1,0 +1,36 @@
+{
+  "company_name": "ShopKart",
+  "order_id": "SHOPKART-1042",
+  "amount_inr": 4299,
+  "purchase_date": "2026-10-31",
+  "issue_type": "refund_not_received",
+  "issue_summary_en": "ShopKart refund of INR 4299 remains unpaid after three weeks.",
+  "user_demand": "refund",
+  "events": [
+    {
+      "date": "2026-10-31",
+      "what": "Order placed"
+    },
+    {
+      "date": "2026-11-01",
+      "what": "Refund requested"
+    }
+  ],
+  "contact_attempts": [
+    {
+      "date": null,
+      "channel": "phone",
+      "ticket_id": "DEMO-T104"
+    }
+  ],
+  "days_elapsed": 21,
+  "missing_info": [
+    "promised_refund_date"
+  ],
+  "field_confidence": {
+    "company_name": 0.99,
+    "order_id": 0.99,
+    "amount_inr": 0.99,
+    "purchase_date": 0.98
+  }
+}

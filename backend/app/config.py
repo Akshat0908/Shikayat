@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     transcribe_model: str = "gpt-transcribe"
     model_smart: str = ""
     model_fast: str = ""
+    model_rates_json: str = "{}"
     budget_usd: float = 100
     user_email: str = ""
     user_email_app_password: SecretStr = SecretStr("")

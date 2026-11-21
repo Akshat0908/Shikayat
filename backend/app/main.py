@@ -30,6 +30,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Shikayat", lifespan=lifespan)
     app.state.events = bus
     app.include_router(router, prefix="/api")
+    from .api.cases import router as cases_router
+    app.include_router(cases_router)
+    from .api.drafts import router as drafts_router
+    app.include_router(drafts_router)
 
     @app.get("/api/events")
     async def events(request: Request) -> StreamingResponse:

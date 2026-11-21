@@ -1,0 +1,36 @@
+{
+  "company_name": "MealBox",
+  "order_id": "FOOD-1042",
+  "amount_inr": 612,
+  "purchase_date": "2026-10-31",
+  "issue_type": "wrong_item",
+  "issue_summary_en": "MealBox refund of INR 612 remains unpaid after three weeks.",
+  "user_demand": "refund",
+  "events": [
+    {
+      "date": "2026-10-31",
+      "what": "Order placed"
+    },
+    {
+      "date": "2026-11-01",
+      "what": "Refund requested"
+    }
+  ],
+  "contact_attempts": [
+    {
+      "date": null,
+      "channel": "phone",
+      "ticket_id": "DEMO-T104"
+    }
+  ],
+  "days_elapsed": 21,
+  "missing_info": [
+    "promised_refund_date"
+  ],
+  "field_confidence": {
+    "company_name": 0.99,
+    "order_id": 0.99,
+    "amount_inr": 0.99,
+    "purchase_date": 0.98
+  }
+}
