@@ -1,6 +1,7 @@
 from datetime import timedelta
 from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import Session, select
+from pydantic import BaseModel, Field
 from ..ai.draft_complaint import EmailDraft, draft_complaint
 from ..demo.clock import now
 from ..engine.company import load_companies
@@ -15,6 +16,10 @@ async def draft(case_id: str, request: Request) -> EmailDraft:
     with Session(request.app.state.engine) as session:
         case=session.get(Case,case_id)
         if not case: raise HTTPException(404,'Case not found')
+        if case.status==CaseStatus.AWAITING_APPROVAL:
+            existing=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
+            if existing: return EmailDraft.model_validate(existing.payload_json)
+        if case.status!=CaseStatus.DRAFT: raise HTTPException(409,'Case is not ready for a new draft')
         deadline=now(session)+timedelta(days=30)
     try:
         result=await draft_complaint(case,deadline)
@@ -24,6 +29,24 @@ async def draft(case_id: str, request: Request) -> EmailDraft:
         case.status=CaseStatus.AWAITING_APPROVAL;session.add(case);session.commit()
     await request.app.state.events.publish('draft',{'case_id':case_id,'reason':'Ready for user approval'})
     return result
+
+class DraftEdit(BaseModel):
+    body: str = Field(min_length=1, max_length=20000)
+
+@router.patch('/{case_id}/draft')
+async def edit_draft(case_id: str, edit: DraftEdit, request: Request) -> EmailDraft:
+    if not edit.body.strip(): raise HTTPException(422,'Draft body cannot be blank')
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Case is not awaiting approval')
+        previous=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
+        if not previous: raise HTTPException(409,'Create a draft first')
+        updated=EmailDraft.model_validate({**previous.payload_json,'body':edit.body})
+        session.add(Event(case_id=case_id,actor='user',type='draft',title='Complaint edited',reason='User edited the complaint before approval.',payload_json=updated.model_dump()))
+        session.commit()
+    await request.app.state.events.publish('draft',{'case_id':case_id,'reason':'User edited draft'})
+    return updated
 
 @router.post('/{case_id}/approve')
 async def approve(case_id: str, request: Request) -> dict[str,str]:
