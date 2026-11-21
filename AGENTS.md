@@ -54,14 +54,14 @@
 ## 3. The product
 
 ### Name
-**Shikayat** (शिकायत), *"Your AI that fights customer care for you."*
+**Shikayat** (शिकायत), *"your AI consumer advocate."*
 
 ### One-line pitch
-Forward a screenshot, rant in a voice note, and walk away. Shikayat files the complaint with the right officer, enforces the company's legal deadlines, reads their replies, catches stalling, and escalates until you get your money back.
+Shikayat — your AI consumer advocate. It doesn't stop when customer care replies. It stops when your issue is actually resolved.
 
 ### Problem (only these verified facts may go in the UI/README)
 - ServiceNow's India Customer Experience Intelligence Report (2024): the average Indian spends **30.7 hours a year on hold** with customer service.
-- Under the **Consumer Protection (E-Commerce) Rules, 2020**, e-commerce entities must appoint a **grievance officer**, display their contact details, **acknowledge a complaint within 48 hours** and **redress it within one month.** People rarely use this because it's tedious, and companies count on people giving up.
+- Under the **Consumer Protection (E-Commerce) Rules, 2020**, Rule 4(5), covered e-commerce entities must ensure their grievance officer acknowledges a complaint within 48 hours and redresses it within one month of receipt. [Official rules](https://consumeraffairs.gov.in/public/upload/files/E%20commerce%20rules_1732703966.pdf).
 
 ### Persona
 **Sunita, 34, Hyderabad.** She ordered from "ShopKart" (fictional), returned the item, and her ₹4,299 refund hasn't come in 3 weeks. She's called 4 times, got 2 ticket numbers, and nothing has happened.
@@ -69,7 +69,7 @@ Forward a screenshot, rant in a voice note, and walk away. Shikayat files the co
 ### Core journey (raw input → useful outcome)
 1. **Input:** 1–3 screenshots (order page, refund SMS, chat with support) + a Hinglish voice note or text.
 2. **Understand:** transcribe, then extract the case facts (company, order ID, amount, dates, attempts, tickets, demand) with confidence scores, and list what's missing.
-3. **Route:** resolve the company → its **escalation ladder** (L2 Grievance Officer → L3 Nodal Officer → L4 National Consumer Helpline → L5 Consumer Commission).
+3. **Route:** resolve the company → its suggested, non-mandatory route (verified company escalation contact → company/sector complaint process → National Consumer Helpline → consumer commission).
 4. **Assess:** case strength score (deterministic) + a short rationale.
 5. **Draft:** a firm, specific, polite complaint citing **only** the legal references in `legal_refs.json`, with a code-computed deadline date.
 6. **Approve:** the user sees a real-looking email preview → "Approve & send".
@@ -191,7 +191,7 @@ Fields: `id, name, aliases[], sector, care_url, grievance_officer{name, email, s
 
 ### `data/legal_refs.json`
 Only references with a source URL and `verified: true` may be cited in drafts. Seed:
-- `ecom_rules_2020_grievance`: "Consumer Protection (E-Commerce) Rules, 2020: grievance officer must acknowledge within 48 hours and redress within one month". The exact rule number is left blank until Akshat verifies it.
+- `ecom_rules_2020_grievance`: "Consumer Protection (E-Commerce) Rules, 2020: grievance officer must acknowledge within 48 hours and redress within one month". The rule number is Rule 4(5); cite it only where the verified reference and applicability checks permit.
 - `cpa_2019`: "Consumer Protection Act, 2019".
 - `nch`: National Consumer Helpline (toll-free 1915, portal URL to be verified).
 - `consumer_commission`: e-filing route (portal name and URL to be verified).
@@ -213,14 +213,14 @@ Only references with a source URL and `verified: true` may be cited in drafts. S
 6. **`ai/classify_reply.py`** (`MODEL_FAST`) → `ReplyAnalysis{category (acknowledged | deflection | info_requested | resolution_offered | partial_resolution | rejected | auto_reply), ticket_id, promised_date, offered_amount_inr, requested_info[], is_templated, templated_signals[], summary_hinglish}`.
    It is combined with a deterministic check: no date AND no amount AND no concrete action ⇒ deflection.
 7. **`engine/policy.py`**: a pure-function state machine `(case, latest_event, now) → Decision{action, level, reason, requires_approval}`.
-   - After sending L2: start `ack_48h` and `resolve_30d` deadlines.
+   - For covered e-commerce entities only, calculate acknowledgment and one-month redressal deadlines from complaint receipt. Other sectors have no configured sector-specific deadlines.
    - `deflection` (1st) → firm follow-up citing the deadline. (2nd) or `ack_48h` breached → escalate to the next level.
    - `info_requested` → auto-fill from facts; if something is missing, ask the user in chat, then draft a reply.
    - `resolution_offered` with amount ≥ demand → ask the user to confirm receipt → RESOLVED.
    - `partial_resolution` → counter with the remaining amount.
    - `rejected` → escalate.
    - L3 exhausted → L4: generate the NCH-ready complaint text + link (user files it). Then L5: draft for the consumer commission.
-   - Every decision writes an **Event with a human-readable `reason`** ("No date, no amount, no ticket: template reply detected. Escalating to Nodal Officer as per 48h rule.").
+   - Every decision writes an **Event with a human-readable `reason`** ("No date, no amount, no concrete action: a template reply was detected. Review the next available company contact.").
 8. **`ai/draft_escalation.py`**: same rules as step 5, plus a reference to the previous email thread and its dates.
 
 **Safety rules (non-negotiable):**
@@ -251,7 +251,7 @@ Only references with a source URL and `verified: true` may be cited in drafts. S
 
 - **Font:** Geist Sans (fallback Inter). `tabular-nums` for money and countdowns. Sizes: 13/14 body, 20–24 headings. Weights 400/500/600 only.
 - **Colours:** neutral zinc/stone base, white cards, subtle borders (`zinc-200`), soft shadows. **One brand accent: deep indigo `#4338CA`** (buttons, active states, brand mark). Status: green = resolved/met, amber = waiting/running, red = deflection/breached, blue = info. Minimal gradients (only a faint one in the empty-state hero).
-- **Brand:** wordmark "Shikayat" + a small shield-with-checkmark icon (lucide `ShieldCheck`). Custom favicon. Page title "Shikayat: AI that fights customer care for you".
+- **Brand:** wordmark "Shikayat" + a small shield-with-checkmark icon (lucide `ShieldCheck`). Custom favicon. Page title "Shikayat — your AI consumer advocate. It doesn't stop when customer care replies. It stops when your issue is actually resolved.".
 - **Layout (desktop, three columns):**
   - **Left (260px):** Cases list. Each item shows company logo initial, title, ₹ amount, status pill, and the next deadline ("ack due in 41h"). Top: "+ New case" button. Bottom: "₹ recovered" counter.
   - **Centre:** a **messenger-style chat**. User bubbles hold screenshots and the voice note waveform; Shikayat bubbles use friendly Hinglish ("Case ready hai. Bhej doon?"). Action buttons sit inline in the bubbles.
@@ -316,3 +316,18 @@ Only references with a source URL and `verified: true` may be cited in drafts. S
 5. Safety: human approval, allowlisted autopilot, no invented contacts or laws.
 6. Run locally (3 commands), env vars, the deployed link, the demo video link.
 7. "Built solo in 26 hours at Builders 2026 (OpenAI × Equal AI)".
+
+
+---
+
+## 14. Product positioning, legal scope and evidence requirements
+
+These requirements supersede any conflicting shorthand elsewhere in this brief. Preserve user approval, verified-source and no-fabrication rules.
+
+- **Positioning:** Shikayat — your AI consumer advocate. It doesn't stop when customer care replies. It stops when your issue is actually resolved. Use this line in the README, page title and empty state.
+- **Claims never to make in UI, README or slides:** "India's first", "nobody follows up/escalates", or "files with regulators/NCH". Similar products include RefundPe, KlaimX, CallRed, Voxya and Jagriti. Our differentiator is judging whether a reply actually resolves the user's requested remedy, using evidence, a deterministic policy engine and user approval.
+- **Legal scope:** Consumer Protection (E-Commerce) Rules, 2020, Rule 4(5), requires acknowledgment within 48 hours and redressal within one month of complaint receipt only for covered e-commerce entities. Banking, insurance, telecom and airlines must show "Sector-specific rules not configured" and must never inherit e-commerce deadlines. Do not apply the September 2026 amendments, which take effect on 1 January 2027 ([official gazette](https://egazette.gov.in/WriteReadData/2026/276125.pdf?v=20261117060048)). An early deflection does not mean the one-month period has expired.
+- **Escalation route:** This is a suggested product workflow, not a legal requirement: verified company escalation contact → the company's/sector's complaint process → National Consumer Helpline (pre-litigation; prepare an "NCH-ready complaint" for the user to file) → consumer commission (separate formal route; draft only). Do not claim automated filing.
+- **Reply Forensics schema:** `reply_type` (`acknowledgment | deflection | evidence_request | partial_offer | substantive_resolution | rejection`), `acknowledged`, `original_remedy`, `promised_action`, `refund_confirmed`, `offered_amount_inr`, `resolution_status` (`resolved | partially_resolved | unresolved`), `evidence_quotes[]`, `next_action`, and `reason`. Every evidence quote must be an exact sentence and be verified as a substring of the received email.
+- **Recipient provenance:** Each contact shows `source_url`, `last_checked` date and `verified` flag. The user must confirm the recipient before the first send; an unverified contact enters a review state.
+- **Evidence ledger:** Every extracted fact stores its value, origin (`screenshot | voice | text | email`), source excerpt, image region if available, and verification state.

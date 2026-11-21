@@ -1,4 +1,4 @@
-Forward a screenshot, rant in a voice note, and walk away. Shikayat files the complaint with the right officer, tracks deadlines, reads replies, catches stalling, and escalates toward a refund.
+Shikayat — your AI consumer advocate. It doesn't stop when customer care replies. It stops when your issue is actually resolved.
 
 Current milestone: application scaffold. Case handling, email sending and AI evaluation are pending. Demo GIF, proof numbers, deployment and video links will be added after verification.
 
