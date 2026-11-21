@@ -69,7 +69,8 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
         from ..config import get_settings
         sent_at=now(session)
         session.add(Message(case_id=case_id,direction='out',level=case.level,to=contact['email'],from_=get_settings().user_email,subject=email.subject,body_text=email.body,message_id=message_id,sent_at=sent_at))
-        if previous is None:
+        if previous is None and company.get('sector')=='e-commerce':
+            # SMTP acceptance is not proof of complaint receipt; deadlines are provisional.
             for kind,due in deadlines(sent_at).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
         session.add(Event(case_id=case_id,actor='user',type='sent',title='Complaint sent',reason='User explicitly approved this draft.',payload_json={'message_id':message_id}))
         case.status=CaseStatus.WAITING;session.add(case);session.commit()
@@ -122,4 +123,4 @@ def case_board(case_id: str, request: Request) -> dict:
         deadlines_=session.exec(select(Deadline).where(Deadline.case_id==case_id)).all()
         company=next((c for c in load_companies() if c['id']==case.company_id),None)
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer'] if company else None
-        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':now(session).isoformat(), 'sender':get_settings().user_email or None,'recipient':contact}
+        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':now(session).isoformat(), 'sender':get_settings().user_email or None,'recipient':contact,'sector_message':None if company and company.get('sector')=='e-commerce' else 'Sector-specific rules not configured'}

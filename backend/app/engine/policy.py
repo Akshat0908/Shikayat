@@ -8,11 +8,12 @@ class Decision:
     reason: str
     requires_approval: bool = True
 
-def decide(level: str, category: str, deflections: int = 0, ack_breached: bool = False, offered: float | None = None, demand: float | None = None, missing_info: bool = False, receipt_confirmed: bool = False) -> Decision:
+def decide(level: str, category: str, deflections: int = 0, ack_breached: bool = False, offered: float | None = None, demand: float | None = None, missing_info: bool = False, receipt_confirmed: bool = False, sector: str | None = 'e-commerce') -> Decision:
+    if sector != 'e-commerce': return Decision('user_review',level,'Sector-specific rules not configured; user review is required.')
     if receipt_confirmed: return Decision('resolve',level,'User confirmed money was received.',False)
     if category=='resolution_offered' and offered is not None and demand is not None and offered>=demand:
         return Decision('confirm_receipt',level,'Full demand offered; receipt requires user confirmation.',False)
-    if category=='partial_resolution': return Decision('counter',level,'Offer leaves part of the demand unpaid.')
+    if category=='partial_resolution': return Decision('offer_choice',level,'Offer is partial or a voucher; user must choose whether to accept or counter.')
     if category=='info_requested': return Decision('ask_user' if missing_info else 'reply_info',level,'Requested information is missing.' if missing_info else 'Requested information is available in case facts.')
     if category=='rejected' or ack_breached or (category=='deflection' and deflections>=2):
         next_level={'L2':'L3','L3':'L4','L4':'L5','L5':'L5'}[level]

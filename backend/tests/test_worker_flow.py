@@ -24,7 +24,7 @@ def test_reply_flow(tmp_path: Path,monkeypatch) -> None:
     monkeypatch.setattr(workers,'send_email',send)
     monkeypatch.setattr(workers,'get_settings',lambda:Settings(autopilot_allowlist='demo@example.test'))
     contact={'email':'demo@example.test','verified':True}
-    monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'grievance_officer':contact,'nodal_officer':contact}])
+    monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'sector':'e-commerce','grievance_officer':contact,'nodal_officer':contact}])
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/flow.db'))
     with TestClient(app):
         with Session(app.state.engine) as session:

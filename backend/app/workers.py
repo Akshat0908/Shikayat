@@ -38,12 +38,13 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         messages=session.exec(select(Message).where(Message.case_id==case.id).order_by(Message.sent_at)).all()
         deflections=sum(m.classification_json.get('category')=='deflection' for m in messages if m.direction=='in')
         deadline=(now(session)+timedelta(days=2)).date().isoformat()
-    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')))
+    company=next((c for c in load_companies() if c['id']==case.company_id),None)
+    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None)
     event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level,'requires_approval':decision.requires_approval})
     draft=None
     outgoing=None
     if decision.action=='confirm_receipt': case.status=CaseStatus.AWAITING_RECEIPT
-    elif decision.action=='ask_user': case.status=CaseStatus.NEEDS_INFO
+    elif decision.action in ('ask_user','user_review','offer_choice'): case.status=CaseStatus.NEEDS_INFO
     elif decision.action in ('followup','escalate','counter','reply_info','prepare_filing'):
         case.level=Level(decision.level)
         draft=await draft_escalation(case.facts_json,[{'date':m.sent_at.date().isoformat(),'body':m.body_text} for m in messages],decision.reason,deadline)
