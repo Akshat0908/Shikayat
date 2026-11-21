@@ -18,4 +18,17 @@ def test_adversarial_replies(text,kind,offered,demand,expected,confirmed):
     checked=enforce_forensics(result,text,demand,'refund')
     assert checked.reply_type==expected
     assert checked.refund_confirmed is confirmed
+    assert checked.original_remedy == 'Refund of ₹4,299'
     assert checked.evidence_quotes==[text] and checked.invalid_evidence_quotes==['fabricated']
+
+@pytest.mark.parametrize('text,expected',[
+    ('We regret the inconvenience. Your concern was forwarded.', 'deflection'),
+    ('We are looking into your complaint.', 'deflection'),
+    ('Your complaint has ticket DEMO-T205.', 'acknowledgment'),
+    ('Your complaint will be addressed within 3 working days.', 'acknowledgment'),
+])
+def test_acknowledgment_and_concrete_details(text,expected):
+    result=ReplyAnalysis(reply_type='deflection',acknowledged=False,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='review',reason='test')
+    checked=enforce_forensics(result,text,4299,'refund')
+    assert checked.acknowledged is True
+    assert checked.reply_type == expected
