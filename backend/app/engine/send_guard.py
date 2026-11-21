@@ -5,7 +5,7 @@ from ..config import Settings
 
 
 def guard(case: Case, messages: list[Message], current: datetime, config: Settings, demo: bool) -> tuple[str | None, datetime | None]:
-    if case.facts_json.get('looks_like_sample'): return 'Looks like sample data; use test send only.', None
+    if case.facts_json.get('looks_like_sample'): return 'Test evidence; use a sandbox preview only.', None
     if case.facts_json.get('sample_scan_complete') is False: return 'Screenshot sample-data check is incomplete.', None
     if case.status == CaseStatus.RESOLVED: return 'Case is resolved.', None
     if case.facts_json.get('paused'): return 'Case is paused by the user.', None

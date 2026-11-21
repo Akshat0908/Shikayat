@@ -30,13 +30,8 @@ def test_discovery_requires_confirmation_and_caches(tmp_path,monkeypatch):
         assert calls==[['company.test']]
         assert client.post('/api/companies/company/confirm-contact',json={}).status_code==200
         assert json.loads(path.read_text())[0]['grievance_officer']['verified'] is True
-        # Confirmation does not bypass the public-demo SMTP guard.
-        import asyncio
-        import pytest
-        from backend.app.mail import smtp_send
-        monkeypatch.setattr(smtp_send,'get_settings',lambda:Settings(public_demo=True,send_enabled=True,autopilot_allowlist='demo@example.test'))
-        with pytest.raises(ValueError,match='Sending disabled on the public demo'):
-            asyncio.run(smtp_send.send_email(json.loads(path.read_text())[0]['grievance_officer'],'Subject','Body',True,False,case_id='case'))
+        # A confirmed contact still cannot be sent directly by an unsigned visitor.
+        assert client.post('/api/cases/unknown/approve').status_code==403
         # An expired lead cannot be confirmed.
         cache=companies.cache_path('company','grievance_officer');data=json.loads(cache.read_text());data['at']=(datetime.now(timezone.utc)-timedelta(days=8)).isoformat();cache.write_text(json.dumps(data))
         assert client.post('/api/companies/company/confirm-contact',json={}).status_code==409

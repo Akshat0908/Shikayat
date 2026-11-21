@@ -19,7 +19,7 @@ def test_visible_demo_label_blocks_normal_send(tmp_path,monkeypatch):
     with Session(engine) as session:
         case=session.get(Case,case_id);assert case.facts_json['looks_like_sample'] is True
         reason,_=guard(case,[],datetime.now(timezone.utc),Settings(),False)
-        assert 'test send only' in reason
+        assert 'sandbox preview only' in reason
 
 
 def test_failed_scan_blocks_send(tmp_path,monkeypatch):

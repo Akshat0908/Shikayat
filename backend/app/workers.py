@@ -84,7 +84,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         contact=(company or {}).get('nodal_officer' if new_level==Level.L3 else 'grievance_officer') or {}
         allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
         if decision.action=='prepare_filing': status=CaseStatus.NEEDS_INFO
-        elif company and company.get('demo') and contact.get('email') and contact['email'].casefold() in allowlist:
+        elif case.facts_json.get('owner_controlled') and company and company.get('demo') and contact.get('email') and contact['email'].casefold() in allowlist:
             async with _send_lock:
                 with Session(app.state.engine) as session:
                     current=session.get(Case,case_id)

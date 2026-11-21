@@ -40,7 +40,7 @@ def test_promise_flow_uses_demo_clock_and_quotes_followup(tmp_path,monkeypatch):
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/promise.db',demo_mode=True,demo_outbound_interval_seconds=0,autopilot_allowlist='demo@example.test'))
     with TestClient(app):
         with Session(app.state.engine) as s:
-            clock=now(s);c=Case(title='Refund',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True});s.add(c);s.commit();cid=c.id
+            clock=now(s);c=Case(title='Refund',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='Refund',body_text='Refund',message_id='<sent>',sent_at=clock))
             s.add(Deadline(case_id=cid,kind='resolve_30d',due_at=clock+timedelta(days=30)));s.commit()
         text='We will refund within 3 working days.'
@@ -95,7 +95,7 @@ def test_full_refund_offer_beyond_redress_gets_pushback(tmp_path,monkeypatch):
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/pushback.db',demo_mode=True,demo_outbound_interval_seconds=0,autopilot_allowlist='demo@example.test'))
     with TestClient(app):
         with Session(app.state.engine) as s:
-            clock=now(s);c=Case(title='Refund',company_id='shopkart',status=CaseStatus.WAITING,amount_inr=4299,facts_json={'demo_sample':True});s.add(c);s.commit();cid=c.id
+            clock=now(s);c=Case(title='Refund',company_id='shopkart',status=CaseStatus.WAITING,amount_inr=4299,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='Refund',body_text='Refund',message_id='<sent>',sent_at=clock))
             deadline=clock+timedelta(days=2);s.add(Deadline(case_id=cid,kind='resolve_30d',due_at=deadline));s.commit()
         text='We will refund within 7 working days.'

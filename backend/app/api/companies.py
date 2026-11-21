@@ -96,6 +96,18 @@ def update_company(company_id: str, update) -> None:
     temp=path.with_suffix('.tmp');temp.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n');temp.replace(path)
 
 
+@router.get('')
+def directory() -> list[dict]:
+    """Directory metadata only; sandbox mailbox addresses are not exposed here."""
+    result=[]
+    for company in load_companies():
+        contact=company.get('grievance_officer') or {}
+        result.append({'id':company['id'],'name':company['name'],'sector':company.get('sector'),
+                       'contact_verified':bool(contact.get('verified') and contact.get('email')),
+                       'sandbox':bool(company.get('demo'))})
+    return result
+
+
 @router.post('/{company_id}/discover')
 async def discover(company_id: str, request: DiscoveryRequest) -> dict:
     company=get_company(company_id);role=request.role; path=cache_path(company_id,role)

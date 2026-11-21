@@ -9,4 +9,4 @@ def test_case_listing_and_board(tmp_path):
         assert any(c['id']==case['id'] for c in client.get('/api/cases').json())
         board=client.get('/api/cases/'+case['id']+'/board').json()
         assert board['case']['id']==case['id'] and board['events']
-        assert client.get('/api/demo/settings').json()=={'demo_mode':False}
+        assert client.get('/api/demo/settings').status_code==403

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from pydantic import BaseModel, Field
 from sqlmodel import Session
 from ..models import UserProfile
+from .admin import require_admin
 
-router=APIRouter(prefix="/api/profile")
+router=APIRouter(prefix="/api/profile",dependencies=[Depends(require_admin)])
 
 class ProfileInput(BaseModel):
     name: str = Field(default="", max_length=120)

@@ -41,6 +41,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(companies_router)
     from .api.company_cases import router as company_cases_router
     app.include_router(company_cases_router)
+    from .api.admin import router as admin_router
+    app.include_router(admin_router)
     from .api.cases import router as cases_router
     app.include_router(cases_router)
     from .api.drafts import router as drafts_router

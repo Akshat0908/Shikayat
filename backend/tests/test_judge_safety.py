@@ -40,12 +40,12 @@ def test_send_guard_spacing_and_per_level_limits():
     assert 'bounced' in guard(case,[],t,config,False)[0].lower()
 
 
-def test_public_demo_blocks_approved_real_contact(monkeypatch):
+def test_real_sends_still_require_approval_and_verified_contact(monkeypatch):
     monkeypatch.setattr('backend.app.mail.smtp_send.get_settings',lambda:Settings(public_demo=True,autopilot_allowlist='demo@example.test',send_enabled=True))
-    with pytest.raises(ValueError,match='Sending disabled on the public demo'):
-        asyncio.run(send_email({'email':'real@example.test','verified':True},'subject','body',True,False))
-    with pytest.raises(ValueError,match='Sending disabled on the public demo'):
-        asyncio.run(send_email({'email':'demo@example.test','verified':True},'subject','body',True,False))
+    with pytest.raises(ValueError,match='User approval required'):
+        asyncio.run(send_email({'email':'real@example.test','verified':True},'subject','body',False,False))
+    with pytest.raises(ValueError,match='Verify recipient'):
+        asyncio.run(send_email({'email':'real@example.test','verified':False},'subject','body',True,False))
 
 
 def test_pause_report_resume_and_delete(tmp_path,monkeypatch):
@@ -126,11 +126,11 @@ def test_paused_and_public_demo_never_reach_smtp(tmp_path,monkeypatch):
             c=Case(title='Case',company_id='real',status=CaseStatus.AWAITING_APPROVAL);s.add(c);s.commit();cid=c.id
             draft=EmailDraft(subject='Test',body='Test',cited_refs=[],attachments=[],demand='',deadline_date='2026-12-21')
             s.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=draft.model_dump()));s.commit()
-        assert client.post(f'/api/cases/{cid}/approve').status_code==409
-        assert client.get(f'/api/cases/{cid}/board').json()['sending_disabled'] is True
+        assert client.post(f'/api/cases/{cid}/approve').status_code==403
+        assert client.get(f'/api/cases/{cid}/board').json()['sending_disabled'] is False
         assert sent==[]
         assert client.post(f'/api/cases/{cid}/pause').status_code==200
-        assert client.post(f'/api/cases/{cid}/approve').status_code==409
+        assert client.post(f'/api/cases/{cid}/approve').status_code==403
         assert sent==[]
 
 
@@ -149,7 +149,7 @@ def test_deferred_followup_sends_after_demo_clock_advances(tmp_path,monkeypatch)
     app=create_app(config)
     with TestClient(app):
         with Session(app.state.engine) as s:
-            c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True});s.add(c);s.commit();cid=c.id
+            c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='s',body_text='b',message_id='<sent>',sent_at=datetime.now(timezone.utc)));s.commit()
         analysis=ReplyAnalysis(reply_type='deflection',acknowledged=True,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='',reason='',category='deflection')
         asyncio.run(workers.act(app,cid,analysis))
@@ -190,7 +190,7 @@ def test_deferred_escalation_keeps_level_until_send(tmp_path,monkeypatch):
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/escalation.db',demo_mode=True,demo_outbound_interval_seconds=30,autopilot_allowlist='demo@example.test'))
     with TestClient(app):
         with Session(app.state.engine) as s:
-            c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True});s.add(c);s.commit();cid=c.id
+            c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='s',body_text='b',message_id='<sent>',sent_at=datetime.now(timezone.utc)))
             for i in range(2): s.add(Message(case_id=cid,direction='in',to='user@example.test',from_='demo@example.test',subject='s',body_text='b',message_id=f'<reply{i}>',classification_json={'category':'deflection'}))
             s.commit()

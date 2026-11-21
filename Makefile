@@ -27,7 +27,7 @@ docker:
 deploy:
 	@echo "Deployment pending: configure EC2, DOMAIN and Caddy first. See README.md."
 
-# Sends real demo emails and confirms the synthetic demo receipt.
+# Warms extraction and draft caches; requires a running backend and owner passcode.
 .PHONY: warm
 warm:
-	$(PYTHON) scripts/demo_e2e.py
+	$(PYTHON) scripts/warm.py

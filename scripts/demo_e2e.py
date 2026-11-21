@@ -14,6 +14,11 @@ def main() -> None:
     started=time.monotonic()
     since=datetime.now(timezone.utc)
     with httpx.Client(base_url=args.url,timeout=120) as client:
+        from backend.app.config import get_settings
+        passcode=get_settings().admin_passcode.get_secret_value()
+        if not passcode: raise RuntimeError('Set ADMIN_PASSCODE before running the owner verification')
+        login=client.post('/api/admin/login',json={'passcode':passcode})
+        if login.is_error: raise RuntimeError(f'Owner sign-in failed: HTTP {login.status_code}')
         def post(path: str) -> dict:
             response=client.post(path)
             if response.is_error: raise RuntimeError(f'{path}: HTTP {response.status_code}: {response.text}')
@@ -21,6 +26,8 @@ def main() -> None:
         case=post('/api/cases/sample/shopkart');id=case['id']
         print('Case:',id,'mode:',case['mode'],'strength:',case['strength_label'],flush=True)
         assert case['mode']=='live',case['facts_json'].get('replay_reason')
+        if case['facts_json'].get('looks_like_sample'):
+            raise RuntimeError('This example contains test-labelled evidence and cannot be sent as a complaint; use the sandbox preview instead')
         assert case['amount_inr']==4299 and case['strength_label']=='Strong'
         post(f'/api/cases/{id}/draft');post(f'/api/cases/{id}/confirm-recipient');post(f'/api/cases/{id}/approve')
         approved_at=time.monotonic()

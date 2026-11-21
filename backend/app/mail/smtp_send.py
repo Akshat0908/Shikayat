@@ -11,8 +11,6 @@ async def send_email(recipient: dict, subject: str, body: str, approved: bool, d
     allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
     if not config.send_enabled:
         raise ValueError('Sending disabled; no message sent')
-    if config.public_demo and (not demo or not address or address.strip().casefold() not in allowlist):
-        raise ValueError('Sending disabled on the public demo')
     if not address or not recipient.get('verified'):
         raise ValueError('Verify recipient contact before sending')
     if not approved and not (demo and address.casefold() in allowlist):

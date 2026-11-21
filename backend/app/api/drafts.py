@@ -1,7 +1,7 @@
 from datetime import timedelta
 import hashlib
 from typing import Literal
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlmodel import Session, select
 from pydantic import BaseModel, Field
 from ..ai.draft_complaint import EmailDraft, draft_complaint, prepare_email, validate_draft
@@ -10,7 +10,8 @@ from ..engine.company import load_companies
 from ..engine.sector import effective_sector, sector_message
 from ..engine.deadlines import deadlines
 from ..mail.smtp_send import send_email
-from ..models import Case, CaseStatus, Deadline, Event, Message, Evidence
+from ..models import Case, CaseStatus, Deadline, Event, Message, Evidence, UserProfile
+from .admin import require_admin, is_admin
 
 router=APIRouter(prefix='/api/cases')
 
@@ -25,15 +26,15 @@ async def draft(case_id: str, request: Request) -> EmailDraft:
             existing=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
             if existing:
                 from ..api.profile import get_profile
-                profile=get_profile(session,request.app.state.config.user_email)
+                profile=get_profile(session,request.app.state.config.user_email) if is_admin(request) else UserProfile(name='',phone='',email='')
                 company=next((item for item in load_companies() if item['id']==case.company_id),None)
                 result=prepare_email(EmailDraft.model_validate(existing.payload_json),case.facts_json,profile,company)
-                if result.model_dump()!=existing.payload_json:
+                if is_admin(request) and result.model_dump()!=existing.payload_json:
                     session.add(Event(case_id=case_id,actor='system',type='draft',title='Complaint updated',reason='Profile and citation details refreshed.',payload_json=result.model_dump()));session.commit()
                 return result
         if case.status!=CaseStatus.DRAFT: raise HTTPException(409,'Case is not ready for a new draft')
         from ..api.profile import get_profile
-        profile=get_profile(session,request.app.state.config.user_email)
+        profile=get_profile(session,request.app.state.config.user_email) if is_admin(request) else UserProfile(name='',phone='',email='')
         company=next((item for item in load_companies() if item["id"]==case.company_id),None)
         from ..engine.deadlines import deadlines as compute_deadlines
         deadline=compute_deadlines(now(session))["resolve_30d"]
@@ -60,7 +61,7 @@ async def edit_draft(case_id: str, edit: DraftEdit, request: Request) -> EmailDr
         previous=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
         if not previous: raise HTTPException(409,'Create a draft first')
         from ..api.profile import get_profile
-        profile=get_profile(session,request.app.state.config.user_email)
+        profile=get_profile(session,request.app.state.config.user_email) if is_admin(request) else UserProfile(name='',phone='',email='')
         company=next((item for item in load_companies() if item['id']==case.company_id),None)
         updated=prepare_email(EmailDraft.model_validate({**previous.payload_json,'body':edit.body}),case.facts_json,profile,company)
         session.add(Event(case_id=case_id,actor='user',type='draft',title='Complaint edited',reason='User edited the complaint before approval.',payload_json=updated.model_dump()))
@@ -68,7 +69,7 @@ async def edit_draft(case_id: str, edit: DraftEdit, request: Request) -> EmailDr
     await request.app.state.events.publish('draft',{'case_id':case_id,'reason':'User edited draft'})
     return updated
 
-@router.post('/{case_id}/approve')
+@router.post('/{case_id}/approve',dependencies=[Depends(require_admin)])
 async def approve(case_id: str, request: Request) -> dict[str,str]:
     from ..ai.sample_detection import ensure_sample_scan
     await ensure_sample_scan(request.app.state.engine,case_id)
@@ -93,8 +94,6 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             config=request.app.state.config
             timestamp=now(session) if company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
             reason,due=guard(case,messages,timestamp,config,bool(company.get('demo')))
-            if config.public_demo and (not company.get('demo') or (contact.get('email') or '').strip().casefold() not in {x.strip().casefold() for x in config.autopilot_allowlist.split(',') if x.strip()}):
-                reason='Sending disabled on the public demo'
             if reason:
                 session.add(Event(case_id=case_id,actor='system',type='send_limit',title='Sending stopped',reason=reason,payload_json={'next_allowed_at':due.isoformat() if due else None}));session.commit()
                 raise HTTPException(409,reason)
@@ -127,6 +126,7 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             promise=current.facts_json.get('promise')
             if promise and promise.get('exceeds_redress') and not promise.get('pushback_sent'):
                 current.facts_json={**current.facts_json,'promise':{**promise,'pushback_sent':True}}
+            current.facts_json={**current.facts_json,'owner_controlled':True}
             current.status=CaseStatus.WAITING;session.add(current);session.commit()
     if config.user_email_app_password.get_secret_value():
         from ..mail.threading_gmail import schedule_sent_lookup
@@ -134,7 +134,7 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
 
-@router.post('/{case_id}/test-send')
+@router.post('/{case_id}/test-send',dependencies=[Depends(require_admin)])
 async def test_send(case_id: str, request: Request) -> dict:
     """Send an explicitly labelled preview only to the configured demo mailbox."""
     from ..ai.sample_detection import ensure_sample_scan
@@ -142,6 +142,7 @@ async def test_send(case_id: str, request: Request) -> dict:
     with Session(request.app.state.engine) as session:
         case=session.get(Case,case_id)
         if not case: raise HTTPException(404,'Case not found')
+        if case.facts_json.get('paused'): raise HTTPException(409,'Case is paused')
         if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Create a draft first')
         company=next((c for c in load_companies() if c['id']==case.company_id),None)
         contact=(company or {}).get('nodal_officer' if case.level.value=='L3' else 'grievance_officer') or {}
@@ -232,8 +233,8 @@ def case_board(case_id: str, request: Request) -> dict:
         timestamp=now(session) if company and company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
         from ..engine.send_guard import guard
         blocked,next_allowed=guard(case,messages,timestamp,config,bool(company and company.get('demo')))
-        public_block=bool(config.public_demo and (not company or not company.get('demo') or ((contact or {}).get('email') or '').strip().casefold() not in {x.strip().casefold() for x in config.autopilot_allowlist.split(',') if x.strip()}))
-        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':config.user_email or None,'recipient':contact,'sector_message':sector_message(company,case.facts_json),'followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
+        public_block=False
+        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':(config.user_email or None) if is_admin(request) else None,'recipient':contact,'sector_message':sector_message(company,case.facts_json),'followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
 
 class OfferResponse(BaseModel):
     action: Literal['accept','counter']
@@ -251,7 +252,7 @@ async def offer_response(case_id: str, response: OfferResponse, request: Request
         if response.action=='counter' and response.counter_amount is None: raise HTTPException(422,'Counter amount is required')
         messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
         from ..api.profile import get_profile
-        profile=get_profile(session,request.app.state.config.user_email)
+        profile=get_profile(session,request.app.state.config.user_email) if is_admin(request) else UserProfile(name='',phone='',email='')
         company=next((item for item in load_companies() if item['id']==case.company_id),None)
         deadline=(now(session)+timedelta(days=2)).date().isoformat()
     reason=('User accepted the partial offer; request fulfillment and await confirmation.' if response.action=='accept' else f'User requested a counteroffer of INR {response.counter_amount:.2f}.')

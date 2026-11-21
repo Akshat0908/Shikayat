@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     user_email_app_password: SecretStr = SecretStr("")
     demo_company_email: str = ""
     demo_company_app_password: SecretStr = SecretStr("")
+    admin_passcode: SecretStr = SecretStr("")
     public_demo: bool = False
     grievance_followup_limit: int = 3
     nodal_followup_limit: int = 2

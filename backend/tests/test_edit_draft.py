@@ -7,7 +7,7 @@ from backend.app.ai.draft_complaint import EmailDraft
 
 
 def test_edit_draft_persists_and_approval_sends_saved_body(tmp_path, monkeypatch):
-    app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/test.db'))
+    app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/test.db',admin_passcode='test-owner'))
     sent=[]
     async def send(contact,subject,body,*args):
         sent.append(body)
@@ -15,6 +15,7 @@ def test_edit_draft_persists_and_approval_sends_saved_body(tmp_path, monkeypatch
     monkeypatch.setattr('backend.app.api.drafts.send_email',send)
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[{'id':'shopkart','demo':True,'grievance_officer':{'email':'demo@example.test','verified':True}}])
     with TestClient(app) as client:
+        assert client.post('/api/admin/login',json={'passcode':'test-owner'}).status_code==200
         with Session(app.state.engine) as session:
             case=Case(title='Refund',company_id='shopkart',status=CaseStatus.AWAITING_APPROVAL)
             session.add(case);session.commit();case_id=case.id

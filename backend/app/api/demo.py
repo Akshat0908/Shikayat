@@ -1,5 +1,5 @@
 from uuid import uuid4
-from fastapi import APIRouter,HTTPException,Request
+from fastapi import APIRouter,HTTPException,Request,Depends
 from pydantic import BaseModel
 from sqlmodel import Session,select,delete
 from ..config import get_settings
@@ -7,7 +7,8 @@ from ..models import Case,CaseStatus,Deadline,Evidence,Event,Message,Settings
 from ..demo.clock import now
 from ..demo.company_bot import REPLIES
 from ..workers import receive
-router=APIRouter(prefix='/api/demo')
+from .admin import require_admin
+router=APIRouter(prefix='/api/demo',dependencies=[Depends(require_admin)])
 
 class CaseInput(BaseModel):
     case_id: str
