@@ -1,0 +1,1355 @@
+{
+  "data_source": "measured",
+  "evaluated_at": "2026-11-21T21:36:29.857380+00:00",
+  "model": "gpt-5.4",
+  "commit": "bbe13ea44daa441d8baaa17a787c6538304c7f55",
+  "case_count": 20,
+  "cases": [
+    {
+      "id": "EVAL-01",
+      "category": "resolution",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": \"grievance.officer@flipkart.com\",\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint is against Flipkart, and the directory provides a verified grievance email for Flipkart. The cited verified legal reference applies to e-commerce grievances and sets a one-month redress timeline from the grievance date 2026-10-01, giving a deadline of 2026-11-01. The company reply states the refund of ₹4,299 has been successfully processed and provides a transaction reference (UTR SYNREF101), which is a substantive resolution rather than a mere acknowledgment. However, since the user originally complained that the refund had not reached them and the reply claims credit without independent confirmation, the safest next step is user review to verify whether the amount was actually received.\"\n}",
+        "cost_usd": 0.0056475,
+        "latency_seconds": 7.691,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": \"grievance.officer@flipkart.com\",\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"confirm_receipt\",\n  \"reason\": \"Full demand offered; receipt requires user confirmation.\",\n  \"case_facts\": {\n    \"company_name\": \"Flipkart\",\n    \"order_id\": \"SYN-001\",\n    \"amount_inr\": 4299.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"Consumer ordered wireless headphones from Flipkart, returned the item, but the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered wireless headphones from Flipkart website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the wireless headphones.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"refund_due_date\",\n      \"refund_reference\",\n      \"payment_method\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a wireless headphones from Flipkart on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-001\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹4,299\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹4,299\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Flipkart on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"marketplace\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"substantive_resolution\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹4,299\",\n    \"promised_action\": null,\n    \"refund_confirmed\": true,\n    \"offered_amount_inr\": 4299.0,\n    \"resolution_status\": \"resolved\",\n    \"evidence_quotes\": [\n      \"Your refund of ₹4,299 has been successfully processed and credited.\",\n      \"Transaction reference UTR SYNREF101.\"\n    ],\n    \"next_action\": \"No further action indicated; customer can verify the credited refund using the provided transaction reference if needed.\",\n    \"reason\": \"The email explicitly states that the refund of the full demanded amount has been successfully processed and credited, indicating the requested refund has been completed.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email mein clearly likha hai ki ₹4,299 ka refund successfully process hokar credit ho gaya hai, aur UTR reference bhi diya gaya hai. Isliye refund remedy resolved lagti hai.\",\n    \"concrete_action\": \"Refund of ₹4,299 has been successfully processed and credited.\",\n    \"category\": \"resolution_offered\"\n  }\n}",
+        "cost_usd": 0.0138925,
+        "latency_seconds": 7.42,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-02",
+      "category": "resolution",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The company identified is Amazon India, but no verified grievance email is provided in the directory, so recipient cannot be verified. The cited legal reference applies because this is an e-commerce grievance; one-month redress from the grievance date 2026-10-01 gives a deadline of 2026-11-01. The company reply states the refund was successfully processed and provides a UTR, which is a substantive resolution rather than a mere acknowledgment. Safest next step is user review to confirm whether the refund was actually received in the bank/account, since the complaint alleged non-receipt but the company claims credit.\"\n}",
+        "cost_usd": 0.005315,
+        "latency_seconds": 2.834,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"confirm_receipt\",\n  \"reason\": \"Full demand offered; receipt requires user confirmation.\",\n  \"case_facts\": {\n    \"company_name\": \"Amazon India\",\n    \"order_id\": \"SYN-002\",\n    \"amount_inr\": 1299.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer ordered a shirt from Amazon India on 2026-09-12 for ₹1,299, returned it on 2026-09-20, and reports that the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a shirt from Amazon India website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the shirt.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"refund due date\",\n      \"refund transaction/reference number\",\n      \"evidence of payment method\",\n      \"seller details\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.88,\n      \"order_id\": 0.95,\n      \"amount_inr\": 0.96,\n      \"purchase_date\": 0.95\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a shirt from Amazon India on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-002\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹1,299\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹1,299\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a shirt from Amazon India on its website on 2026-09-12 for ₹1,299, order SYN-002. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹1,299. I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"marketplace\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"substantive_resolution\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,299\",\n    \"promised_action\": \"Refund has been processed and credited.\",\n    \"refund_confirmed\": true,\n    \"offered_amount_inr\": 1299.0,\n    \"resolution_status\": \"resolved\",\n    \"evidence_quotes\": [\n      \"Your refund of ₹1,299 has been successfully processed and credited.\"\n    ],\n    \"next_action\": \"No further action indicated.\",\n    \"reason\": \"The email states that the refund of the full demanded amount has been successfully processed and credited, indicating the requested refund remedy has been completed.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Unhone bola hai ki ₹1,299 ka refund successfully process aur credit ho gaya hai, isliye issue resolved lag raha hai.\",\n    \"concrete_action\": \"Refund of ₹1,299 processed and credited.\",\n    \"category\": \"resolution_offered\"\n  }\n}",
+        "cost_usd": 0.014235,
+        "latency_seconds": 7.298,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-03",
+      "category": "resolution",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint concerns Myntra, but the directory shows no verified grievance email for Myntra, so recipient is null. The verified legal reference for e-commerce grievances applies: acknowledgment within 48 hours and redress within one month from the grievance date. The grievance was sent on 2026-10-01, so the redress deadline is 2026-11-01. The company reply states the refund of ₹800 has been successfully processed and provides a UTR, which is a substantive resolution rather than a request for more information. Safest next action is user_review because the user should verify whether the refund was actually credited using the provided UTR.\"\n}",
+        "cost_usd": 0.00542,
+        "latency_seconds": 2.824,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"confirm_receipt\",\n  \"reason\": \"Full demand offered; receipt requires user confirmation.\",\n  \"case_facts\": {\n    \"company_name\": \"Myntra\",\n    \"order_id\": \"SYN-003\",\n    \"amount_inr\": 800.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The user ordered a kettle from Myntra on 2026-09-12 for ₹800, returned it on 2026-09-20, and reports that the refund has not been received. The user wants a refund of ₹800 and sent a grievance on 2026-10-01.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a kettle from Myntra.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the kettle.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"proof of payment/refund status\",\n      \"ticket or grievance reference number\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.94,\n      \"order_id\": 0.95,\n      \"amount_inr\": 0.95,\n      \"purchase_date\": 0.95\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a kettle from Myntra on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-003\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹800\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹800\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"substantive_resolution\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹800\",\n    \"promised_action\": null,\n    \"refund_confirmed\": true,\n    \"offered_amount_inr\": 800.0,\n    \"resolution_status\": \"resolved\",\n    \"evidence_quotes\": [\n      \"Your refund of ₹800 has been successfully processed and credited.\",\n      \"Transaction reference UTR SYNREF103.\"\n    ],\n    \"next_action\": \"No further action indicated; refund states it has been processed and credited. Customer may verify bank/account receipt using the UTR reference.\",\n    \"reason\": \"The email explicitly states that the refund of ₹800 has been successfully processed and credited, which matches the original remedy and demanded amount.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email me likha hai ki ₹800 ka refund successfully process karke credit kar diya gaya hai. UTR reference bhi diya gaya hai, isliye remedy resolved lagti hai.\",\n    \"concrete_action\": \"Refund of ₹800 has been processed and credited; UTR reference provided: SYNREF103.\",\n    \"category\": \"resolution_offered\"\n  }\n}",
+        "cost_usd": 0.01449,
+        "latency_seconds": 7.994,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-04",
+      "category": "resolution",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint concerns Meesho, but the company directory does not provide a verified grievance email for Meesho, so recipient should be null. The supplied legal reference for e-commerce grievances applies: acknowledgment within 48 hours and redress within one month from the grievance sent on 2026-10-01, giving a redress deadline of 2026-11-01. The company reply states the refund was successfully processed and provides a UTR, which is a substantive resolution rather than a mere acknowledgment. However, because the user’s original issue was non-receipt of the refund and the reply claims payment was credited, the safest next step is user review to confirm whether the refund actually reached the account.\"\n}",
+        "cost_usd": 0.0056175,
+        "latency_seconds": 2.901,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"confirm_receipt\",\n  \"reason\": \"Full demand offered; receipt requires user confirmation.\",\n  \"case_facts\": {\n    \"company_name\": \"Meesho\",\n    \"order_id\": \"SYN-004\",\n    \"amount_inr\": 1599.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"Consumer ordered a backpack from Meesho on 2026-09-12 for ₹1,599 (order SYN-004), returned it on 2026-09-20, and the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a backpack from Meesho on its website for ₹1,599, order SYN-004.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the backpack.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"proof of payment/refund status\",\n      \"refund due date or promised refund timeline\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.96,\n      \"amount_inr\": 0.96,\n      \"purchase_date\": 0.96\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a backpack from Meesho on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-004\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹1,599\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹1,599\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a backpack from Meesho on its website on 2026-09-12 for ₹1,599, order SYN-004. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹1,599. I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"days_elapsed\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20 ... I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Meesho on its website\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"substantive_resolution\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,599\",\n    \"promised_action\": null,\n    \"refund_confirmed\": true,\n    \"offered_amount_inr\": 1599.0,\n    \"resolution_status\": \"resolved\",\n    \"evidence_quotes\": [\n      \"Your refund of ₹1,599 has been successfully processed and credited.\",\n      \"Transaction reference UTR SYNREF104.\"\n    ],\n    \"next_action\": \"No further action indicated; refund states it has been credited.\",\n    \"reason\": \"The email explicitly states that the refund of ₹1,599 has been successfully processed and credited, matching the original remedy and demanded amount.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email me clearly bola gaya hai ki ₹1,599 ka refund successfully process aur credit ho chuka hai, isliye remedy resolved lagti hai.\",\n    \"concrete_action\": \"Refund of ₹1,599 has been processed and credited.\",\n    \"category\": \"resolution_offered\"\n  }\n}",
+        "cost_usd": 0.0158425,
+        "latency_seconds": 8.425,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-05",
+      "category": "resolution",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The merchant is Ajio, but no verified grievance email is available in the directory, so recipient must be null. The complaint concerns an e-commerce order/refund, so the verified legal reference on e-commerce grievance handling applies. The grievance was sent on 2026-10-01, so the one-month redress deadline is 2026-11-01. The company reply states the refund has been processed and provides a UTR reference, which is a substantive resolution rather than a mere acknowledgment. However, because the user originally said the refund had not reached them and the reply only asserts credit, the safest next step is user review to confirm whether the amount was actually received.\"\n}",
+        "cost_usd": 0.0055125,
+        "latency_seconds": 2.81,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"substantive_resolution\",\n  \"next_action\": \"confirm_receipt\",\n  \"reason\": \"Full demand offered; receipt requires user confirmation.\",\n  \"case_facts\": {\n    \"company_name\": \"Ajio\",\n    \"order_id\": \"SYN-005\",\n    \"amount_inr\": 2499.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer ordered a phone case from Ajio on 2026-09-12 for ₹2,499 under order SYN-005, returned it on 2026-09-20, and reports that the refund has not been received. The consumer wants a refund of ₹2,499 and sent a grievance on 2026-10-01.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a phone case from Ajio on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the phone case.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"proof of payment/refund status\",\n      \"return confirmation/reference number\",\n      \"grievance ticket/reference number\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.96,\n      \"amount_inr\": 0.97,\n      \"purchase_date\": 0.97\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a phone case from Ajio on its website on 2026-09-12 for ₹2,499, order SYN-005.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a phone case from Ajio on its website on 2026-09-12 for ₹2,499, order SYN-005.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a phone case from Ajio on its website on 2026-09-12 for ₹2,499, order SYN-005. I want a refund of ₹2,499.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a phone case from Ajio on its website on 2026-09-12 for ₹2,499, order SYN-005.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"substantive_resolution\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹2,499\",\n    \"promised_action\": null,\n    \"refund_confirmed\": true,\n    \"offered_amount_inr\": 2499.0,\n    \"resolution_status\": \"resolved\",\n    \"evidence_quotes\": [\n      \"Your refund of ₹2,499 has been successfully processed and credited.\",\n      \"Transaction reference UTR SYNREF105.\"\n    ],\n    \"next_action\": \"No further action indicated; refund states it has been credited.\",\n    \"reason\": \"The email explicitly states that the refund of the full demanded amount has been successfully processed and credited, indicating the requested refund has been completed.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email mein likha hai ki ₹2,499 ka refund successfully process hokar credit ho gaya hai, isliye refund remedy resolved lagti hai.\",\n    \"concrete_action\": \"Refund of ₹2,499 has been processed and credited.\",\n    \"category\": \"resolution_offered\"\n  }\n}",
+        "cost_usd": 0.0141175,
+        "latency_seconds": 7.725,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-06",
+      "category": "deflection",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"followup\",\n  \"reasoning\": \"The merchant is Nykaa, but the directory shows no verified grievance email for Nykaa, so recipient is null. The complaint concerns an e-commerce refund grievance, so the verified legal reference on E-Commerce Rules, 2020 Rule 4(5) applies. The grievance was sent/received on 2026-10-01, so the one-month redress deadline is 2026-11-01. The company reply says the concern has been forwarded and will be addressed, which is an acknowledgment rather than a substantive resolution. Since acknowledgment appears to have been given and the redress window runs until 2026-11-01, the safest next action is followup.\"\n}",
+        "cost_usd": 0.0055275,
+        "latency_seconds": 3.649,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"followup\",\n  \"reason\": \"No concrete commitment; send a firm follow-up.\",\n  \"case_facts\": {\n    \"company_name\": \"Nykaa\",\n    \"order_id\": \"SYN-006\",\n    \"amount_inr\": 1000.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer states they ordered a book set from Nykaa on its website, returned it, and has not received the refund.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a book set from Nykaa on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the book set.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Nykaa\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-006\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹1,000\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹1,000\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"days_elapsed\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20 ... I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,000\",\n    \"promised_action\": \"Concern forwarded to the relevant team; says it will be addressed at the earliest\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We regret the inconvenience.\",\n      \"Your concern has been forwarded to the relevant team and will be addressed at the earliest.\"\n    ],\n    \"next_action\": \"Wait for a substantive response or follow up asking specifically whether a refund of INR 1000 will be issued and by when.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology\",\n      \"Mentions forwarding to relevant team\",\n      \"No case-specific details\",\n      \"No amount, timeline, or agent-specific action\"\n    ],\n    \"summary_hinglish\": \"Email sirf acknowledgement hai. Unhone inconvenience ke liye regret bola aur concern relevant team ko forward karne ki baat kahi. Refund confirm ya promise nahi kiya gaya, isliye issue abhi unresolved hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.014935,
+        "latency_seconds": 8.851,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-07",
+      "category": "deflection",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": false,
+          "reply_classification": false,
+          "next_action": false,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-10-31\",\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"wait\",\n  \"reasoning\": \"The company is Swiggy, but the directory shows no verified grievance email for Swiggy, so recipient must be null. The verified legal reference applies because Swiggy is listed in the e-commerce sector and the complaint is an e-commerce refund grievance. Under the supplied rule, the grievance officer must acknowledge within 48 hours and redress within one month. The grievance was sent on 2026-10-01, so the redress deadline is 2026-10-31. The reply says they are looking into the concern and will update soon, which is an acknowledgment rather than a substantive resolution. Safest next action is to wait, since they have acknowledged and the one-month redress window has not yet expired based on the supplied dates.\"\n}",
+        "cost_usd": 0.0057175,
+        "latency_seconds": 3.067,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": false,
+          "reply_classification": false,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"followup\",\n  \"reason\": \"No concrete commitment; send a firm follow-up.\",\n  \"case_facts\": {\n    \"company_name\": \"Swiggy\",\n    \"order_id\": \"SYN-007\",\n    \"amount_inr\": 612.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"Consumer states that a food order placed with Swiggy has not been refunded after return.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Food order placed with Swiggy on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Order returned.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Grievance sent regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"proof of payment/refund method\",\n      \"expected refund timeline\",\n      \"grievance ticket/reference number\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.98,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Swiggy\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-007\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹612\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Swiggy on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹612\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a food order from Swiggy on its website on 2026-09-12 for ₹612, order SYN-007. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹612. I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹612\",\n    \"promised_action\": \"look into the concern and provide an update soon\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"Sorry for the inconvenience.\",\n      \"We are looking into your concern and will update you soon.\"\n    ],\n    \"next_action\": \"Wait for a follow-up update from support or ask for a clear refund confirmation and timeline.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology\",\n      \"No ticket/reference number\",\n      \"No case-specific details\",\n      \"Vague promise to update soon\"\n    ],\n    \"summary_hinglish\": \"Unhone issue acknowledge kiya hai aur bola hai ki wo concern dekh rahe hain aur jaldi update denge, lekin refund confirm ya initiate nahi kiya.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.0143125,
+        "latency_seconds": 8.297,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-08",
+      "category": "deflection",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"followup\",\n  \"reasoning\": \"The complaint is against Zomato, but the directory shows no verified grievance email for Zomato, so recipient must be null. The verified legal reference applies because this is an e-commerce grievance; Rule 4(5) requires acknowledgment within 48 hours and redress within one month. The company reply merely says the complaint was shared with the concerned team, which is an acknowledgment rather than a substantive resolution. Since the grievance was sent/received on 2026-10-01, the one-month redress deadline is 2026-11-01.\"\n}",
+        "cost_usd": 0.0051475,
+        "latency_seconds": 2.217,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"followup\",\n  \"reason\": \"No concrete commitment; send a firm follow-up.\",\n  \"case_facts\": {\n    \"company_name\": \"Zomato\",\n    \"order_id\": \"SYN-008\",\n    \"amount_inr\": 780.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"Consumer states that a grocery order from Zomato was placed on 2026-09-12 for ₹780 under order ID SYN-008, returned on 2026-09-20, but the refund has not been received. A grievance was sent on 2026-10-01.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Order placed for a grocery order.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Order returned.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Grievance sent regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"refund processing timeline/expected refund date\",\n      \"proof of payment/refund status\",\n      \"grievance ticket/reference number\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.98,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a grocery order from Zomato on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-008\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹780\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"the refund has not reached me\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹780\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹780\",\n    \"promised_action\": \"shared complaint with concerned team for review\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We regret the trouble.\",\n      \"Your complaint has been shared with the concerned team for review.\"\n    ],\n    \"next_action\": \"Wait for a substantive response or follow up for a decision on the refund request.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology\",\n      \"No case-specific details\",\n      \"No ticket/reference number\",\n      \"No concrete resolution or timeline\"\n    ],\n    \"summary_hinglish\": \"Unhone sirf issue acknowledge kiya hai aur bola hai ki complaint review ke liye concerned team ko bhej di gayi hai. Refund approve ya process hone ki koi confirmation nahi hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.0146125,
+        "latency_seconds": 8.782,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-09",
+      "category": "deflection",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": false,
+          "reply_classification": false,
+          "next_action": false,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-10-31\",\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"wait\",\n  \"reasoning\": \"The complaint concerns Zepto, but the directory shows no verified grievance email for Zepto, so recipient should be null. The verified legal reference for e-commerce grievances applies: acknowledgment within 48 hours and redress within one month from the grievance date. The user sent the grievance on 2026-10-01, so the redress deadline is 2026-10-31. The company reply apologizes and says the team is looking into it and will respond shortly, which is an acknowledgment rather than a substantive resolution. Safest next action is to wait until the one-month deadline, since they have acknowledged the grievance.\"\n}",
+        "cost_usd": 0.00532,
+        "latency_seconds": 2.611,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": false,
+          "reply_classification": false,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"followup\",\n  \"reason\": \"No concrete commitment; send a firm follow-up.\",\n  \"case_facts\": {\n    \"company_name\": \"Zepto\",\n    \"order_id\": \"SYN-009\",\n    \"amount_inr\": 2200.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"Customer ordered a speaker from Zepto on its website, returned it, and has not received the refund.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a speaker from Zepto on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the speaker.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [],\n    \"days_elapsed\": 11,\n    \"missing_info\": [],\n    \"field_confidence\": {\n      \"company_name\": 0.98,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a speaker from Zepto on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-009\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹2,200\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹2,200\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20, but the refund has not reached me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹2,200.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Zepto on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a speaker from Zepto on its website on 2026-09-12 for ₹2,200, order SYN-009. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹2,200. I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹2,200\",\n    \"promised_action\": \"Our team is looking into the matter and will respond shortly.\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We apologise for your experience.\",\n      \"Our team is looking into the matter and will respond shortly.\"\n    ],\n    \"next_action\": \"Wait for a substantive follow-up response from the team; no refund or concrete resolution has been offered yet.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology without case-specific details\",\n      \"No ticket/reference number\",\n      \"No concrete resolution or amount\",\n      \"Uses broad support language: 'Our team is looking into the matter and will respond shortly.'\"\n    ],\n    \"summary_hinglish\": \"Unhone sirf apology di hai aur bola hai ki team issue dekh rahi hai aur jaldi respond karegi. Refund ka na confirmation hai na promise, isliye issue abhi unresolved hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.0151475,
+        "latency_seconds": 8.465,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-10",
+      "category": "deflection",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"followup\",\n  \"reasoning\": \"The company is Blinkit, but no verified grievance email is available in the supplied directory, so recipient is null. The verified legal reference for e-commerce grievances applies: acknowledgment within 48 hours and redress within one month from the grievance date. The grievance was sent/received on 2026-10-01, so the redress deadline is 2026-11-01. The company reply only says the concern was passed to the team and will be handled soon, which is an acknowledgment rather than a substantive resolution. Safest next action is followup, since acknowledgment appears to have been given but the refund issue remains unresolved and the one-month redress timeline is the key next milestone.\"\n}",
+        "cost_usd": 0.0055475,
+        "latency_seconds": 2.951,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"followup\",\n  \"reason\": \"No concrete commitment; send a firm follow-up.\",\n  \"case_facts\": {\n    \"company_name\": \"Blinkit\",\n    \"order_id\": \"SYN-010\",\n    \"amount_inr\": 3999.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer states they ordered a tablet from Blinkit, returned it, and the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a tablet from Blinkit.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the tablet.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [],\n    \"field_confidence\": {\n      \"company_name\": 0.95,\n      \"order_id\": 0.95,\n      \"amount_inr\": 0.95,\n      \"purchase_date\": 0.95\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a tablet from Blinkit on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-010\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹3,999\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20, but the refund has not reached me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹3,999.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Blinkit on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹3,999\",\n    \"promised_action\": \"Concern passed to team; will be handled soon\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"Sorry about the issue.\",\n      \"Your concern has been passed to our team and will be handled soon.\"\n    ],\n    \"next_action\": \"Wait for follow-up from the team or request a clear refund confirmation and timeline.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology\",\n      \"No case-specific details\",\n      \"No refund specifics\",\n      \"Vague timeline: 'soon'\"\n    ],\n    \"summary_hinglish\": \"Issue acknowledge kiya gaya hai aur bola hai ki concern team ko forward kar diya hai, lekin refund confirm ya promise nahi kiya gaya.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.01353,
+        "latency_seconds": 7.895,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-11",
+      "category": "partial offer",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The merchant is BigBasket, but the directory shows no verified grievance email for BigBasket, so recipient must be null. The verified legal reference on e-commerce grievance handling applies: acknowledgment within 48 hours and redress within one month from the grievance sent on 2026-10-01, giving a redress deadline of 2026-11-01. The company reply offers only a ₹300 voucher instead of the requested ₹1,200 refund, so it is a partial_offer rather than a substantive resolution. Safest next action is user_review because the user must decide whether to accept or reject the voucher offer.\"\n}",
+        "cost_usd": 0.005285,
+        "latency_seconds": 2.643,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"offer_choice\",\n  \"reason\": \"Offer is partial or a voucher; user must choose whether to accept or counter.\",\n  \"case_facts\": {\n    \"company_name\": \"BigBasket\",\n    \"order_id\": \"SYN-011\",\n    \"amount_inr\": 1200.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The user ordered a tea set from BigBasket on 2026-09-12 for ₹1,200, returned it on 2026-09-20, but has not received the refund.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a tea set from BigBasket.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the tea set.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"ticket_id\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.98,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a tea set from BigBasket on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-011\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹1,200\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20, but the refund has not reached me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹1,200.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a tea set from BigBasket on its website on 2026-09-12 for ₹1,200, order SYN-011. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹1,200. I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"partial_offer\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,200\",\n    \"promised_action\": \"Offer a ₹300 voucher for future purchase\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": 300.0,\n    \"resolution_status\": \"partially_resolved\",\n    \"evidence_quotes\": [\n      \"We can offer you a ₹300 voucher to use on a future purchase.\"\n    ],\n    \"next_action\": \"Customer can reject the voucher and reiterate the request for a cash refund of ₹1200, since a voucher is not the original refund remedy.\",\n    \"reason\": \"Offer is a voucher or less than the requested amount; user must decide.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Unhone refund nahi diya; sirf future purchase ke liye ₹300 voucher offer kiya hai, jabki original remedy ₹1200 refund thi.\",\n    \"concrete_action\": \"₹300 voucher offered for future purchase\",\n    \"category\": \"partial_resolution\"\n  }\n}",
+        "cost_usd": 0.0146875,
+        "latency_seconds": 7.476,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-12",
+      "category": "partial offer",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The merchant is Croma, but the directory provides no verified grievance email for Croma, so recipient cannot be verified. The complaint concerns an e-commerce order/refund grievance, so the verified legal reference on e-commerce grievance handling applies. The grievance was sent/received on 2026-10-01, so the one-month redress deadline is 2026-11-01. The company reply offers only ₹625 against the claimed ₹2,500 refund, so it is a partial settlement offer. Safest next step is user review because accepting or rejecting the partial offer depends on the user's decision.\"\n}",
+        "cost_usd": 0.00524,
+        "latency_seconds": 2.771,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"offer_choice\",\n  \"reason\": \"Offer is partial or a voucher; user must choose whether to accept or counter.\",\n  \"case_facts\": {\n    \"company_name\": \"Croma\",\n    \"order_id\": \"SYN-012\",\n    \"amount_inr\": 2500.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer ordered a monitor from Croma on its website, returned it, and has not received the refund.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a monitor from Croma on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the monitor.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [],\n    \"field_confidence\": {\n      \"company_name\": 0.98,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"ordered a monitor from Croma on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-012\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹2,500\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹2,500\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"partial_offer\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹2,500\",\n    \"promised_action\": \"Refund ₹625 as a partial settlement\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": 625.0,\n    \"resolution_status\": \"partially_resolved\",\n    \"evidence_quotes\": [\n      \"We can refund ₹625 as a partial settlement; the balance is not included.\"\n    ],\n    \"next_action\": \"Customer can decide whether to accept the partial refund offer or pursue the remaining balance.\",\n    \"reason\": \"Offer is a voucher or less than the requested amount; user must decide.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email me ₹625 ka partial refund offer kiya gaya hai, lekin baaki amount include nahi hai. Isliye issue sirf partially resolve hua hai.\",\n    \"concrete_action\": \"Offer to refund ₹625 as partial settlement\",\n    \"category\": \"partial_resolution\"\n  }\n}",
+        "cost_usd": 0.0130225,
+        "latency_seconds": 6.659,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-13",
+      "category": "partial offer",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The merchant is JioMart, but no verified grievance email is provided in the directory, so recipient cannot be verified. The cited legal reference applies because this is an e-commerce grievance; based on complaint received on 2026-10-01, the one-month redress deadline is 2026-11-01. The company reply offers a ₹450 voucher instead of the requested ₹1,800 refund, so it is a partial offer rather than a substantive resolution. Safest next step is user review because acceptance or rejection of the voucher depends on the user's preference.\"\n}",
+        "cost_usd": 0.005135,
+        "latency_seconds": 2.703,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"offer_choice\",\n  \"reason\": \"Offer is partial or a voucher; user must choose whether to accept or counter.\",\n  \"case_facts\": {\n    \"company_name\": \"JioMart\",\n    \"order_id\": \"SYN-013\",\n    \"amount_inr\": 1800.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer ordered a jacket from JioMart on its website, returned it on 2026-09-20, and reports that the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered a jacket from JioMart on its website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the jacket.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [],\n    \"field_confidence\": {\n      \"company_name\": 0.97,\n      \"order_id\": 0.97,\n      \"amount_inr\": 0.97,\n      \"purchase_date\": 0.97\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a jacket from JioMart on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-013\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹1,800\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20, but the refund has not reached me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹1,800.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"days_elapsed\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20 ... I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"brand_website\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"partial_offer\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,800\",\n    \"promised_action\": \"offer a ₹450 voucher for future purchase\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": 450.0,\n    \"resolution_status\": \"partially_resolved\",\n    \"evidence_quotes\": [\n      \"We can offer you a ₹450 voucher to use on a future purchase.\"\n    ],\n    \"next_action\": \"Customer can decide whether to accept the voucher or continue requesting the original refund remedy.\",\n    \"reason\": \"Offer is a voucher or less than the requested amount; user must decide.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Unhone ₹450 ka voucher future purchase ke liye offer kiya hai, lekin ₹1800 refund nahi diya. Voucher cash refund nahi hota, isliye issue sirf partially resolve hua hai.\",\n    \"concrete_action\": \"Offer of ₹450 voucher for future purchase\",\n    \"category\": \"partial_resolution\"\n  }\n}",
+        "cost_usd": 0.0147625,
+        "latency_seconds": 7.592,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-14",
+      "category": "partial offer",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": \"grievance.officer@flipkart.com\",\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint is against Flipkart, and the directory provides a verified grievance email for Flipkart. The supplied legal reference applies to e-commerce grievances and states redress within one month. Since the grievance was sent/received on 2026-10-01, the one-month redress deadline is 2026-11-01. The company reply offers only ₹225 against a claimed ₹900 refund, so it is a partial settlement offer rather than a full resolution. Safest next step is user review because accepting or rejecting a partial settlement requires the user's decision.\"\n}",
+        "cost_usd": 0.005215,
+        "latency_seconds": 2.967,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": \"grievance.officer@flipkart.com\",\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": \"2026-11-01\",\n  \"reply_type\": \"partial_offer\",\n  \"next_action\": \"offer_choice\",\n  \"reason\": \"Offer is partial or a voucher; user must choose whether to accept or counter.\",\n  \"case_facts\": {\n    \"company_name\": \"Flipkart\",\n    \"order_id\": \"SYN-014\",\n    \"amount_inr\": 900.0,\n    \"purchase_date\": \"2026-09-12\",\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The consumer states they ordered shoes from Flipkart on 2026-09-12 for ₹900, order SYN-014, returned the item on 2026-09-20, but the refund has not been received.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-09-12\",\n        \"what\": \"Ordered shoes from Flipkart website.\"\n      },\n      {\n        \"date\": \"2026-09-20\",\n        \"what\": \"Returned the shoes.\"\n      },\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"Sent grievance regarding non-receipt of refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"grievance\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": 11,\n    \"missing_info\": [\n      \"refund due date\",\n      \"proof of return\",\n      \"refund transaction reference\",\n      \"grievance ticket/reference number\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.98,\n      \"amount_inr\": 0.98,\n      \"purchase_date\": 0.98\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I ordered a shoes from Flipkart on its website\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"order SYN-014\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"for ₹900\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_date\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"on 2026-09-12\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I returned it on 2026-09-20, but the refund has not reached me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want a refund of ₹900.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"contact_attempts\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I sent my grievance on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"from Flipkart on its website\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"marketplace\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"partial_offer\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹900\",\n    \"promised_action\": \"Refund ₹225 as a partial settlement\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": 225.0,\n    \"resolution_status\": \"partially_resolved\",\n    \"evidence_quotes\": [\n      \"We can refund ₹225 as a partial settlement; the balance is not included.\"\n    ],\n    \"next_action\": \"Customer can decide whether to accept the partial refund offer or continue pursuing the remaining ₹675.\",\n    \"reason\": \"Offer is a voucher or less than the requested amount; user must decide.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": false,\n    \"templated_signals\": [],\n    \"summary_hinglish\": \"Email mein ₹225 ka partial refund offer kiya gaya hai, lekin baaki amount included nahi hai. Isliye issue sirf partially resolve hua hai.\",\n    \"concrete_action\": \"Refund ₹225 as a partial settlement\",\n    \"category\": \"partial_resolution\"\n  }\n}",
+        "cost_usd": 0.013895,
+        "latency_seconds": 7.008,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-15",
+      "category": "wrong-sector trap",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint is about Airtel, which is in the telecom sector and not an online retail/e-commerce purchase. The only verified legal reference provided is the Consumer Protection (E-Commerce) Rules, 2020 grievance rule, which does not safely apply based on the supplied facts. Airtel has no verified grievance email in the directory, so no verified recipient can be selected. The company reply merely acknowledges/forwards the concern and does not provide a substantive resolution. Because there is no applicable verified rule or recipient from the supplied information, the safest next action is user review.\"\n}",
+        "cost_usd": 0.00487,
+        "latency_seconds": 2.378,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": \"Airtel\",\n    \"order_id\": null,\n    \"amount_inr\": 650.0,\n    \"purchase_date\": null,\n    \"issue_type\": \"service_failure\",\n    \"issue_summary_en\": \"User contacted Airtel regarding a ₹650 mobile service charge on 2026-10-01. The issue remains unresolved and the user wants the money back.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"User contacted Airtel about a ₹650 mobile service charge.\"\n      },\n      {\n        \"date\": null,\n        \"what\": \"Issue remains unresolved.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"unknown\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"order_id\",\n      \"purchase_date\",\n      \"contact channel\",\n      \"ticket_id\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.95,\n      \"order_id\": 0.0,\n      \"amount_inr\": 0.95,\n      \"purchase_date\": 0.0\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted Airtel about a ₹650 mobile service charge on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"₹650 mobile service charge\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"This concerns telecom, not an online retail purchase.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want my money back.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted Airtel about a ₹650 mobile service charge on 2026-10-01. It remains unresolved\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"This concerns telecom, not an online retail purchase.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹650\",\n    \"promised_action\": \"Concern forwarded to team\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We regret the inconvenience.\",\n      \"Your concern has been forwarded to our team.\"\n    ],\n    \"next_action\": \"Wait for follow-up from the team; no refund or concrete resolution has been provided in this email.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology without case specifics\",\n      \"No ticket/reference number\",\n      \"No agent name or personalized details\",\n      \"Vague forwarding statement without timeline or action details\"\n    ],\n    \"summary_hinglish\": \"Unhone sirf inconvenience acknowledge kiya aur bola concern team ko forward kar diya hai. Refund confirm ya promise nahi kiya gaya, isliye issue abhi unresolved hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.01276,
+        "latency_seconds": 7.085,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-16",
+      "category": "wrong-sector trap",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint is about IndiGo, an airline/travel matter, not an e-commerce purchase. The only verified legal reference provided is the Consumer Protection (E-Commerce) Rules, 2020 grievance rule, which does not safely apply here based on the supplied information. IndiGo is listed in the directory but has no verified grievance email, so no verified recipient can be selected. The company reply only confirms the issue was shared internally, which is an acknowledgment rather than a substantive resolution. Since no verified recipient or applicable verified rule is available from the supplied data, the safest next step is user review.\"\n}",
+        "cost_usd": 0.0049525,
+        "latency_seconds": 2.368,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": \"IndiGo\",\n    \"order_id\": null,\n    \"amount_inr\": 8940.0,\n    \"purchase_date\": null,\n    \"issue_type\": \"cancellation\",\n    \"issue_summary_en\": \"The user says IndiGo has not resolved a flight cancellation refund of ₹8,940 and wants the money back.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"User contacted IndiGo regarding a ₹8,940 flight cancellation refund.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"unknown\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"order_id\",\n      \"purchase_date\",\n      \"contact channel\",\n      \"ticket_id\",\n      \"purchase channel\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.94,\n      \"order_id\": 0.0,\n      \"amount_inr\": 0.95,\n      \"purchase_date\": 0.0\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted IndiGo about a ₹8,940 flight cancellation refund on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted IndiGo about a ₹8,940 flight cancellation refund on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"flight cancellation refund\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want my money back.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted IndiGo about a ₹8,940 flight cancellation refund on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"This concerns airline, not an online retail purchase.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹8,940\",\n    \"promised_action\": \"Complaint shared with the concerned team.\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"Sorry for the trouble.\",\n      \"Your complaint has been shared with the concerned team.\"\n    ],\n    \"next_action\": \"Wait for a substantive response or follow up for refund status and timeline.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology\",\n      \"Mentions 'concerned team' without specifics\",\n      \"No case-specific details\",\n      \"No timeline or concrete resolution\"\n    ],\n    \"summary_hinglish\": \"Unhone sirf apology di aur bola complaint concerned team ko share kar di hai. Refund na confirm hua hai, na promise, isliye issue abhi unresolved hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.012725,
+        "latency_seconds": 7.414,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-17",
+      "category": "wrong-sector trap",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"acknowledgment\",\n  \"next_action\": \"user_review\",\n  \"reasoning\": \"The complaint explicitly concerns a banking card fee with Harbor Bank, which is not in the supplied company directory and is not an e-commerce matter. Therefore no verified recipient can be selected from the provided list, and the supplied e-commerce grievance rule does not apply based on the complaint text. The company reply only acknowledges the issue ('looking into your complaint') without resolving it, so it is classified as an acknowledgment. Safest next action is user review because this framework appears limited to verified recipients/rules supplied, and none match the banking dispute.\"\n}",
+        "cost_usd": 0.004765,
+        "latency_seconds": 2.851,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": false,
+          "next_action": true,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"deflection\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": \"Harbor Bank\",\n    \"order_id\": null,\n    \"amount_inr\": 1100.0,\n    \"purchase_date\": null,\n    \"issue_type\": \"overcharged\",\n    \"issue_summary_en\": \"User reports a ₹1,100 card fee charged by Harbor Bank, contacted the bank on 2026-10-01, issue remains unresolved, and seeks a refund.\",\n    \"user_demand\": \"refund\",\n    \"events\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"what\": \"User contacted Harbor Bank about a ₹1,100 card fee.\"\n      },\n      {\n        \"date\": null,\n        \"what\": \"Issue remains unresolved.\"\n      }\n    ],\n    \"contact_attempts\": [\n      {\n        \"date\": \"2026-10-01\",\n        \"channel\": \"unknown\",\n        \"ticket_id\": null\n      }\n    ],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"order_id\",\n      \"purchase_date\",\n      \"contact channel\",\n      \"ticket_id\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.96,\n      \"order_id\": 0.0,\n      \"amount_inr\": 0.95,\n      \"purchase_date\": 0.0\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted Harbor Bank about a ₹1,100 card fee on 2026-10-01.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"about a ₹1,100 card fee\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"about a ₹1,100 card fee\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I want my money back.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"events\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I contacted Harbor Bank about a ₹1,100 card fee on 2026-10-01. It remains unresolved\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"purchase_channel\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"This concerns banking, not an online retail purchase.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"deflection\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund of ₹1,100\",\n    \"promised_action\": \"Our team is looking into your complaint.\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We regret the inconvenience.\",\n      \"Our team is looking into your complaint.\"\n    ],\n    \"next_action\": \"Wait for a substantive response or follow up for a clear refund decision and timeline.\",\n    \"reason\": \"Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic apology without case specifics\",\n      \"No reference to refund amount or order details\",\n      \"No ticket ID or timeline provided\",\n      \"Uses broad support phrasing: 'Our team is looking into your complaint.'\"\n    ],\n    \"summary_hinglish\": \"Email ne sirf inconvenience acknowledge kiya hai aur bola hai ki team complaint dekh rahi hai. Refund approve ya process hone ka koi confirmation nahi hai, isliye issue abhi unresolved hai.\",\n    \"concrete_action\": null,\n    \"category\": \"deflection\"\n  }\n}",
+        "cost_usd": 0.0132425,
+        "latency_seconds": 7.583,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-18",
+      "category": "ambiguous",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"ask_user\",\n  \"reasoning\": \"The seller/company is unidentified, so no verified recipient can be selected from the directory. The complaint concerns a refund from an unknown seller in an e-commerce context, so the supplied e-commerce grievance rule is the closest applicable verified rule. No deadline can be computed because complaint_received_at is null. The company reply asks for the order number and refund amount to investigate, which is an evidence/information request. Safest next action is to ask the user to review and provide any identifying details such as seller/platform, order number, amount, payment reference, or bank statement evidence.\"\n}",
+        "cost_usd": 0.0048925,
+        "latency_seconds": 2.66,
+        "original_metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": null,\n    \"order_id\": null,\n    \"amount_inr\": null,\n    \"purchase_date\": null,\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The user states that an unknown seller has not provided a refund. The user does not remember the seller name, order number, or amount.\",\n    \"user_demand\": \"refund\",\n    \"events\": [],\n    \"contact_attempts\": [],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"company_name\",\n      \"order_id\",\n      \"amount_inr\",\n      \"purchase_date\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.02,\n      \"order_id\": 0.02,\n      \"amount_inr\": 0.02,\n      \"purchase_date\": 0.02\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I do not remember the seller\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"order_id\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I do not remember the seller, order number or amount.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I do not remember the seller, order number or amount.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_summary_en\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"An unknown seller has not refunded me.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"has not refunded me\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"evidence_request\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund\",\n    \"promised_action\": \"look into the complaint after receiving order number and refund amount\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"Please send your order number and the refund amount so we can look into your complaint.\"\n    ],\n    \"next_action\": \"Provide the order number and claimed refund amount if you want them to investigate.\",\n    \"reason\": \"The email requests additional information and does not confirm or offer a refund. It only states they can look into the complaint after receiving details.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [\n      \"order number\",\n      \"refund amount\"\n    ],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"generic request for basic details\",\n      \"no case-specific information\",\n      \"single-line support phrasing\"\n    ],\n    \"summary_hinglish\": \"Unhone refund resolve nahi kiya; bas order number aur refund amount maanga hai taaki complaint ko dekha ja sake.\",\n    \"concrete_action\": null,\n    \"category\": \"info_requested\"\n  }\n}",
+        "cost_usd": 0.01094,
+        "latency_seconds": 6.041,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-19",
+      "category": "ambiguous",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"ask_user\",\n  \"reasoning\": \"The merchant is not identifiable from the complaint, so no verified recipient can be selected safely. The reply asks the consumer to provide order number, merchant, and amount before review, which is an evidence/information request. The only verified legal reference provided is the e-commerce grievance rule, which may be applicable if the merchant is an e-commerce entity, but no complaint receipt date is provided, so no calculable deadline can be derived. Safest next action is to ask the user for the requested transaction details and to review whether this is the correct merchant at all.\"\n}",
+        "cost_usd": 0.004855,
+        "latency_seconds": 2.697,
+        "original_metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": null,\n    \"order_id\": null,\n    \"amount_inr\": null,\n    \"purchase_date\": null,\n    \"issue_type\": \"other\",\n    \"issue_summary_en\": \"User reports paying for something but cannot identify the merchant or the amount.\",\n    \"user_demand\": \"other\",\n    \"events\": [],\n    \"contact_attempts\": [],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"company_name\",\n      \"amount_inr\",\n      \"purchase_date\",\n      \"order_id\",\n      \"payment evidence/transaction details\",\n      \"merchant identification\",\n      \"user demand\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.03,\n      \"order_id\": 0.01,\n      \"amount_inr\": 0.02,\n      \"purchase_date\": 0.02\n    },\n    \"provenance\": [\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"cannot identify the merchant\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"amount_inr\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"cannot identify the merchant or the amount\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_summary_en\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I paid for something but cannot identify the merchant or the amount. I need help.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I need help.\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"evidence_request\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Other\",\n    \"promised_action\": \"review your complaint after receiving order number, merchant and amount\",\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"Please tell us the order number, merchant and amount so we can review your complaint.\"\n    ],\n    \"next_action\": \"Provide the requested order number, merchant, and amount for review.\",\n    \"reason\": \"The reply asks for additional information and does not offer or confirm any remedy.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [\n      \"order number\",\n      \"merchant\",\n      \"amount\"\n    ],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"generic request for standard case details\",\n      \"no case-specific information\",\n      \"single-sentence support phrasing\"\n    ],\n    \"summary_hinglish\": \"Unhone complaint review karne ke liye order number, merchant aur amount maanga hai. Abhi koi resolution ya refund offer/confirm nahi hua.\",\n    \"concrete_action\": null,\n    \"category\": \"info_requested\"\n  }\n}",
+        "cost_usd": 0.0103925,
+        "latency_seconds": 5.312,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    },
+    {
+      "id": "EVAL-20",
+      "category": "ambiguous",
+      "baseline": {
+        "metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": false
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": \"ecom_rules_2020_grievance\",\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"ask_user\",\n  \"reasoning\": \"The consumer does not know which company handled the order, and the company reply explicitly asks for the order number and merchant name to trace the complaint. No verified recipient can be selected because no specific merchant is identified. The e-commerce grievance rule is the relevant verified legal reference, but no deadline can be calculated because complaint_received_at is null. The safest next step is to ask the user for the missing order details so the complaint can be directed properly.\"\n}",
+        "cost_usd": 0.004505,
+        "latency_seconds": 2.094,
+        "original_metrics": {
+          "recipient": true,
+          "rule": false,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": false,
+          "end_to_end": false
+        }
+      },
+      "shikayat": {
+        "metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        },
+        "output": "{\n  \"recipient\": null,\n  \"rule\": null,\n  \"deadline\": null,\n  \"reply_type\": \"evidence_request\",\n  \"next_action\": \"user_review\",\n  \"reason\": \"Sector-specific rules not configured; user review is required.\",\n  \"case_facts\": {\n    \"company_name\": null,\n    \"order_id\": null,\n    \"amount_inr\": null,\n    \"purchase_date\": null,\n    \"issue_type\": \"refund_not_received\",\n    \"issue_summary_en\": \"The user reports that a refund is missing, but the company that handled the order is unknown.\",\n    \"user_demand\": \"refund\",\n    \"events\": [],\n    \"contact_attempts\": [],\n    \"days_elapsed\": null,\n    \"missing_info\": [\n      \"company_name\",\n      \"order_id\",\n      \"amount_inr\",\n      \"purchase_date\",\n      \"support contact history\",\n      \"timeline of purchase/cancellation/return/refund initiation\",\n      \"days_elapsed\"\n    ],\n    \"field_confidence\": {\n      \"company_name\": 0.02,\n      \"order_id\": 0.01,\n      \"amount_inr\": 0.01,\n      \"purchase_date\": 0.01\n    },\n    \"provenance\": [\n      {\n        \"field\": \"issue_summary_en\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I am missing a refund but do not know which company handled my order.\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"issue_type\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"I am missing a refund\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"user_demand\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"missing a refund\",\n        \"bbox\": null\n      },\n      {\n        \"field\": \"company_name\",\n        \"origin\": \"text\",\n        \"source_excerpt\": \"do not know which company handled my order\",\n        \"bbox\": null\n      }\n    ],\n    \"purchase_channel\": \"unknown\"\n  },\n  \"reply_forensics\": {\n    \"reply_type\": \"evidence_request\",\n    \"acknowledged\": true,\n    \"original_remedy\": \"Refund\",\n    \"promised_action\": null,\n    \"refund_confirmed\": false,\n    \"offered_amount_inr\": null,\n    \"resolution_status\": \"unresolved\",\n    \"evidence_quotes\": [\n      \"We cannot trace the complaint without your order number and merchant name.\",\n      \"Please provide them.\"\n    ],\n    \"next_action\": \"Provide the order number and merchant name so they can trace the complaint.\",\n    \"reason\": \"The reply does not offer or confirm a refund. It asks for additional information needed to investigate the complaint.\",\n    \"invalid_evidence_quotes\": [],\n    \"ticket_id\": null,\n    \"promised_date\": null,\n    \"requested_info\": [\n      \"order number\",\n      \"merchant name\"\n    ],\n    \"is_templated\": true,\n    \"templated_signals\": [\n      \"Generic request for basic case identifiers\",\n      \"No case-specific details or personalization\",\n      \"Short, formulaic support language\"\n    ],\n    \"summary_hinglish\": \"Unhone complaint acknowledge karke bola hai ki order number aur merchant name ke bina complaint trace nahi ho sakti. Refund na promise kiya gaya hai, na confirm hua hai. Abhi aur details mangi gayi hain.\",\n    \"concrete_action\": null,\n    \"category\": \"info_requested\"\n  }\n}",
+        "cost_usd": 0.0107175,
+        "latency_seconds": 6.39,
+        "original_metrics": {
+          "recipient": true,
+          "rule": true,
+          "deadline": true,
+          "reply_classification": true,
+          "next_action": true,
+          "end_to_end": true
+        }
+      }
+    }
+  ],
+  "total_cost_usd": 0.3767475,
+  "usage": [
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1077,
+      "output_tokens": 197,
+      "cost_usd": 0.0056475,
+      "latency_seconds": 7.6908533749956405
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 457,
+      "cost_usd": 0.0089525,
+      "latency_seconds": 4.5203739589996985
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 554,
+      "output_tokens": 237,
+      "cost_usd": 0.00494,
+      "latency_seconds": 2.8727665829937905
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1076,
+      "output_tokens": 175,
+      "cost_usd": 0.005315,
+      "latency_seconds": 2.8333352909976384
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 838,
+      "output_tokens": 513,
+      "cost_usd": 0.00979,
+      "latency_seconds": 4.76807391699549
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 554,
+      "output_tokens": 204,
+      "cost_usd": 0.004445,
+      "latency_seconds": 2.5249304579992895
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1070,
+      "output_tokens": 183,
+      "cost_usd": 0.00542,
+      "latency_seconds": 2.824061833001906
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 834,
+      "output_tokens": 493,
+      "cost_usd": 0.00948,
+      "latency_seconds": 4.918677207999281
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 552,
+      "output_tokens": 242,
+      "cost_usd": 0.00501,
+      "latency_seconds": 3.0703191660068114
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1077,
+      "output_tokens": 195,
+      "cost_usd": 0.0056175,
+      "latency_seconds": 2.9009055419955985
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 605,
+      "cost_usd": 0.0111725,
+      "latency_seconds": 5.37046804199781
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 554,
+      "output_tokens": 219,
+      "cost_usd": 0.00467,
+      "latency_seconds": 3.05226570800005
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1077,
+      "output_tokens": 188,
+      "cost_usd": 0.0055125,
+      "latency_seconds": 2.8092628340018564
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 490,
+      "cost_usd": 0.0094475,
+      "latency_seconds": 4.672167500000796
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 554,
+      "output_tokens": 219,
+      "cost_usd": 0.00467,
+      "latency_seconds": 3.047332792004454
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1077,
+      "output_tokens": 189,
+      "cost_usd": 0.0055275,
+      "latency_seconds": 3.647312624998449
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 486,
+      "cost_usd": 0.0093875,
+      "latency_seconds": 4.437015208997764
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 551,
+      "output_tokens": 278,
+      "cost_usd": 0.0055475,
+      "latency_seconds": 4.404083666995575
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1069,
+      "output_tokens": 203,
+      "cost_usd": 0.0057175,
+      "latency_seconds": 3.0659249169984832
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 836,
+      "output_tokens": 485,
+      "cost_usd": 0.009365,
+      "latency_seconds": 4.881019874999765
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 545,
+      "output_tokens": 239,
+      "cost_usd": 0.0049475,
+      "latency_seconds": 3.412019874995167
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1069,
+      "output_tokens": 165,
+      "cost_usd": 0.0051475,
+      "latency_seconds": 2.215980250002758
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 836,
+      "output_tokens": 504,
+      "cost_usd": 0.00965,
+      "latency_seconds": 5.137594915999216
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 545,
+      "output_tokens": 240,
+      "cost_usd": 0.0049625,
+      "latency_seconds": 3.6388804580055876
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1072,
+      "output_tokens": 176,
+      "cost_usd": 0.00532,
+      "latency_seconds": 2.6103076250001322
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 838,
+      "output_tokens": 498,
+      "cost_usd": 0.009565,
+      "latency_seconds": 4.267519749999337
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 547,
+      "output_tokens": 281,
+      "cost_usd": 0.0055825,
+      "latency_seconds": 4.192372124998656
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1073,
+      "output_tokens": 191,
+      "cost_usd": 0.0055475,
+      "latency_seconds": 2.9502130420005415
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 838,
+      "output_tokens": 433,
+      "cost_usd": 0.00859,
+      "latency_seconds": 4.398076792000211
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 548,
+      "output_tokens": 238,
+      "cost_usd": 0.00494,
+      "latency_seconds": 3.4934658339989255
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1070,
+      "output_tokens": 174,
+      "cost_usd": 0.005285,
+      "latency_seconds": 2.6421343339970917
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 513,
+      "cost_usd": 0.0097925,
+      "latency_seconds": 4.225812249998853
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 548,
+      "output_tokens": 235,
+      "cost_usd": 0.004895,
+      "latency_seconds": 3.245173874995089
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1070,
+      "output_tokens": 171,
+      "cost_usd": 0.00524,
+      "latency_seconds": 2.7699084999985644
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 838,
+      "output_tokens": 421,
+      "cost_usd": 0.00841,
+      "latency_seconds": 3.9352981250049197
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 549,
+      "output_tokens": 216,
+      "cost_usd": 0.0046125,
+      "latency_seconds": 2.7214428750012303
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1070,
+      "output_tokens": 164,
+      "cost_usd": 0.005135,
+      "latency_seconds": 2.702128458004154
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 839,
+      "output_tokens": 516,
+      "cost_usd": 0.0098375,
+      "latency_seconds": 4.375287999995635
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 548,
+      "output_tokens": 237,
+      "cost_usd": 0.004925,
+      "latency_seconds": 3.2135537499998463
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1066,
+      "output_tokens": 170,
+      "cost_usd": 0.005215,
+      "latency_seconds": 2.9660090420002234
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 834,
+      "output_tokens": 470,
+      "cost_usd": 0.009135,
+      "latency_seconds": 4.373831375000009
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 548,
+      "output_tokens": 226,
+      "cost_usd": 0.00476,
+      "latency_seconds": 2.631929292001587
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1036,
+      "output_tokens": 152,
+      "cost_usd": 0.00487,
+      "latency_seconds": 2.3767549580006744
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 806,
+      "output_tokens": 381,
+      "cost_usd": 0.00773,
+      "latency_seconds": 3.379497750000155
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 542,
+      "output_tokens": 245,
+      "cost_usd": 0.00503,
+      "latency_seconds": 3.7024287910026032
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1039,
+      "output_tokens": 157,
+      "cost_usd": 0.0049525,
+      "latency_seconds": 2.3667560829999275
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 808,
+      "output_tokens": 377,
+      "cost_usd": 0.007675,
+      "latency_seconds": 3.934851209000044
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 544,
+      "output_tokens": 246,
+      "cost_usd": 0.00505,
+      "latency_seconds": 3.4757781669977703
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1036,
+      "output_tokens": 145,
+      "cost_usd": 0.004765,
+      "latency_seconds": 2.851019499998074
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 807,
+      "output_tokens": 390,
+      "cost_usd": 0.0078675,
+      "latency_seconds": 3.643067750002956
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 542,
+      "output_tokens": 268,
+      "cost_usd": 0.005375,
+      "latency_seconds": 3.9350717079942115
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1003,
+      "output_tokens": 159,
+      "cost_usd": 0.0048925,
+      "latency_seconds": 2.659953292000864
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 786,
+      "output_tokens": 276,
+      "cost_usd": 0.006105,
+      "latency_seconds": 2.929566082995734
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 542,
+      "output_tokens": 232,
+      "cost_usd": 0.004835,
+      "latency_seconds": 3.1079317920011817
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1000,
+      "output_tokens": 157,
+      "cost_usd": 0.004855,
+      "latency_seconds": 2.6959244579993538
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 783,
+      "output_tokens": 246,
+      "cost_usd": 0.0056475,
+      "latency_seconds": 2.5893207080007414
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 542,
+      "output_tokens": 226,
+      "cost_usd": 0.004745,
+      "latency_seconds": 2.7194817920026253
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 998,
+      "output_tokens": 134,
+      "cost_usd": 0.004505,
+      "latency_seconds": 2.094055166999169
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 781,
+      "output_tokens": 255,
+      "cost_usd": 0.0057775,
+      "latency_seconds": 2.910885124998458
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 542,
+      "output_tokens": 239,
+      "cost_usd": 0.00494,
+      "latency_seconds": 3.4746882079998613
+    }
+  ],
+  "methodology": "Synthetic text-only cases; identical model; costs use uncached token rates; SMTP and IMAP disabled; no retries or cached evaluations.",
+  "scorer_commit": "c1c142d36348c58c106a08533851f7b05cf3321c",
+  "scoring_note": "After the run, safe user-review/ask-user equivalents were accepted symmetrically; original scores are retained per case. No model calls were repeated."
+}

@@ -25,6 +25,9 @@ class EvaluationResult(BaseModel):
     model: str
     commit: str | None = None
     total_cost_usd: float | None = None
+    methodology: str | None = None
+    scoring_note: str | None = None
+    scorer_commit: str | None = None
     case_count: int
     cases: list[EvaluationCase]
 
