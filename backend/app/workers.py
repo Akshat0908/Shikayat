@@ -80,7 +80,7 @@ async def receive(app, data: dict) -> None:
         with Session(app.state.engine) as session:
             if session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
             session.add(Message(case_id=case.id,direction='in',level=case.level,to=get_settings().user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=analysis.model_dump(),sent_at=now(session)))
-            session.add(Event(case_id=case.id,actor='company',type='reply',title=analysis.category,reason=analysis.summary_hinglish,payload_json={'folder':data.get('folder'),'message_id':data['message_id']}))
+            session.add(Event(case_id=case.id,actor='company',type='reply',title=('Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated'))}))
             if analysis.category in ('acknowledged','info_requested','resolution_offered'):
                 for deadline in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='ack_48h',Deadline.status=='running')).all():
                     deadline.status='met';session.add(deadline)
@@ -111,7 +111,7 @@ async def inbox_loop(app) -> None:
             try: await inbox_iteration(app)
             except Exception as error:
                 worker_failure(app,'inbox',error)
-        await asyncio.sleep(5)
+        await asyncio.sleep(2)
 
 
 async def deadline_iteration(app) -> None:

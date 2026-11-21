@@ -36,6 +36,7 @@ async def inject(data: CaseInput,request: Request) -> dict:
         if count>=3: raise HTTPException(409,'All scripted replies already injected')
         last=messages[-1]
         payload=dict(case_id=case.id,message_id=f'<demo-{uuid4()}>',sender=last.to,subject='Re: '+last.subject,body=REPLIES[count].format(amount=case.amount_inr),in_reply_to=last.message_id)
+    payload['simulated']=True
     await receive(request.app,payload)
     return {'status':'injected'}
 
@@ -48,3 +49,7 @@ async def reset(request: Request) -> dict:
         session.exec(delete(Case).where(Case.id.in_(ids)))
         settings=session.get(Settings,1);settings.demo_clock_offset_seconds=0;session.add(settings);session.commit()
     return {'status':'reset','cases_deleted':len(ids)}
+
+@router.get('/settings')
+def demo_settings(request: Request) -> dict:
+    return {'demo_mode':request.app.state.config.demo_mode}

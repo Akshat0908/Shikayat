@@ -81,3 +81,22 @@ def verification(case_id: str, request: Request) -> dict:
         events=session.exec(select(Event).where(Event.case_id==case_id).order_by(Event.at)).all()
         messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
         return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events],'messages':[{'direction':m.direction,'message_id':m.message_id,'in_reply_to':m.in_reply_to,'level':m.level,'classification':m.classification_json} for m in messages],'worker_errors':getattr(request.app.state,'worker_errors',{})}
+
+@router.get('')
+def list_cases(request: Request) -> list[Case]:
+    with Session(request.app.state.engine) as session:
+        return list(session.exec(select(Case).order_by(Case.created_at.desc())).all())
+
+@router.get('/{case_id}/board')
+def case_board(case_id: str, request: Request) -> dict:
+    from ..config import get_settings
+    from ..demo.clock import now
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        events=session.exec(select(Event).where(Event.case_id==case_id).order_by(Event.at)).all()
+        messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
+        deadlines_=session.exec(select(Deadline).where(Deadline.case_id==case_id)).all()
+        company=next((c for c in load_companies() if c['id']==case.company_id),None)
+        contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer'] if company else None
+        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':now(session).isoformat(), 'sender':get_settings().user_email or None,'recipient':contact}

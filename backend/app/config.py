@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     demo_company_app_password: SecretStr = SecretStr("")
     replay_mode: bool = False
     demo_mode: bool = True
-    demo_reply_delay_seconds: int = 20
+    demo_reply_delay_seconds: int = 5
     send_enabled: bool = True
     autopilot_allowlist: str = ""
     database_url: str = f"sqlite:///{ROOT / 'var' / 'shikayat.db'}"

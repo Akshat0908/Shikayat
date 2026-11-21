@@ -26,3 +26,8 @@ docker:
 
 deploy:
 	@echo "Deployment pending: configure EC2, DOMAIN and Caddy first. See README.md."
+
+# Sends real demo emails and confirms the synthetic demo receipt.
+.PHONY: warm
+warm:
+	$(PYTHON) scripts/demo_e2e.py

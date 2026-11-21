@@ -59,4 +59,4 @@ async def company_loop(app) -> None:
             except Exception as error:
                 from ..workers import worker_failure
                 worker_failure(app,'demo_bot',error)
-        await asyncio.sleep(5)
+        await asyncio.sleep(2)
