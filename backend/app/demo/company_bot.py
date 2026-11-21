@@ -25,7 +25,7 @@ def respond(engine) -> list[Event]:
         cases={c.id:c for c in session.exec(select(Case).where(Case.company_id=='shopkart')).all()}
         timestamp=now(session)
     events=[]
-    with MailBox('imap.gmail.com',timeout=20).login(config.demo_company_email,config.demo_company_app_password.get_secret_value()) as box:
+    with MailBox('imap.gmail.com',timeout=30).login(config.demo_company_email,config.demo_company_app_password.get_secret_value()) as box:
         for folder,mail in search(box,raw_query(sender=config.user_email)):
             message=next((m for m in outgoing if m.message_id==message_id(mail) and m.message_id not in completed),None)
             if not message: continue
@@ -50,12 +50,13 @@ async def company_loop(app) -> None:
     while True:
         if config.demo_mode and config.send_enabled and config.demo_company_email and config.demo_company_app_password.get_secret_value():
             try:
-                events=await asyncio.to_thread(respond,app.state.engine)
+                from ..workers import retry_imap
+                events=await retry_imap(respond,app.state.engine)
                 from ..workers import _write_lock
                 async with _write_lock:
                     with Session(app.state.engine) as session:
                         session.add_all(events);session.commit()
             except Exception as error:
                 from ..workers import worker_failure
-                if worker_failure(app,'demo_bot',error): return
+                worker_failure(app,'demo_bot',error)
         await asyncio.sleep(5)

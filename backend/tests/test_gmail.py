@@ -18,3 +18,16 @@ def test_localized_and_deduplicated():
     assert len(list(search(box,raw_query(message_id='<abc>',subject='demo'))))==1
     assert box.selected==['Alle Nachrichten','Unerwünscht']
     assert 'rfc822msgid:abc' in raw_query(message_id='<abc>')
+
+def test_retry_reconnects_and_is_bounded(monkeypatch):
+    import asyncio
+    from backend.app.workers import retry_imap
+    attempts=[]
+    def flaky():
+        attempts.append(1)
+        if len(attempts)<3: raise TimeoutError('temporary')
+        return 'ok'
+    async def fast_sleep(_): pass
+    monkeypatch.setattr(asyncio,'sleep',fast_sleep)
+    assert asyncio.run(retry_imap(flaky))=='ok'
+    assert len(attempts)==3

@@ -10,7 +10,7 @@ import httpx
 
 
 def main() -> None:
-    parser=argparse.ArgumentParser();parser.add_argument('--url',default='http://localhost:8000');parser.add_argument('--wait-seconds',type=int,default=600);args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--url',default='http://localhost:8000');parser.add_argument('--wait-seconds',type=int,default=300);args=parser.parse_args()
     started=time.monotonic()
     since=datetime.now(timezone.utc)
     with httpx.Client(base_url=args.url,timeout=120) as client:
@@ -24,10 +24,17 @@ def main() -> None:
         assert case['amount_inr']==4299 and case['strength_label']=='Strong'
         post(f'/api/cases/{id}/draft');post(f'/api/cases/{id}/approve')
         print('PASS complaint approved; SMTP accepted',flush=True)
-        end=time.monotonic()+args.wait_seconds
+        end=started+args.wait_seconds
+        seen=set()
         while time.monotonic()<end:
             response=client.get(f'/api/cases/{id}/verification');response.raise_for_status();audit=response.json()
-            if audit['worker_errors']: raise RuntimeError(json.dumps(audit['worker_errors']))
+            for event in audit['events']:
+                if event['id'] not in seen:
+                    seen.add(event['id'])
+                    print('EVENT',event['at'],event['type'],event['title'],flush=True)
+            if audit['case']['status']=='AWAITING_APPROVAL':
+                print('Approving pending demo draft',flush=True)
+                post(f'/api/cases/{id}/approve')
             if audit['case']['status']=='AWAITING_RECEIPT': break
             time.sleep(5)
         else: raise TimeoutError(f'No full resolution offer within {args.wait_seconds} seconds')

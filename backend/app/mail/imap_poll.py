@@ -13,7 +13,7 @@ def poll(engine) -> list[dict]:
         outgoing=session.exec(select(Message).where(Message.direction=='out')).all()
         seen={m.message_id for m in session.exec(select(Message).where(Message.direction=='in')).all()}
     found=[]
-    with MailBox('imap.gmail.com',timeout=20).login(config.user_email,config.user_email_app_password.get_secret_value()) as box:
+    with MailBox('imap.gmail.com',timeout=30).login(config.user_email,config.user_email_app_password.get_secret_value()) as box:
         senders={m.to for m in outgoing}
         criteria=raw_query() if not senders else 'X-GM-RAW "in:anywhere {'+' '.join('from:'+s for s in senders)+'}"'
         for folder,mail in search(box,criteria):

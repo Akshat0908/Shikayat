@@ -39,7 +39,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         deflections=sum(m.classification_json.get('category')=='deflection' for m in messages if m.direction=='in')
         deadline=(now(session)+timedelta(days=2)).date().isoformat()
     decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')))
-    event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level})
+    event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level,'requires_approval':decision.requires_approval})
     draft=None
     outgoing=None
     if decision.action=='confirm_receipt': case.status=CaseStatus.AWAITING_RECEIPT
@@ -88,8 +88,19 @@ async def receive(app, data: dict) -> None:
     await act(app,case.id,analysis)
 
 
+async def retry_imap(operation, *args):
+    import imaplib
+    for attempt, delay in enumerate((2, 5, 10)):
+        try:
+            return await asyncio.to_thread(operation, *args)
+        except (TimeoutError, OSError, imaplib.IMAP4.abort) as error:
+            logger.warning('IMAP transient failure: %s attempt=%s', type(error).__name__, attempt+1)
+            if attempt == 2: raise
+            await asyncio.sleep(delay)
+
+
 async def inbox_iteration(app) -> None:
-    for data in await asyncio.to_thread(poll,app.state.engine):
+    for data in await retry_imap(poll,app.state.engine):
         await receive(app,data)
 
 
@@ -99,7 +110,7 @@ async def inbox_loop(app) -> None:
         if config.user_email and config.user_email_app_password.get_secret_value():
             try: await inbox_iteration(app)
             except Exception as error:
-                if worker_failure(app,'inbox',error): return
+                worker_failure(app,'inbox',error)
         await asyncio.sleep(5)
 
 
@@ -121,5 +132,5 @@ async def deadline_loop(app) -> None:
     while True:
         try: await deadline_iteration(app)
         except Exception as error:
-            if worker_failure(app,'deadlines',error): return
+            worker_failure(app,'deadlines',error)
         await asyncio.sleep(10)
