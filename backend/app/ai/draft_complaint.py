@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, date
 from pydantic import BaseModel
 from .client import call_structured
 from ..config import ROOT, get_settings
@@ -47,8 +47,20 @@ def prepare_email(draft: EmailDraft, facts: dict, profile, company: dict | None)
     body=re.split(r'(?im)^\s*(?:sincerely|regards|best regards|yours faithfully|yours sincerely|thank you),?\s*$',body)[0].strip()
     body='\n\n'.join(p for p in body.split('\n\n') if not re.search(r'consumer protection|e-commerce rules|rule 4\s*\(5\)',p,re.I))
     body=re.sub(r'\bINR\s*([\d,]+(?:\.\d+)?)',lambda m: indian_amount(float(m.group(1).replace(',',''))),body,flags=re.I)
+    # Reinsert the code-computed deadline after the applicable rule.
+    try: normalized_deadline=date.fromisoformat(draft.deadline_date).strftime('%-d %b %Y')
+    except ValueError: normalized_deadline=draft.deadline_date
+    for deadline_text in {draft.deadline_date,normalized_deadline}:
+        body=re.sub(r'(?im)[^.\n]*\b'+re.escape(deadline_text)+r'\b[^.\n]*\.?', '', body).strip()
+    def display_date(match):
+        try: return date.fromisoformat(match.group()).strftime('%-d %b %Y')
+        except ValueError: return match.group()
+    body=re.sub(r'\b\d{4}-\d{2}-\d{2}\b',display_date,body)
     amount=facts.get('amount_inr'); order=facts.get('order_id'); demand=facts.get('user_demand') or 'complaint'
     issue={'refund':'Refund','replacement':'Replacement','delivery':'Delivery','compensation':'Compensation'}.get(demand,'Complaint')
+    issue_type=facts.get('issue_type')
+    if demand=='replacement' and issue_type in ('damaged','wrong_item'):
+        issue='Replacement for defective item' if issue_type=='damaged' else 'Replacement for wrong item'
     subject=f'Grievance: {issue}' + (f' of {indian_amount(float(amount))}' if amount is not None else '') + (' not received' if demand=='refund' else '') + (f' | Order {order}' if order else '')
     officer=(company or {}).get('grievance_officer') or {}
     greeting=f"Dear {officer['name']}," if officer.get('verified') and officer.get('name') else 'Dear Grievance Officer,'
@@ -56,6 +68,13 @@ def prepare_email(draft: EmailDraft, facts: dict, profile, company: dict | None)
     refs=[r for r in verified_refs() if r['id']=='ecom_rules_2020_grievance'] if effective_sector(company,facts)=='e-commerce' else []
     if refs:
         body+='\n\nUnder Rule 4(5) of the Consumer Protection (E-Commerce) Rules, 2020, please acknowledge this complaint within 48 hours and redress it within one month of receipt.'
-    signature='\n'.join(x for x in (profile.name,profile.phone,profile.email) if x)
+    try: formatted_deadline=date.fromisoformat(draft.deadline_date).strftime('%-d %b %Y')
+    except ValueError: formatted_deadline=draft.deadline_date
+    body+=f'\n\nPlease resolve this matter and share a clear update by {formatted_deadline}.'
+    digits=re.sub(r'\D','',profile.phone or '')
+    if len(digits)==11 and digits.startswith('0'): digits=digits[1:]
+    if len(digits)==12 and digits.startswith('91'): digits=digits[2:]
+    phone=f'+91 {digits[:5]} {digits[5:]}' if len(digits)==10 else profile.phone
+    signature='\n'.join(x for x in (profile.name,phone,profile.email) if x)
     body=greeting+'\n\n'+body+'\n\nSincerely,'+(('\n'+signature) if signature else '')
     return draft.model_copy(update={'subject':subject,'body':body,'cited_refs':[r['id'] for r in refs]})

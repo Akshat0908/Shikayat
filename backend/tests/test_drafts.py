@@ -29,3 +29,15 @@ def test_generated_email_has_no_placeholder_and_uses_profile():
     assert 'Akshat' in result.body and 'user@example.test' in result.body
     assert 'Rule 4(5)' in result.body and result.cited_refs==['ecom_rules_2020_grievance']
     assert result.subject=='Grievance: Refund of ₹4,299 not received | Order ABC'
+
+
+def test_draft_polish_dates_phone_and_rule_before_deadline():
+    from backend.app.ai.draft_complaint import EmailDraft,prepare_email
+    from backend.app.models import UserProfile
+    draft=EmailDraft(subject='Draft',body='Bought on 2026-11-04. Please resolve by 2026-12-21.',cited_refs=[],attachments=[],demand='replacement',deadline_date='2026-12-21')
+    facts={'amount_inr':1099,'order_id':'LF-261104-7821','user_demand':'replacement','issue_type':'damaged','purchase_channel':'brand_website'}
+    result=prepare_email(draft,facts,UserProfile(name='Akshat',phone='06378200898',email='user@example.test'),None)
+    assert result.subject=='Grievance: Replacement for defective item of ₹1,099 | Order LF-261104-7821'
+    assert '4 Nov 2026' in result.body and '21 Dec 2026' in result.body
+    assert '+91 63782 00898' in result.body and '2026-12-21' not in result.body
+    assert result.body.index('Rule 4(5)') < result.body.index('21 Dec 2026')
