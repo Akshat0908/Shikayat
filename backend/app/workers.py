@@ -85,6 +85,7 @@ async def receive(app, data: dict) -> None:
                 for deadline in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='ack_48h',Deadline.status=='running')).all():
                     deadline.status='met';session.add(deadline)
             session.commit()
+    await app.state.events.publish('case_changed',{'case_id':case.id})
     await act(app,case.id,analysis)
 
 

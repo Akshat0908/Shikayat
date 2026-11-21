@@ -1,6 +1,4 @@
-export type Health = { status: "ok" };
-export async function getHealth(): Promise<Health> {
-  const response = await fetch("/api/health");
-  if (!response.ok) throw new Error("Could not reach Shikayat. Please retry.");
-  return response.json() as Promise<Health>;
-}
+import type {Board,CaseRecord,EmailDraft} from './types';
+async function request<T>(url:string, options?:RequestInit):Promise<T> { const r=await fetch('/api'+url,options);if(!r.ok){let detail='Request failed';try {const body:unknown=await r.json();if(body && typeof body==='object' && 'detail' in body) detail=String(body.detail);}catch{}throw new Error(detail)}return r.json() as Promise<T>; }
+const post=<T>(url:string,body?:unknown)=>request<T>(url,{method:'POST',...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
+export const api={cases:()=>request<CaseRecord[]>('/cases'),board:(id:string)=>request<Board>(`/cases/${id}/board`),sample:(id:string)=>post<CaseRecord>(`/cases/sample/${id}`),create:(form:FormData)=>request<CaseRecord>('/cases',{method:'POST',body:form}),draft:(id:string)=>post<EmailDraft>(`/cases/${id}/draft`),approve:(id:string)=>post<{message_id:string}>(`/cases/${id}/approve`),receipt:(id:string)=>post<CaseRecord>(`/cases/${id}/confirm-receipt`),settings:()=>request<{demo_mode:boolean}>('/demo/settings'),clock:()=>post<{now:string}>('/demo/clock'),inject:(id:string)=>post('/demo/inject',{case_id:id}),reset:()=>post('/demo/reset'),warm:()=>post<{status:string}>('/demo/warm')};

@@ -1,4 +1,5 @@
-export type Stage = 'draft' | 'sent' | 'deflection' | 'escalated' | 'offered' | 'resolved';
-export interface CaseRecord { id: string; title: string; company_id: string; amount_inr: number; status: Stage; level: 'L2' | 'L3'; strength_score: number; recovered_inr: number; created_at: string; facts_json: { order_id: string | null; purchase_date: string | null; missing_info: string[]; field_confidence: Record<string, number> }; }
-export interface TimelineEvent { id: string; actor: 'ai' | 'user' | 'company' | 'system'; title: string; reason: string; at: string; }
-export interface EmailDraft { subject: string; body: string; deadline_date: string; cited_refs: string[]; }
+export type Status = 'DRAFT'|'AWAITING_APPROVAL'|'WAITING'|'NEEDS_INFO'|'ESCALATED'|'AWAITING_RECEIPT'|'RESOLVED';
+export interface CaseRecord { id:string; title:string; company_id:string|null; amount_inr:number|null; status:Status; level:'L2'|'L3'|'L4'|'L5'; strength_score:number; strength_label:string|null; recovered_inr:number; created_at:string; facts_json:{company_name?:string|null;order_id?:string|null;purchase_date?:string|null;issue_summary_en?:string;missing_info?:string[];field_confidence?:Record<string,number>;mode?:string;demo_sample?:boolean} }
+export interface TimelineEvent { id:string;actor:'ai'|'user'|'company'|'system';type:string;title:string;reason:string|null;at:string;payload_json:Record<string,unknown> }
+export interface EmailDraft { subject:string; body:string; deadline_date:string; cited_refs:string[]; attachments:string[];demand:string }
+export interface Board {case:CaseRecord;events:TimelineEvent[];messages:{id:string;direction:string;body_text:string;classification_json:{category?:string;summary_hinglish?:string}}[];deadlines:{id:string;kind:string;due_at:string;status:string}[];now:string;sender:string|null;recipient:{email:string|null;verified:boolean}|null}

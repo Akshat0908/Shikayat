@@ -53,3 +53,12 @@ async def reset(request: Request) -> dict:
 @router.get('/settings')
 def demo_settings(request: Request) -> dict:
     return {'demo_mode':request.app.state.config.demo_mode}
+
+@router.post('/warm')
+async def warm(request: Request) -> dict:
+    enabled()
+    from .cases import sample
+    case=await sample(request,'shopkart')
+    from .drafts import draft
+    await draft(case['id'],request)
+    return {'status':'warmed','case_id':case['id']}

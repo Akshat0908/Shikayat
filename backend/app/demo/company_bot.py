@@ -52,10 +52,13 @@ async def company_loop(app) -> None:
             try:
                 from ..workers import retry_imap
                 events=await retry_imap(respond,app.state.engine)
+                case_ids=[event.case_id for event in events]
                 from ..workers import _write_lock
                 async with _write_lock:
                     with Session(app.state.engine) as session:
                         session.add_all(events);session.commit()
+                for case_id in case_ids:
+                    await app.state.events.publish('case_changed',{'case_id':case_id})
             except Exception as error:
                 from ..workers import worker_failure
                 worker_failure(app,'demo_bot',error)
