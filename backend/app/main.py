@@ -19,9 +19,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.engine = build_engine(config.database_url)
         init_db(app.state.engine)
         ping_task = asyncio.create_task(bus.ping_forever())
+        from .workers import inbox_loop, deadline_loop
+        from .demo.company_bot import company_loop
+        tasks=[asyncio.create_task(worker(app)) for worker in (inbox_loop,deadline_loop,company_loop)]
         try:
             yield
         finally:
+            for task in tasks:
+                task.cancel()
+            await asyncio.gather(*tasks,return_exceptions=True)
             ping_task.cancel()
             with suppress(asyncio.CancelledError):
                 await ping_task
@@ -34,6 +40,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(cases_router)
     from .api.drafts import router as drafts_router
     app.include_router(drafts_router)
+    from .api.demo import router as demo_router
+    app.include_router(demo_router)
 
     @app.get("/api/events")
     async def events(request: Request) -> StreamingResponse:
