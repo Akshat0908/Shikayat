@@ -22,7 +22,7 @@ def main() -> None:
         print('Case:',id,'mode:',case['mode'],'strength:',case['strength_label'],flush=True)
         assert case['mode']=='live',case['facts_json'].get('replay_reason')
         assert case['amount_inr']==4299 and case['strength_label']=='Strong'
-        post(f'/api/cases/{id}/draft');post(f'/api/cases/{id}/approve')
+        post(f'/api/cases/{id}/draft');post(f'/api/cases/{id}/confirm-recipient');post(f'/api/cases/{id}/approve')
         print('PASS complaint approved; SMTP accepted',flush=True)
         end=started+args.wait_seconds
         seen=set()

@@ -1,5 +1,6 @@
 from datetime import timedelta
 import hashlib
+from typing import Literal
 from fastapi import APIRouter, HTTPException, Request
 from sqlmodel import Session, select
 from pydantic import BaseModel, Field
@@ -144,3 +145,30 @@ def case_board(case_id: str, request: Request) -> dict:
         company=next((c for c in load_companies() if c['id']==case.company_id),None)
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer'] if company else None
         return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':now(session).isoformat(), 'sender':get_settings().user_email or None,'recipient':contact,'sector_message':None if company and company.get('sector')=='e-commerce' else 'Sector-specific rules not configured'}
+
+class OfferResponse(BaseModel):
+    action: Literal['accept','counter']
+    counter_amount: float | None = Field(default=None, gt=0)
+
+@router.post('/{case_id}/offer-response')
+async def offer_response(case_id: str, response: OfferResponse, request: Request) -> dict:
+    from ..ai.draft_escalation import draft_escalation
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        if case.status!=CaseStatus.NEEDS_INFO: raise HTTPException(409,'No partial offer awaiting your choice')
+        latest=session.exec(select(Message).where(Message.case_id==case_id,Message.direction=='in').order_by(Message.sent_at.desc())).first()
+        if not latest or latest.classification_json.get('reply_type')!='partial_offer': raise HTTPException(409,'No partial offer awaiting your choice')
+        if response.action=='counter' and response.counter_amount is None: raise HTTPException(422,'Counter amount is required')
+        messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
+        deadline=(now(session)+timedelta(days=2)).date().isoformat()
+    reason=('User accepted the partial offer; request fulfillment and await confirmation.' if response.action=='accept' else f'User requested a counteroffer of INR {response.counter_amount:.2f}.')
+    result=await draft_escalation(case.facts_json,[{'date':m.sent_at.date().isoformat(),'body':m.body_text} for m in messages],reason,deadline)
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if case.status!=CaseStatus.NEEDS_INFO: raise HTTPException(409,'Offer state changed')
+        session.add(Event(case_id=case_id,actor='user',type='offer_response',title='Offer '+response.action,reason=reason,payload_json=response.model_dump()))
+        session.add(Event(case_id=case_id,actor='ai',type='draft',title='Offer response drafted',reason=reason,payload_json=result.model_dump()))
+        case.status=CaseStatus.AWAITING_APPROVAL;session.add(case);session.commit()
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'awaiting_approval','draft':result.model_dump()}
