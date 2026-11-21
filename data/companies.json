@@ -41,10 +41,10 @@
     "care_url": null,
     "grievance_officer": {
       "name": null,
-      "email": null,
-      "source_url": null,
-      "verified": false,
-      "last_checked": null
+      "email": "grievance.officer@flipkart.com",
+      "source_url": "https://www.flipkart.com/pages/grievance-redressal-mechanism",
+      "verified": true,
+      "last_checked": "2026-11-21"
     },
     "nodal_officer": {
       "name": null,
@@ -55,7 +55,9 @@
     },
     "regulator_route": null,
     "demo": false,
-    "verified_domains": []
+    "verified_domains": [
+      "flipkart.com"
+    ]
   },
   {
     "id": "amazon_india",
