@@ -1,4 +1,5 @@
 import asyncio
+from uuid import uuid4
 from contextlib import asynccontextmanager, suppress
 from collections.abc import AsyncIterator
 from fastapi import FastAPI, Request
@@ -25,7 +26,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ping_task = asyncio.create_task(bus.ping_forever())
         from .workers import inbox_loop, deadline_loop
         from .demo.company_bot import company_loop
-        tasks=[asyncio.create_task(worker(app)) for worker in (inbox_loop,deadline_loop,company_loop,retention_loop)]
+        app.state.instance_id = str(uuid4())
+        app.state.worker_tasks = {
+            'inbox_poller': asyncio.create_task(inbox_loop(app), name='inbox_poller'),
+            'deadline_ticker': asyncio.create_task(deadline_loop(app), name='deadline_ticker'),
+            'demo_bot': asyncio.create_task(company_loop(app), name='demo_bot'),
+        }
+        tasks = [*app.state.worker_tasks.values(), asyncio.create_task(retention_loop(app), name='retention')]
+
         try:
             yield
         finally:
