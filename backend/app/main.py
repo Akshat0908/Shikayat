@@ -41,6 +41,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(cases_router)
     from .api.drafts import router as drafts_router
     app.include_router(drafts_router)
+    from .api.case_controls import router as controls_router
+    app.include_router(controls_router)
     from .api.profile import router as profile_router
     app.include_router(profile_router)
     from .api.eval import router as eval_router

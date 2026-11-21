@@ -67,36 +67,58 @@ async def edit_draft(case_id: str, edit: DraftEdit, request: Request) -> EmailDr
 
 @router.post('/{case_id}/approve')
 async def approve(case_id: str, request: Request) -> dict[str,str]:
-    with Session(request.app.state.engine) as session:
-        case=session.get(Case,case_id)
-        if not case: raise HTTPException(404,'Case not found')
-        if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Case is not awaiting approval')
-        events=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).all()
-        if not events: raise HTTPException(409,'Create a draft first')
-        company=next((c for c in load_companies() if c['id']==case.company_id),None)
-        if not company: raise HTTPException(422,'Company needs verification')
-        if case.level.value not in ('L2','L3'): raise HTTPException(422,'Portal filings require manual submission')
-        contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
-        email=EmailDraft.model_validate(events[0].payload_json)
-        if '[' in email.body or '[' in email.subject: raise HTTPException(422,'Edit the draft to remove placeholders before sending')
-        previous=session.exec(select(Message).where(Message.case_id==case_id,Message.direction=='out').order_by(Message.sent_at.desc())).first()
-        if previous is None:
-            confirmed=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='recipient_confirmed').order_by(Event.at.desc())).first()
-            fingerprint=hashlib.sha256((contact.get('email') or '').strip().casefold().encode()).hexdigest()
-            if not confirmed or confirmed.payload_json.get('contact_hash')!=fingerprint or confirmed.payload_json.get('level')!=case.level.value:
-                raise HTTPException(409,'Confirm the verified recipient before the first send')
-    try:
-        message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
-    except ValueError as e: raise HTTPException(422,str(e)) from e
-    with Session(request.app.state.engine) as session:
-        from ..config import get_settings
-        sent_at=now(session)
-        session.add(Message(case_id=case_id,direction='out',level=case.level,to=contact['email'],from_=get_settings().user_email,subject=email.subject,body_text=email.body,message_id=message_id,sent_at=sent_at))
-        if previous is None and company.get('sector')=='e-commerce':
-            # SMTP acceptance is not proof of complaint receipt; deadlines are provisional.
-            for kind,due in deadlines(sent_at).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
-        session.add(Event(case_id=case_id,actor='user',type='sent',title='Complaint sent',reason='User explicitly approved this draft.',payload_json={'message_id':message_id}))
-        case.status=CaseStatus.WAITING;session.add(case);session.commit()
+    from datetime import datetime, timezone
+    from ..workers import _send_lock
+    from ..engine.send_guard import guard
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id)
+            if not case: raise HTTPException(404,'Case not found')
+            if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Case is not awaiting approval')
+            events=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).all()
+            if not events: raise HTTPException(409,'Create a draft first')
+            company=next((c for c in load_companies() if c['id']==case.company_id),None)
+            if not company: raise HTTPException(422,'Company needs verification')
+            if case.level.value not in ('L2','L3'): raise HTTPException(422,'Portal filings require manual submission')
+            contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
+            email=EmailDraft.model_validate(events[0].payload_json)
+            if '[' in email.body or '[' in email.subject: raise HTTPException(422,'Edit the draft to remove placeholders before sending')
+            messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
+            previous=next((m for m in reversed(messages) if m.direction=='out'),None)
+            config=request.app.state.config
+            timestamp=now(session) if company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
+            reason,due=guard(case,messages,timestamp,config,bool(company.get('demo')))
+            if config.public_demo and (not company.get('demo') or (contact.get('email') or '').strip().casefold() not in {x.strip().casefold() for x in config.autopilot_allowlist.split(',') if x.strip()}):
+                reason='Sending disabled on the public demo'
+            if reason:
+                session.add(Event(case_id=case_id,actor='system',type='send_limit',title='Sending stopped',reason=reason,payload_json={'next_allowed_at':due.isoformat() if due else None}));session.commit()
+                raise HTTPException(409,reason)
+            if previous is None:
+                confirmed=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='recipient_confirmed').order_by(Event.at.desc())).first()
+                fingerprint=hashlib.sha256((contact.get('email') or '').strip().casefold().encode()).hexdigest()
+                if not confirmed or confirmed.payload_json.get('contact_hash')!=fingerprint or confirmed.payload_json.get('level')!=case.level.value:
+                    raise HTTPException(409,'Confirm the verified recipient before the first send')
+        try:
+            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
+        except ValueError as e: raise HTTPException(422,str(e)) from e
+        except Exception as error:
+            from ..mail.delivery import permanently_blocked,record_blocked
+            if not permanently_blocked(error): raise
+            record_blocked(request.app.state.engine,case_id)
+            await request.app.state.events.publish('case_changed',{'case_id':case_id})
+            raise HTTPException(422,'Recipient blocked; NCH-ready complaint prepared') from error
+        with Session(request.app.state.engine) as session:
+            current=session.get(Case,case_id)
+            if not current: raise HTTPException(404,'Case not found')
+            session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=email.subject,body_text=email.body,message_id=message_id,sent_at=timestamp))
+            if previous is None and company.get('sector')=='e-commerce':
+                for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
+            elif previous is not None and company.get('sector')=='e-commerce':
+                missed=session.exec(select(Deadline).where(Deadline.case_id==case_id,Deadline.kind=='ack_48h',Deadline.status=='breached')).first()
+                acknowledged=any(m.direction=='in' and m.level==current.level and m.classification_json.get('acknowledged') for m in messages)
+                if missed and not acknowledged: session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
+            session.add(Event(case_id=case_id,actor='user',type='sent',title='Complaint sent',reason='User explicitly approved this draft.',payload_json={'message_id':message_id}))
+            current.status=CaseStatus.WAITING;session.add(current);session.commit()
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
 
@@ -123,14 +145,16 @@ def get_case(case_id: str, request: Request) -> Case:
 
 @router.post('/{case_id}/confirm-receipt')
 async def receipt(case_id: str, request: Request) -> Case:
-    with Session(request.app.state.engine) as session:
-        case=session.get(Case,case_id)
-        if not case: raise HTTPException(404,'Case not found')
-        if case.status!=CaseStatus.AWAITING_RECEIPT: raise HTTPException(409,'No full resolution offer awaiting confirmation')
-        case.status=CaseStatus.RESOLVED;case.resolved_at=now(session);case.recovered_inr=case.amount_inr or 0
-        for deadline in session.exec(select(Deadline).where(Deadline.case_id==case_id,Deadline.status=='running')).all():
-            deadline.status='met';session.add(deadline)
-        session.add(case);session.add(Event(case_id=case_id,actor='user',type='resolved',title='Receipt confirmed',reason='User confirmed funds were received.'));session.commit();session.refresh(case)
+    from ..workers import _send_lock
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id)
+            if not case: raise HTTPException(404,'Case not found')
+            if case.status!=CaseStatus.AWAITING_RECEIPT: raise HTTPException(409,'No full resolution offer awaiting confirmation')
+            case.status=CaseStatus.RESOLVED;case.resolved_at=now(session);case.recovered_inr=case.amount_inr or 0
+            for deadline in session.exec(select(Deadline).where(Deadline.case_id==case_id,Deadline.status=='running')).all():
+                deadline.status='met';session.add(deadline)
+            session.add(case);session.add(Event(case_id=case_id,actor='user',type='resolved',title='Receipt confirmed',reason='User confirmed funds were received.'));session.commit();session.refresh(case)
     await request.app.state.events.publish('resolved',{'case_id':case_id,'reason':'Receipt confirmed by user'})
     return case
 
@@ -161,7 +185,15 @@ def case_board(case_id: str, request: Request) -> dict:
         company=next((c for c in load_companies() if c['id']==case.company_id),None)
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer'] if company else None
         evidence=session.exec(select(Evidence).where(Evidence.case_id==case_id,Evidence.kind.in_(['screenshot','voice','text']))).all()
-        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':now(session).isoformat(), 'sender':get_settings().user_email or None,'recipient':contact,'sector_message':None if company and company.get('sector')=='e-commerce' else 'Sector-specific rules not configured'}
+        config=request.app.state.config
+        sent=[m for m in messages if m.direction=='out']; level_sent=[m for m in sent if m.level==case.level]
+        limit=config.grievance_followup_limit if case.level.value=='L2' else config.nodal_followup_limit
+        from datetime import datetime,timezone
+        timestamp=now(session) if company and company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
+        from ..engine.send_guard import guard
+        blocked,next_allowed=guard(case,messages,timestamp,config,bool(company and company.get('demo')))
+        public_block=bool(config.public_demo and (not company or not company.get('demo') or ((contact or {}).get('email') or '').strip().casefold() not in {x.strip().casefold() for x in config.autopilot_allowlist.split(',') if x.strip()}))
+        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':config.user_email or None,'recipient':contact,'sector_message':None if company and company.get('sector')=='e-commerce' else 'Sector-specific rules not configured','followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
 
 class OfferResponse(BaseModel):
     action: Literal['accept','counter']

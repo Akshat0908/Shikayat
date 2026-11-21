@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from sqlmodel import Session, select
 from .ai.classify_reply import classify_reply, ReplyAnalysis
 from .ai.draft_escalation import draft_escalation
@@ -11,7 +11,8 @@ from .engine.company import load_companies
 from .engine.policy import decide
 from .mail.imap_poll import poll
 from .mail.smtp_send import send_email
-from .models import Case, CaseStatus, Deadline, Event, Level, Message
+from .models import Case, CaseStatus, Deadline, Evidence, Event, Level, Message
+from .engine.send_guard import guard
 
 logger=logging.getLogger(__name__)
 
@@ -30,48 +31,92 @@ def worker_failure(app, worker: str, error: Exception) -> bool:
 
 
 _write_lock = asyncio.Lock()
+_send_lock = asyncio.Lock()
 
 
-async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached: bool = False) -> None:
+async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached: bool = False, redress_breached: bool = False) -> None:
+    config=app.state.config
     with Session(app.state.engine) as session:
         case=session.get(Case,case_id)
-        if not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'): return
+        if not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused') or case.facts_json.get('paused'): return
         messages=session.exec(select(Message).where(Message.case_id==case.id).order_by(Message.sent_at)).all()
-        deflections=sum(m.classification_json.get('category')=='deflection' for m in messages if m.direction=='in')
+        level_messages=[m for m in messages if m.level==case.level]
+        deflections=sum(m.classification_json.get('category')=='deflection' for m in level_messages if m.direction=='in')
+        outbound=sum(m.direction=='out' for m in messages)
+        followups=max(0,sum(m.direction=='out' for m in level_messages)-1)
+        limit=config.grievance_followup_limit if case.level==Level.L2 else config.nodal_followup_limit
         deadline=(now(session)+timedelta(days=2)).date().isoformat()
         from .api.profile import get_profile
-        profile=get_profile(session,app.state.config.user_email)
+        profile=get_profile(session,config.user_email)
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
-    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None)
+    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None,followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case)
     event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level,'requires_approval':decision.requires_approval})
-    draft=None
-    outgoing=None
-    if decision.action=='confirm_receipt': case.status=CaseStatus.AWAITING_RECEIPT
-    elif decision.action in ('ask_user','user_review','offer_choice'): case.status=CaseStatus.NEEDS_INFO
+    draft=None;outgoing=None;status=case.status;new_level=Level(decision.level)
+    if decision.action=='confirm_receipt': status=CaseStatus.AWAITING_RECEIPT
+    elif decision.action in ('ask_user','user_review','offer_choice'): status=CaseStatus.NEEDS_INFO
     elif decision.action in ('followup','escalate','counter','reply_info','prepare_filing'):
-        case.level=Level(decision.level)
-        draft=await draft_escalation(case.facts_json,[{'date':m.sent_at.date().isoformat(),'body':m.body_text} for m in messages],decision.reason,deadline)
-        company=next((c for c in load_companies() if c['id']==case.company_id),None)
-        draft=prepare_email(draft,case.facts_json,profile,company)
-        validate_draft(draft,deadline)
-        contact=company['nodal_officer' if case.level==Level.L3 else 'grievance_officer'] if company else {}
-        allowlist={s.strip().casefold() for s in get_settings().autopilot_allowlist.split(',') if s.strip()}
-        if decision.action!='prepare_filing' and company and company.get('demo') and contact.get('email') and contact['email'].casefold() in allowlist:
-            previous=next((m for m in reversed(messages) if m.direction=='out'),None)
-            message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in messages if m.message_id])
-            outgoing=Message(case_id=case.id,direction='out',level=case.level,to=contact['email'],from_=get_settings().user_email,subject=draft.subject,body_text=draft.body,message_id=message_id)
-            case.status=CaseStatus.ESCALATED if decision.action=='escalate' else CaseStatus.WAITING
-        else: case.status=CaseStatus.AWAITING_APPROVAL
+        try:
+            draft=await draft_escalation(case.facts_json,[{'date':m.sent_at.date().isoformat(),'body':m.body_text} for m in messages],decision.reason,deadline)
+        except Exception:
+            if decision.action!='prepare_filing': raise
+            from .ai.draft_complaint import EmailDraft
+            draft=EmailDraft(subject='Consumer complaint',body=f"Issue: {case.facts_json.get('issue_summary_en') or case.title}\nRequested remedy: {case.demand or 'Needs user review'}\nPlease review the case evidence and correspondence.",cited_refs=[],attachments=[],demand=case.demand or '',deadline_date=deadline)
+        draft=prepare_email(draft,case.facts_json,profile,company);validate_draft(draft,deadline)
+        contact=(company or {}).get('nodal_officer' if new_level==Level.L3 else 'grievance_officer') or {}
+        allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
+        if decision.action=='prepare_filing': status=CaseStatus.NEEDS_INFO
+        elif company and company.get('demo') and contact.get('email') and contact['email'].casefold() in allowlist:
+            async with _send_lock:
+                with Session(app.state.engine) as session:
+                    current=session.get(Case,case_id)
+                    if not current: return
+                    current_messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
+                    current.level=new_level
+                    timestamp=now(session) if company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
+                    reason,due=guard(current,current_messages,timestamp,config,bool(company.get('demo')))
+                    if reason:
+                        current.level=case.level
+                        if due:
+                            current.facts_json={**current.facts_json,'pending_action':{'category':analysis.category if analysis else 'acknowledged','breached':breached,'redress_breached':redress_breached,'due_at':due.isoformat()}}
+                            session.add(current)
+                        elif current.facts_json.get('paused') and analysis:
+                            current.facts_json={**current.facts_json,'pending_review':analysis.model_dump()};session.add(current)
+                        session.add(Event(case_id=case_id,actor='system',type='send_limit',title='Follow-up deferred' if due else 'Sending stopped',reason=reason,payload_json={'next_allowed_at':due.isoformat() if due else None}));session.commit()
+                    previous=next((m for m in reversed(current_messages) if m.direction=='out'),None)
+                if reason:
+                    await app.state.events.publish('case_changed',{'case_id':case_id})
+                    return
+                try:
+                    message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in current_messages if m.message_id])
+                except Exception as error:
+                    from .mail.delivery import permanently_blocked,record_blocked
+                    if not permanently_blocked(error): raise
+                    record_blocked(app.state.engine,case_id)
+                    await app.state.events.publish('case_changed',{'case_id':case_id})
+                    return
+                outgoing=Message(case_id=case.id,direction='out',level=new_level,to=contact['email'],from_=config.user_email,subject=draft.subject,body_text=draft.body,message_id=message_id,sent_at=timestamp)
+                status=CaseStatus.ESCALATED if decision.action=='escalate' else CaseStatus.WAITING
+                async with _write_lock:
+                    with Session(app.state.engine) as session:
+                        current=session.get(Case,case_id)
+                        if not current: return
+                        current.facts_json={k:v for k,v in current.facts_json.items() if k!='pending_action'}
+                        current.level=new_level;current.status=status;session.add(current);session.add(outgoing);session.add(event)
+                        session.add(Event(case_id=case.id,actor='ai',type='draft',title='Next action drafted',reason=decision.reason,payload_json=draft.model_dump()))
+                        if breached and decision.action=='followup': session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
+                        session.commit()
+            await app.state.events.publish('decision',{'case_id':case.id,'action':decision.action,'reason':decision.reason})
+            return
+        else: status=CaseStatus.AWAITING_APPROVAL
     async with _write_lock:
         with Session(app.state.engine) as session:
-            session.add(event)
-            if draft: session.add(Event(case_id=case.id,actor='ai',type='draft',title='Next action drafted',reason=decision.reason,payload_json=draft.model_dump()))
-            if outgoing:
-                outgoing.sent_at=now(session)
-                session.add(outgoing)
             current=session.get(Case,case_id)
-            if current.status!=CaseStatus.RESOLVED:
-                current.status=case.status;current.level=case.level;session.add(current)
+            if not current or current.status==CaseStatus.RESOLVED or current.facts_json.get('paused'): return
+            current.status=status;current.level=new_level;session.add(current);session.add(event)
+            if draft:
+                payload=draft.model_dump()
+                if decision.action=='prepare_filing': payload['portal_url']='https://consumerhelpline.gov.in/public/'
+                session.add(Event(case_id=case.id,actor='ai',type='nch_pack' if decision.action=='prepare_filing' else 'draft',title='NCH-ready complaint' if decision.action=='prepare_filing' else 'Next action drafted',reason=decision.reason,payload_json=payload))
             session.commit()
     await app.state.events.publish('decision',{'case_id':case.id,'action':decision.action,'reason':decision.reason})
 
@@ -81,15 +126,31 @@ async def receive(app, data: dict) -> None:
         existing=session.exec(select(Message).where(Message.message_id==data['message_id'])).first()
         case=session.get(Case,data['case_id'])
         if existing or not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'): return
+    if data.get('bounced'):
+        async with _send_lock:
+            with Session(app.state.engine) as session:
+                case=session.get(Case,data['case_id'])
+                if not case or session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
+                case.facts_json={**case.facts_json,'recipient_bounced':True};session.add(case)
+                session.add(Message(case_id=case.id,direction='in',level=case.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json={'category':'bounce'},sent_at=now(session)))
+                session.add(Evidence(case_id=case.id,kind='email',transcript=data['body'],extracted_json={'origin':'bounce','message_id':data['message_id']}))
+                session.add(Event(case_id=case.id,actor='system',type='bounce',title='Recipient bounced',reason='Delivery failure detected; emailing stopped and NCH preparation required.',payload_json={'message_id':data['message_id']}));session.commit()
+        await app.state.events.publish('case_changed',{'case_id':data['case_id']})
+        await act(app,data['case_id'])
+        return
     analysis=await classify_reply(data['body'],case.amount_inr,case.demand)
     async with _write_lock:
         with Session(app.state.engine) as session:
-            if session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
-            session.add(Message(case_id=case.id,direction='in',level=case.level,to=get_settings().user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=analysis.model_dump(),sent_at=now(session)))
-            session.add(Event(case_id=case.id,actor='company',type='reply',title=('Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated'))}))
+            current=session.get(Case,case.id)
+            if not current or session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
+            reported=data.get('origin')=='user-reported'
+            if current.facts_json.get('paused'):
+                current.facts_json={**current.facts_json,'pending_review':analysis.model_dump()};session.add(current)
+            session.add(Message(case_id=case.id,direction='in',level=current.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=analysis.model_dump(),sent_at=now(session)))
+            if reported: session.add(Evidence(case_id=case.id,kind='text',transcript=data['body'],extracted_json={'origin':'user-reported','classification':analysis.model_dump()}))
+            session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated'))}))
             if analysis.acknowledged:
-                for deadline in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='ack_48h',Deadline.status=='running')).all():
-                    deadline.status='met';session.add(deadline)
+                for item in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind.in_(['ack_48h','followup']),Deadline.status=='running')).all(): item.status='met';session.add(item)
             session.commit()
     await app.state.events.publish('case_changed',{'case_id':case.id})
     await act(app,case.id,analysis)
@@ -122,17 +183,28 @@ async def inbox_loop(app) -> None:
 
 
 async def deadline_iteration(app) -> None:
-    triggers=[]
+    triggers=[];pending=[]
     async with _write_lock:
         with Session(app.state.engine) as session:
             timestamp=now(session)
-            for deadline in session.exec(select(Deadline).where(Deadline.status=='running')).all():
-                if deadline.due_at.replace(tzinfo=timezone.utc)<=timestamp:
-                    deadline.status='breached';session.add(deadline)
-                    case=session.get(Case,deadline.case_id)
-                    if case and case.status not in (CaseStatus.RESOLVED,CaseStatus.AWAITING_APPROVAL) and deadline.kind=='ack_48h': triggers.append(case.id)
+            for item in session.exec(select(Deadline).where(Deadline.status=='running')).all():
+                case=session.get(Case,item.case_id)
+                if not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('paused'): continue
+                current=timestamp if case.facts_json.get('demo_sample') and app.state.config.demo_mode else datetime.now(timezone.utc)
+                if item.due_at.replace(tzinfo=timezone.utc)<=current:
+                    item.status='breached';session.add(item)
+                    session.add(Event(case_id=case.id,actor='system',type='deadline',title='Deadline breached',reason=f'{item.kind} deadline expired.'))
+                    if case.status!=CaseStatus.AWAITING_APPROVAL and item.kind in ('ack_48h','followup','resolve_30d'): triggers.append((case.id,item.kind))
+            for case in session.exec(select(Case)).all():
+                entry=case.facts_json.get('pending_action')
+                if entry and not case.facts_json.get('paused'):
+                    current=timestamp if case.facts_json.get('demo_sample') and app.state.config.demo_mode else datetime.now(timezone.utc)
+                    if datetime.fromisoformat(entry['due_at'])<=current: pending.append((case.id,entry))
             session.commit()
-    for case_id in triggers: await act(app,case_id,breached=True)
+    for case_id,kind in triggers: await act(app,case_id,breached=kind in ('ack_48h','followup'),redress_breached=kind=='resolve_30d')
+    for case_id,entry in pending:
+        analysis=ReplyAnalysis(reply_type='deflection' if entry['category']=='deflection' else 'acknowledgment',acknowledged=True,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='',reason='',category=entry['category'])
+        await act(app,case_id,analysis,breached=entry['breached'],redress_breached=entry['redress_breached'])
 
 
 async def deadline_loop(app) -> None:

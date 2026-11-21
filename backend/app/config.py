@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     user_email_app_password: SecretStr = SecretStr("")
     demo_company_email: str = ""
     demo_company_app_password: SecretStr = SecretStr("")
+    public_demo: bool = False
+    grievance_followup_limit: int = 3
+    nodal_followup_limit: int = 2
+    min_outbound_interval_hours: float = 72
+    demo_outbound_interval_seconds: float = 10
+    max_outbound_per_case: int = 8
     replay_mode: bool = False
     demo_mode: bool = True
     demo_reply_delay_seconds: int = 5
