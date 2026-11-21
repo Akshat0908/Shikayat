@@ -99,7 +99,7 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
                 if not confirmed or confirmed.payload_json.get('contact_hash')!=fingerprint or confirmed.payload_json.get('level')!=case.level.value:
                     raise HTTPException(409,'Confirm the verified recipient before the first send')
         try:
-            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
+            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None,None,case_id)
         except ValueError as e: raise HTTPException(422,str(e)) from e
         except Exception as error:
             from ..mail.delivery import permanently_blocked,record_blocked
@@ -110,7 +110,8 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
         with Session(request.app.state.engine) as session:
             current=session.get(Case,case_id)
             if not current: raise HTTPException(404,'Case not found')
-            session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=email.subject,body_text=email.body,message_id=message_id,sent_at=timestamp))
+            from ..mail.tracking import tracked_subject
+            session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=tracked_subject(email.subject,case_id),body_text=email.body,message_id=message_id,sent_at=timestamp))
             if previous is None and company.get('sector')=='e-commerce':
                 for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
             elif previous is not None and company.get('sector')=='e-commerce':

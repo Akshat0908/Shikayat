@@ -5,7 +5,7 @@ from email.message import EmailMessage
 from email.utils import make_msgid
 from ..config import get_settings
 
-async def send_email(recipient: dict, subject: str, body: str, approved: bool, demo: bool, in_reply_to: str | None = None, references: list[str] | None = None) -> str:
+async def send_email(recipient: dict, subject: str, body: str, approved: bool, demo: bool, in_reply_to: str | None = None, references: list[str] | None = None, case_id: str | None = None) -> str:
     config=get_settings()
     address=recipient.get('email')
     allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
@@ -20,7 +20,10 @@ async def send_email(recipient: dict, subject: str, body: str, approved: bool, d
     if not config.user_email or not config.user_email_app_password.get_secret_value():
         raise ValueError('Sender mailbox credentials are missing')
     message=EmailMessage()
-    message['From']=config.user_email;message['To']=address;message['Subject']=subject
+    if not case_id: raise ValueError('Case ID required for mail tracking')
+    from .tracking import plus_address,tracked_subject
+    message['From']=config.user_email;message['To']=address;message['Subject']=tracked_subject(subject,case_id)
+    message['Reply-To']=plus_address(config.user_email,case_id)
     message['Message-ID']=make_msgid()
     if in_reply_to:
         message['In-Reply-To']=in_reply_to

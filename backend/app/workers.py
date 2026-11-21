@@ -103,14 +103,15 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                     await app.state.events.publish('case_changed',{'case_id':case_id})
                     return
                 try:
-                    message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in current_messages if m.message_id])
+                    message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in current_messages if m.message_id],case_id)
                 except Exception as error:
                     from .mail.delivery import permanently_blocked,record_blocked
                     if not permanently_blocked(error): raise
                     record_blocked(app.state.engine,case_id)
                     await app.state.events.publish('case_changed',{'case_id':case_id})
                     return
-                outgoing=Message(case_id=case.id,direction='out',level=new_level,to=contact['email'],from_=config.user_email,subject=draft.subject,body_text=draft.body,message_id=message_id,sent_at=timestamp)
+                from .mail.tracking import tracked_subject
+                outgoing=Message(case_id=case.id,direction='out',level=new_level,to=contact['email'],from_=config.user_email,subject=tracked_subject(draft.subject,case.id),body_text=draft.body,message_id=message_id,sent_at=timestamp)
                 status=CaseStatus.ESCALATED if decision.action=='escalate' else CaseStatus.WAITING
                 async with _write_lock:
                     with Session(app.state.engine) as session:
@@ -143,6 +144,18 @@ async def receive(app, data: dict) -> None:
         existing=session.exec(select(Message).where(Message.message_id==data['message_id'])).first()
         case=session.get(Case,data['case_id'])
         if existing or not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'): return
+    if data.get('needs_confirmation') and not data.get('user_confirmed'):
+        async with _send_lock:
+            with Session(app.state.engine) as session:
+                if any(e.payload_json.get('message_id')==data['message_id'] for e in session.exec(select(Event).where(Event.case_id==data['case_id'],Event.type=='candidate_pending')).all()): return
+                pending_case=session.get(Case,data['case_id'])
+                if not pending_case: return
+                if data.get('bounced'):
+                    pending_case.facts_json={**pending_case.facts_json,'possible_bounce':True};session.add(pending_case)
+                reason='Unverified sender; confirm before any action.' if not data.get('sender_verified') else 'Matched by company domain only; confirm this belongs to the case.'
+                session.add(Event(case_id=data['case_id'],actor='system',type='candidate_pending',title='Unverified sender' if not data.get('sender_verified') else 'Confirm this email',reason=reason,payload_json={**data,'reviewed':False}));session.commit()
+        await app.state.events.publish('case_changed',{'case_id':data['case_id']})
+        return
     if data.get('bounced'):
         async with _send_lock:
             with Session(app.state.engine) as session:
@@ -163,9 +176,12 @@ async def receive(app, data: dict) -> None:
             reported=data.get('origin')=='user-reported'
             if current.facts_json.get('paused'):
                 current.facts_json={**current.facts_json,'pending_review':analysis.model_dump()};session.add(current)
-            session.add(Message(case_id=case.id,direction='in',level=current.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=analysis.model_dump(),sent_at=now(session)))
+            classification={**analysis.model_dump(),'sender_verified':bool(data.get('sender_verified')),'verification_detail':data.get('verification_detail') or ('Simulated reply' if data.get('simulated') else 'User-reported update' if reported else 'Unverified sender'),'match_method':data.get('match_method')}
+            session.add(Message(case_id=case.id,direction='in',level=current.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=classification,sent_at=now(session)))
+            if analysis.ticket_id and analysis.ticket_id.casefold() in data['body'].casefold():
+                current.facts_json={**current.facts_json,'known_ticket_ids':list(dict.fromkeys([*current.facts_json.get('known_ticket_ids',[]),analysis.ticket_id]))};session.add(current)
             if reported: session.add(Evidence(case_id=case.id,kind='text',transcript=data['body'],extracted_json={'origin':'user-reported','classification':analysis.model_dump()}))
-            session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated'))}))
+            session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated')),'match_method':data.get('match_method')}))
             if analysis.reply_type not in ('partial_offer','rejection'):
                 from .engine.promises import promise_from_reply
                 redress=session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='resolve_30d',Deadline.status=='running')).first()

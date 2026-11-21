@@ -8,6 +8,7 @@ def guard(case: Case, messages: list[Message], current: datetime, config: Settin
     if case.status == CaseStatus.RESOLVED: return 'Case is resolved.', None
     if case.facts_json.get('paused'): return 'Case is paused by the user.', None
     if case.facts_json.get('recipient_bounced'): return 'Recipient bounced; emailing stopped.', None
+    if case.facts_json.get('possible_bounce'): return 'Possible delivery failure awaiting your confirmation.', None
     if case.level.value not in ('L2','L3'): return 'Company escalation route exhausted; prepare the NCH-ready pack.', None
     promise=case.facts_json.get('promise')
     if promise:

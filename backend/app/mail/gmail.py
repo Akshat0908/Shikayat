@@ -27,10 +27,10 @@ def raw_query(message_id: str | None = None, subject: str | None = None, sender:
     return 'X-GM-RAW "'+query.replace('\\','\\\\').replace('"','\\"')+'"'
 
 
-def search(box: MailBox, criteria: str, limit: int = 100) -> Iterator[tuple[str,MailMessage]]:
+def search(box: MailBox, criteria: str, limit: int = 100, readonly: bool = True) -> Iterator[tuple[str,MailMessage]]:
     seen=set()
     for folder in folders(box):
-        box.folder.set(folder,readonly=True)
+        box.folder.set(folder,readonly=readonly)
         for mail in box.fetch(criteria,mark_seen=False,reverse=True,limit=limit,bulk=True):
             id=message_id(mail)
             if not id or id in seen: continue

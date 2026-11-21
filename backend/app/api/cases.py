@@ -83,7 +83,7 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
         evidence.append(Evidence(case_id=case.id,kind='ledger',extracted_json={'facts':records}))
         case.title=facts.issue_summary_en
         case.company_id=company['id'] if company else None
-        case.facts_json={**facts.model_dump(mode='json'),'mode':mode,'replay_reason':replay_reason}
+        case.facts_json={**facts.model_dump(mode='json'),'mode':mode,'replay_reason':replay_reason,'known_ticket_ids':[attempt.ticket_id for attempt in facts.contact_attempts if attempt.ticket_id]}
         if replay:
             case.facts_json={**case.facts_json,'demo_sample':True}
         case.amount_inr=facts.amount_inr

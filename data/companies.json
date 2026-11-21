@@ -28,7 +28,8 @@
       "nch",
       "consumer_commission"
     ],
-    "demo": true
+    "demo": true,
+    "verified_domains": []
   },
   {
     "id": "flipkart",
@@ -53,7 +54,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "amazon_india",
@@ -78,7 +80,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "myntra",
@@ -103,7 +106,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "meesho",
@@ -128,7 +132,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "ajio",
@@ -153,7 +158,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "nykaa",
@@ -178,7 +184,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "swiggy",
@@ -203,7 +210,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "zomato",
@@ -228,7 +236,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "zepto",
@@ -253,7 +262,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "blinkit",
@@ -278,7 +288,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "bigbasket",
@@ -303,7 +314,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "tata_cliq",
@@ -328,7 +340,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "croma",
@@ -353,7 +366,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "reliance_digital",
@@ -378,7 +392,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "jiomart",
@@ -403,7 +418,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "ola",
@@ -428,7 +444,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "uber",
@@ -453,7 +470,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "rapido",
@@ -478,7 +496,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "makemytrip",
@@ -503,7 +522,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "goibibo",
@@ -528,7 +548,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "indigo",
@@ -553,7 +574,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "air_india",
@@ -578,7 +600,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "airtel",
@@ -603,7 +626,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "jio",
@@ -628,7 +652,8 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   },
   {
     "id": "vi",
@@ -653,6 +678,7 @@
       "last_checked": null
     },
     "regulator_route": null,
-    "demo": false
+    "demo": false,
+    "verified_domains": []
   }
 ]

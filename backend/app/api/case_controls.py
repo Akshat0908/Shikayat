@@ -69,3 +69,34 @@ async def delete_case(case_id: str, request: Request) -> dict:
                 except OSError: pass
     await request.app.state.events.publish('case_changed',{'case_id':case_id})
     return {'status':'deleted'}
+
+class CandidateReview(BaseModel):
+    accept: bool
+
+@router.post('/{case_id}/candidates/{event_id}')
+async def review_candidate(case_id: str,event_id: str,review: CandidateReview,request: Request) -> dict:
+    from ..workers import _send_lock,receive
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id);event=session.get(Event,event_id)
+            if not case or not event or event.case_id!=case_id or event.type!='candidate_pending': raise HTTPException(404,'Candidate not found')
+            if event.payload_json.get('reviewed'): raise HTTPException(409,'Candidate already reviewed')
+            data=dict(event.payload_json);event.payload_json={**data,'reviewed':True,'accepted':review.accept};session.add(event)
+            if data.get('bounced'):
+                case.facts_json={k:v for k,v in case.facts_json.items() if k!='possible_bounce'};session.add(case)
+            session.add(Event(case_id=case_id,actor='user',type='candidate_review',title='Email confirmed' if review.accept else 'Email dismissed',reason='User reviewed an uncertain email match or sender.',payload_json={'candidate_id':event_id,'accepted':review.accept}));session.commit()
+    if review.accept:
+        if data.get('folder') and data.get('uid'):
+            import asyncio
+            from ..mail.imap_poll import label_confirmed
+            try: await asyncio.to_thread(label_confirmed,data['folder'],data['uid'])
+            except Exception: pass
+        data['user_confirmed']=True;data['needs_confirmation']=False
+        await receive(request.app,data)
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'attached' if review.accept else 'dismissed'}
+
+@router.post('/{case_id}/attach-email')
+async def attach_email(case_id: str,update: ManualUpdate,request: Request) -> dict:
+    """User-supplied forwarded/pasted text is explicitly marked user-reported."""
+    return await manual_update(case_id,update,request)
