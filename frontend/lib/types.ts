@@ -5,3 +5,8 @@ export interface EmailDraft { subject:string; body:string; deadline_date:string;
 export interface Board {evidence:{id:string;kind:string;transcript:string|null;url:string|null}[];case:CaseRecord;events:TimelineEvent[];messages:{id:string;direction:string;body_text:string;classification_json:{category?:string;reply_type?:string;offered_amount_inr?:number|null;summary_hinglish?:string;acknowledged?:boolean;refund_confirmed?:boolean;resolution_status?:string;evidence_quotes?:string[];original_remedy?:string|null;next_action?:string;reason?:string}}[];deadlines:{id:string;kind:string;due_at:string;status:string}[];now:string;sender:string|null;recipient:{email:string|null;verified:boolean;source_url:string|null;last_checked:string|null}|null;sector_message:string|null}
 
 export interface FactEvidence {field:string;value:unknown;origin:string|null;source_excerpt:string|null;bbox:number[]|null;verification_state:string}
+
+export type EvalMetric = 'recipient'|'rule'|'deadline'|'reply_classification'|'next_action'|'end_to_end';
+export interface EvalSystem {metrics:Record<EvalMetric,boolean>;output:string;cost_usd:number;latency_seconds:number}
+export interface EvalCase {id:string;category:'resolution'|'deflection'|'partial offer'|'wrong-sector trap'|'ambiguous';baseline:EvalSystem;shikayat:EvalSystem}
+export interface EvalResult {data_source:'sample'|'measured';evaluated_at:string|null;model:string;case_count:number;cases:EvalCase[]}

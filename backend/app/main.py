@@ -43,6 +43,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(drafts_router)
     from .api.profile import router as profile_router
     app.include_router(profile_router)
+    from .api.eval import router as eval_router
+    app.include_router(eval_router)
     from .api.demo import router as demo_router
     app.include_router(demo_router)
 
@@ -64,6 +66,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         raise HTTPException(status_code=404, detail="API route not found")
 
     if config.frontend_dist.is_dir():
+        from fastapi.responses import FileResponse
+
+        @app.get('/proof')
+        @app.get('/proof/')
+        def proof_page() -> FileResponse:
+            return FileResponse(config.frontend_dist / 'proof' / 'index.html')
+
         app.mount("/", StaticFiles(directory=config.frontend_dist, html=True), name="frontend")
     return app
 
