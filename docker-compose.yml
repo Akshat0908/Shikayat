@@ -1,0 +1,34 @@
+services:
+  app:
+    build: .
+    restart: always
+    env_file:
+      - /home/ubuntu/.config/shikayat/production.env
+    environment:
+      PUBLIC_DEMO: "true"
+      DEMO_MODE: "true"
+      DATABASE_URL: sqlite:////app/var/shikayat.db
+    volumes:
+      - app_data:/app/var
+      - directory_data:/app/data
+    expose:
+      - "8000"
+  caddy:
+    image: caddy:2
+    restart: always
+    depends_on:
+      - app
+    environment:
+      DOMAIN: 54-242-22-145.sslip.io
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  app_data:
+  directory_data:
+  caddy_data:
+  caddy_config:

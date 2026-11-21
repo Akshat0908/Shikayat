@@ -1,7 +1,11 @@
-# Set DOMAIN to your real <ip>.sslip.io hostname; no invented deployment URL.
 {$DOMAIN} {
     encode zstd gzip
-    reverse_proxy 127.0.0.1:8000 {
+    reverse_proxy app:8000 {
         flush_interval -1
+        transport http {
+            dial_timeout 10s
+            read_timeout 24h
+            write_timeout 24h
+        }
     }
 }

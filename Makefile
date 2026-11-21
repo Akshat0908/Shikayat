@@ -25,7 +25,7 @@ docker:
 	docker build -t shikayat .
 
 deploy:
-	@echo "Deployment pending: configure EC2, DOMAIN and Caddy first. See README.md."
+	@bash scripts/deploy.sh
 
 # Warms extraction and draft caches; requires a running backend and owner passcode.
 .PHONY: warm
