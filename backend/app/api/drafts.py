@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from ..ai.draft_complaint import EmailDraft, draft_complaint, prepare_email, validate_draft
 from ..demo.clock import now
 from ..engine.company import load_companies
+from ..engine.sector import effective_sector, sector_message
 from ..engine.deadlines import deadlines
 from ..mail.smtp_send import send_email
 from ..models import Case, CaseStatus, Deadline, Event, Message, Evidence
@@ -112,9 +113,9 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             if not current: raise HTTPException(404,'Case not found')
             from ..mail.tracking import tracked_subject
             session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=tracked_subject(email.subject,case_id),body_text=email.body,message_id=message_id,sent_at=timestamp))
-            if previous is None and company.get('sector')=='e-commerce':
+            if previous is None and effective_sector(company,current.facts_json)=='e-commerce':
                 for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
-            elif previous is not None and company.get('sector')=='e-commerce':
+            elif previous is not None and effective_sector(company,current.facts_json)=='e-commerce':
                 missed=session.exec(select(Deadline).where(Deadline.case_id==case_id,Deadline.kind=='ack_48h',Deadline.status=='breached')).first()
                 acknowledged=any(m.direction=='in' and m.level==current.level and m.classification_json.get('acknowledged') for m in messages)
                 if missed and not acknowledged: session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
@@ -200,7 +201,7 @@ def case_board(case_id: str, request: Request) -> dict:
         from ..engine.send_guard import guard
         blocked,next_allowed=guard(case,messages,timestamp,config,bool(company and company.get('demo')))
         public_block=bool(config.public_demo and (not company or not company.get('demo') or ((contact or {}).get('email') or '').strip().casefold() not in {x.strip().casefold() for x in config.autopilot_allowlist.split(',') if x.strip()}))
-        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':config.user_email or None,'recipient':contact,'sector_message':None if company and company.get('sector')=='e-commerce' else 'Sector-specific rules not configured','followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
+        return {'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':config.user_email or None,'recipient':contact,'sector_message':sector_message(company,case.facts_json),'followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
 
 class OfferResponse(BaseModel):
     action: Literal['accept','counter']

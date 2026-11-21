@@ -52,7 +52,8 @@ def prepare_email(draft: EmailDraft, facts: dict, profile, company: dict | None)
     subject=f'Grievance: {issue}' + (f' of {indian_amount(float(amount))}' if amount is not None else '') + (' not received' if demand=='refund' else '') + (f' | Order {order}' if order else '')
     officer=(company or {}).get('grievance_officer') or {}
     greeting=f"Dear {officer['name']}," if officer.get('verified') and officer.get('name') else 'Dear Grievance Officer,'
-    refs=[r for r in verified_refs() if r['id']=='ecom_rules_2020_grievance'] if (company or {}).get('sector')=='e-commerce' else []
+    from ..engine.sector import effective_sector
+    refs=[r for r in verified_refs() if r['id']=='ecom_rules_2020_grievance'] if effective_sector(company,facts)=='e-commerce' else []
     if refs:
         body+='\n\nUnder Rule 4(5) of the Consumer Protection (E-Commerce) Rules, 2020, please acknowledge this complaint within 48 hours and redress it within one month of receipt.'
     signature='\n'.join(x for x in (profile.name,profile.phone,profile.email) if x)

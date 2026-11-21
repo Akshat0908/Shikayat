@@ -1,3 +1,4 @@
+from ..engine.sector import effective_sector
 import hashlib
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Request
@@ -56,7 +57,7 @@ async def manual_sent(case_id: str,request: Request) -> dict:
             contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
             prior=any(m.direction=='out' for m in messages)
             session.add(Message(case_id=case.id,direction='out',level=case.level,to=contact['email'],from_=request.app.state.config.user_email,subject=tracked_subject(draft.subject,case_id),body_text=draft.body,message_id=None,sent_at=timestamp))
-            if not prior and company.get('sector')=='e-commerce':
+            if not prior and effective_sector(company,case.facts_json)=='e-commerce':
                 for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
             session.add(Event(case_id=case_id,actor='user',type='sent',title='Sent by user (manual)',reason='User confirmed they sent the complaint from their email app.',payload_json={'manual':True,'tracking_address':tracking,'case_tag':case_tag(case_id)}))
             promise=case.facts_json.get('promise')

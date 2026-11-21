@@ -9,6 +9,7 @@ from .config import get_settings
 from .demo.clock import now
 from .engine.company import load_companies
 from .engine.policy import decide, Decision
+from .engine.sector import effective_sector
 from .mail.imap_poll import poll
 from .mail.smtp_send import send_email
 from .models import Case, CaseStatus, Deadline, Evidence, Event, Level, Message
@@ -50,7 +51,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         from .api.profile import get_profile
         profile=get_profile(session,config.user_email)
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
-    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None,followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case)
+    decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=effective_sector(company,case.facts_json),followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case)
     promise=case.facts_json.get('promise')
     if promise and decision.action in ('wait','followup','escalate','confirm_receipt') and not redress_breached and not breached:
         grace=datetime.fromisoformat(promise['grace_until'])

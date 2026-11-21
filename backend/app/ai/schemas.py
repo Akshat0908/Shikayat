@@ -37,6 +37,7 @@ class CaseFacts(BaseModel):
     missing_info: list[str]
     field_confidence: FieldConfidence
     provenance: list[FactProvenance] = []
+    purchase_channel: Literal['brand_website','brand_app','marketplace','offline','unknown'] = 'unknown'
 
     @model_validator(mode='after')
     def unknowns(self) -> 'CaseFacts':
