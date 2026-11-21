@@ -21,11 +21,18 @@ if missing: raise SystemExit('Missing required .env settings: '+', '.join(missin
 PY
 revision="$(git rev-parse HEAD)"
 release="/home/ubuntu/shikayat/releases/$revision"
+staging="$(mktemp -d "${TMPDIR:-/tmp}/shikayat-deploy.XXXXXX")"
+trap 'rm -rf "$staging"' EXIT
+echo "Building frontend locally from committed revision $revision..."
+git archive HEAD | tar -xf - -C "$staging"
+npm --prefix "$staging/frontend" ci
+npm --prefix "$staging/frontend" run build
 echo 'Installing Docker and Compose if needed...'
 ssh "${ssh_args[@]}" "$server" 'set -eu; if ! command -v docker >/dev/null || ! sudo docker compose version >/dev/null 2>&1; then sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-v2; fi; sudo systemctl enable --now docker; mkdir -p "$HOME/.config/shikayat" "$HOME/shikayat/releases"; chmod 700 "$HOME/.config/shikayat"'
 echo "Transferring committed revision $revision..."
 ssh "${ssh_args[@]}" "$server" "mkdir -p '$release'"
 git archive HEAD | ssh "${ssh_args[@]}" "$server" "tar -xf - -C '$release'"
+tar -C "$staging/frontend" -cf - out | ssh "${ssh_args[@]}" "$server" "rm -rf '$release/frontend/out' && tar -xf - -C '$release/frontend'"
 echo 'Transferring production configuration securely...'
 scp "${ssh_args[@]}" .env "$server:/home/ubuntu/.config/shikayat/production.env.new" >/dev/null
 ssh "${ssh_args[@]}" "$server" 'set -eu; file="$HOME/.config/shikayat/production.env.new"; chmod 600 "$file"; sed -i "/^[[:space:]]*PUBLIC_DEMO=/d; /^[[:space:]]*DEMO_MODE=/d" "$file"; printf "\nPUBLIC_DEMO=true\nDEMO_MODE=true\n" >> "$file"; mv "$file" "$HOME/.config/shikayat/production.env"; chmod 600 "$HOME/.config/shikayat/production.env"'

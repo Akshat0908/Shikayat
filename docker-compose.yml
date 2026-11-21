@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.production
     restart: always
     env_file:
       - /home/ubuntu/.config/shikayat/production.env
