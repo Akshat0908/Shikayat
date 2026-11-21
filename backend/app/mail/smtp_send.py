@@ -5,7 +5,7 @@ from email.message import EmailMessage
 from email.utils import make_msgid
 from ..config import get_settings
 
-async def send_email(recipient: dict, subject: str, body: str, approved: bool, demo: bool, in_reply_to: str | None = None, references: list[str] | None = None, case_id: str | None = None) -> str:
+async def send_email(recipient: dict, subject: str, body: str, approved: bool, demo: bool, in_reply_to: str | None = None, references: list[str] | None = None, case_id: str | None = None, sandbox_test: bool = False) -> str:
     config=get_settings()
     address=recipient.get('email')
     allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
@@ -13,6 +13,11 @@ async def send_email(recipient: dict, subject: str, body: str, approved: bool, d
         raise ValueError('Sending disabled; no message sent')
     if not address or not recipient.get('verified'):
         raise ValueError('Verify recipient contact before sending')
+    if sandbox_test:
+        sandbox=config.demo_company_email.strip().casefold()
+        if not (demo and config.demo_mode and sandbox and address.casefold()==sandbox and sandbox in allowlist):
+            raise ValueError('Sandbox tests may only be sent to the configured allowlisted sandbox inbox')
+        subject='[TEST — sandbox] '+subject
     if not approved and not (demo and address.casefold() in allowlist):
         raise ValueError('User approval required')
     if not config.user_email or not config.user_email_app_password.get_secret_value():

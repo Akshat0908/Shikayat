@@ -4,8 +4,14 @@ from ..models import Case, CaseStatus, Message
 from ..config import Settings
 
 
-def guard(case: Case, messages: list[Message], current: datetime, config: Settings, demo: bool) -> tuple[str | None, datetime | None]:
-    if case.facts_json.get('looks_like_sample'): return 'Test evidence; use a sandbox preview only.', None
+def guard(case: Case, messages: list[Message], current: datetime, config: Settings, demo: bool, contact: dict | None = None) -> tuple[str | None, datetime | None]:
+    if case.facts_json.get('looks_like_sample'):
+        address = (contact or {}).get('email', '').strip().casefold()
+        allowlist = {s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
+        sandbox = config.demo_company_email.strip().casefold()
+        if not (case.owner_id == 'owner' and case.facts_json.get('demo_sample') and demo and config.demo_mode
+                and (contact or {}).get('verified') and sandbox and address == sandbox and address in allowlist):
+            return 'Test evidence; use a sandbox preview only.', None
     if case.facts_json.get('sample_scan_complete') is False: return 'Screenshot sample-data check is incomplete.', None
     if case.status == CaseStatus.RESOLVED: return 'Case is resolved.', None
     if case.facts_json.get('paused'): return 'Case is paused by the user.', None

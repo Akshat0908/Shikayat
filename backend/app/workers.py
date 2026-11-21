@@ -92,7 +92,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                     current_messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
                     current.level=new_level
                     timestamp=now(session) if company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
-                    reason,due=guard(current,current_messages,timestamp,config,bool(company.get('demo')))
+                    reason,due=guard(current,current_messages,timestamp,config,bool(company.get('demo')),contact)
                     if reason:
                         current.level=case.level
                         if due:
@@ -106,7 +106,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                     await app.state.events.publish('case_changed',{'case_id':case_id})
                     return
                 try:
-                    message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in current_messages if m.message_id],case_id)
+                    message_id=await send_email(contact,draft.subject,draft.body,False,True,previous.message_id if previous else None,[m.message_id for m in current_messages if m.message_id],case_id,bool(current.facts_json.get('looks_like_sample')))
                 except Exception as error:
                     from .mail.delivery import permanently_blocked,record_blocked
                     if not permanently_blocked(error): raise
@@ -114,7 +114,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                     await app.state.events.publish('case_changed',{'case_id':case_id})
                     return
                 from .mail.tracking import tracked_subject
-                outgoing=Message(case_id=case.id,direction='out',level=new_level,to=contact['email'],from_=config.user_email,subject=tracked_subject(draft.subject,case.id),body_text=draft.body,message_id=message_id,sent_at=timestamp)
+                outgoing=Message(case_id=case.id,direction='out',level=new_level,to=contact['email'],from_=config.user_email,subject=tracked_subject(('[TEST — sandbox] ' if current.facts_json.get('looks_like_sample') else '')+draft.subject,case.id),body_text=draft.body,message_id=message_id,sent_at=timestamp)
                 status=CaseStatus.ESCALATED if decision.action=='escalate' else CaseStatus.WAITING
                 async with _write_lock:
                     with Session(app.state.engine) as session:

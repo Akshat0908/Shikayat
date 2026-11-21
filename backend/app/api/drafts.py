@@ -93,7 +93,7 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             previous=next((m for m in reversed(messages) if m.direction=='out'),None)
             config=request.app.state.config
             timestamp=now(session) if company.get('demo') and config.demo_mode else datetime.now(timezone.utc)
-            reason,due=guard(case,messages,timestamp,config,bool(company.get('demo')))
+            reason,due=guard(case,messages,timestamp,config,bool(company.get('demo')),contact)
             if reason:
                 session.add(Event(case_id=case_id,actor='system',type='send_limit',title='Sending stopped',reason=reason,payload_json={'next_allowed_at':due.isoformat() if due else None}));session.commit()
                 raise HTTPException(409,reason)
@@ -103,7 +103,7 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
                 if not confirmed or confirmed.payload_json.get('contact_hash')!=fingerprint or confirmed.payload_json.get('level')!=case.level.value:
                     raise HTTPException(409,'Confirm the verified recipient before the first send')
         try:
-            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None,None,case_id)
+            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None,None,case_id,bool(case.facts_json.get('looks_like_sample')))
         except ValueError as e: raise HTTPException(422,str(e)) from e
         except Exception as error:
             from ..mail.delivery import permanently_blocked,record_blocked
@@ -115,14 +115,14 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             current=session.get(Case,case_id)
             if not current: raise HTTPException(404,'Case not found')
             from ..mail.tracking import tracked_subject
-            session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=tracked_subject(email.subject,case_id),body_text=email.body,message_id=message_id,sent_at=timestamp))
+            session.add(Message(case_id=case_id,direction='out',level=current.level,to=contact['email'],from_=config.user_email,subject=tracked_subject(('[TEST — sandbox] ' if current.facts_json.get('looks_like_sample') else '')+email.subject,case_id),body_text=email.body,message_id=message_id,sent_at=timestamp))
             if previous is None and effective_sector(company,current.facts_json)=='e-commerce':
                 for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
             elif previous is not None and effective_sector(company,current.facts_json)=='e-commerce':
                 missed=session.exec(select(Deadline).where(Deadline.case_id==case_id,Deadline.kind=='ack_48h',Deadline.status=='breached')).first()
                 acknowledged=any(m.direction=='in' and m.level==current.level and m.classification_json.get('acknowledged') for m in messages)
                 if missed and not acknowledged: session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
-            session.add(Event(case_id=case_id,actor='user',type='sent',title='Complaint sent',reason='User explicitly approved this draft.',payload_json={'message_id':message_id}))
+            session.add(Event(case_id=case_id,actor='user',type='sent',title='Sandbox test sent' if current.facts_json.get('looks_like_sample') else 'Complaint sent',reason='User explicitly approved this sandbox test.' if current.facts_json.get('looks_like_sample') else 'User explicitly approved this draft.',payload_json={'message_id':message_id}))
             promise=current.facts_json.get('promise')
             if promise and promise.get('exceeds_redress') and not promise.get('pushback_sent'):
                 current.facts_json={**current.facts_json,'promise':{**promise,'pushback_sent':True}}

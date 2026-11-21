@@ -26,8 +26,8 @@ def main() -> None:
         case=post('/api/cases/sample/shopkart');id=case['id']
         print('Case:',id,'mode:',case['mode'],'strength:',case['strength_label'],flush=True)
         assert case['mode']=='live',case['facts_json'].get('replay_reason')
-        if case['facts_json'].get('looks_like_sample'):
-            raise RuntimeError('This example contains test-labelled evidence and cannot be sent as a complaint; use the sandbox preview instead')
+        assert case['facts_json'].get('looks_like_sample'), 'Expected the sample-data safety marker'
+        print('PASS sample evidence is flagged; sending a labelled sandbox test only',flush=True)
         assert case['amount_inr']==4299 and case['strength_label']=='Strong'
         post(f'/api/cases/{id}/draft');post(f'/api/cases/{id}/confirm-recipient');post(f'/api/cases/{id}/approve')
         approved_at=time.monotonic()
