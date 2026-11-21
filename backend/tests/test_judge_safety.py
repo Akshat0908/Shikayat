@@ -54,9 +54,10 @@ def test_pause_report_resume_and_delete(tmp_path,monkeypatch):
     monkeypatch.setattr(workers,'classify_reply',classify)
     monkeypatch.setattr('backend.app.api.case_controls.ROOT',tmp_path)
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/db.sqlite'))
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as s:
-            case=Case(title='case',status=CaseStatus.WAITING);s.add(case);s.commit();cid=case.id
+            case=Case(owner_id=visitor,title='case',status=CaseStatus.WAITING);s.add(case);s.commit();cid=case.id
             folder=tmp_path/'var'/'evidence'/cid;folder.mkdir(parents=True);path=folder/'image.png';path.write_bytes(b'fixture')
             s.add(Evidence(case_id=cid,kind='screenshot',path=str(path)));s.commit()
         assert client.post(f'/api/cases/{cid}/pause').json()['paused']
@@ -79,7 +80,7 @@ def test_bounce_records_evidence_and_stops_sending(tmp_path,monkeypatch):
         return EmailDraft(subject='NCH',body='Please review.',cited_refs=[],attachments=[],demand='refund',deadline_date=deadline)
     monkeypatch.setattr(workers,'draft_escalation',fake_draft)
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/db.sqlite'))
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as s:
             c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING);s.add(c);s.commit();cid=c.id
         asyncio.run(workers.receive(app,{'case_id':cid,'message_id':'<bounce>','sender':'mailer-daemon@example.test','subject':'Delivery failed','body':'Delivery failed','bounced':True}))
@@ -121,9 +122,10 @@ def test_paused_and_public_demo_never_reach_smtp(tmp_path,monkeypatch):
     monkeypatch.setattr('backend.app.api.drafts.send_email',fake_send)
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[{'id':'real','demo':False,'sector':'e-commerce','grievance_officer':{'email':'real@example.test','verified':True}}])
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/api.db',public_demo=True,autopilot_allowlist='demo@example.test'))
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as s:
-            c=Case(title='Case',company_id='real',status=CaseStatus.AWAITING_APPROVAL);s.add(c);s.commit();cid=c.id
+            c=Case(owner_id=visitor,title='Case',company_id='real',status=CaseStatus.AWAITING_APPROVAL);s.add(c);s.commit();cid=c.id
             draft=EmailDraft(subject='Test',body='Test',cited_refs=[],attachments=[],demand='',deadline_date='2026-12-21')
             s.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=draft.model_dump()));s.commit()
         assert client.post(f'/api/cases/{cid}/approve').status_code==403
@@ -147,7 +149,7 @@ def test_deferred_followup_sends_after_demo_clock_advances(tmp_path,monkeypatch)
     monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'sector':'e-commerce','grievance_officer':contact,'nodal_officer':contact}])
     config=Settings(database_url=f'sqlite:///{tmp_path}/deferred.db',demo_mode=True,demo_outbound_interval_seconds=30,autopilot_allowlist='demo@example.test')
     app=create_app(config)
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as s:
             c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='s',body_text='b',message_id='<sent>',sent_at=datetime.now(timezone.utc)));s.commit()
@@ -188,7 +190,7 @@ def test_deferred_escalation_keeps_level_until_send(tmp_path,monkeypatch):
     contact={'email':'demo@example.test','verified':True}
     monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'sector':'e-commerce','grievance_officer':contact,'nodal_officer':contact}])
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/escalation.db',demo_mode=True,demo_outbound_interval_seconds=30,autopilot_allowlist='demo@example.test'))
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as s:
             c=Case(title='case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'demo_sample':True,'owner_controlled':True});s.add(c);s.commit();cid=c.id
             s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='s',body_text='b',message_id='<sent>',sent_at=datetime.now(timezone.utc)))

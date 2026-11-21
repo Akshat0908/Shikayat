@@ -34,6 +34,7 @@ class Level(str, Enum):
 class Case(SQLModel, table=True):
     id: str = Field(default_factory=new_id, primary_key=True)
     title: str
+    owner_id: str = Field(default="owner", index=True)
     company_id: str | None = None
     status: CaseStatus = CaseStatus.DRAFT
     level: Level = Level.L2

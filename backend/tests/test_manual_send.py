@@ -13,9 +13,10 @@ def test_manual_compose_and_explicit_confirmation(tmp_path,monkeypatch):
     monkeypatch.setattr('backend.app.api.manual_send.load_companies',lambda:[company])
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[company])
     app=create_app(config)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as session:
-            case=Case(title='Case',company_id='merchant',status=CaseStatus.AWAITING_APPROVAL);session.add(case);session.commit();cid=case.id
+            case=Case(owner_id=visitor,title='Case',company_id='merchant',status=CaseStatus.AWAITING_APPROVAL);session.add(case);session.commit();cid=case.id
             draft=EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
             session.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=draft.model_dump()));session.commit()
         assert client.post(f'/api/cases/{cid}/manual-compose').status_code==409

@@ -29,7 +29,7 @@ def test_stale_reply_keeps_original_level_and_does_not_trigger_followup(tmp_path
     async def classify(*args): return ReplyAnalysis(reply_type='deflection',acknowledged=True,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',category='deflection')
     monkeypatch.setattr(workers,'classify_reply',classify)
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/stale.db'))
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as session:
             c=Case(title='case',status=CaseStatus.ESCALATED,level=Level.L3);session.add(c);session.commit();cid=c.id
         asyncio.run(workers.receive(app,{'case_id':cid,'message_id':'<late>','sender':'care@example.test','subject':'reply','body':'late','reply_level':'L2'}))

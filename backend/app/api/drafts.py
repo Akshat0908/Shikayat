@@ -211,7 +211,8 @@ def verification(case_id: str, request: Request) -> dict:
 @router.get('')
 def list_cases(request: Request) -> list[Case]:
     with Session(request.app.state.engine) as session:
-        return list(session.exec(select(Case).order_by(Case.created_at.desc())).all())
+        from ..privacy import visible
+        return [case for case in session.exec(select(Case).order_by(Case.created_at.desc())).all() if visible(request,case)]
 
 @router.get('/{case_id}/board')
 def case_board(case_id: str, request: Request) -> dict:

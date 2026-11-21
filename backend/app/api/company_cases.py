@@ -26,7 +26,7 @@ async def link_company(case_id: str, engine) -> str:
         if not name: raise HTTPException(422,'Identify the company before searching')
         company=provisional_company(name)
         # Link all existing unlinked cases with exactly the same company name.
-        for candidate in session.exec(select(Case).where(Case.company_id==None)).all():
+        for candidate in session.exec(select(Case).where(Case.company_id==None, Case.owner_id==case.owner_id)).all():
             if (candidate.facts_json.get('company_name') or '').strip().casefold()==name.strip().casefold():
                 candidate.company_id=company['id'];session.add(candidate)
         session.commit()

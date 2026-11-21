@@ -10,9 +10,10 @@ def test_partial_offer_requires_choice_and_counter_is_approval_gated(tmp_path,mo
         return EmailDraft(subject='Counter',body=reason,cited_refs=[],attachments=[],demand='refund',deadline_date=deadline)
     monkeypatch.setattr('backend.app.ai.draft_escalation.draft_escalation',draft)
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/offer.db'))
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as session:
-            case=Case(title='Refund',status=CaseStatus.NEEDS_INFO);session.add(case);session.commit();id=case.id
+            case=Case(owner_id=visitor,title='Refund',status=CaseStatus.NEEDS_INFO);session.add(case);session.commit();id=case.id
             session.add(Message(case_id=id,direction='in',to='user@example.test',from_='demo@example.test',subject='Offer',body_text='Voucher',classification_json={'reply_type':'partial_offer'}));session.commit()
         assert client.post(f'/api/cases/{id}/offer-response',json={'action':'counter'}).status_code==422
         result=client.post(f'/api/cases/{id}/offer-response',json={'action':'counter','counter_amount':1000})

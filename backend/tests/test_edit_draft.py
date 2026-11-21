@@ -14,7 +14,7 @@ def test_edit_draft_persists_and_approval_sends_saved_body(tmp_path, monkeypatch
         return '<test-message>'
     monkeypatch.setattr('backend.app.api.drafts.send_email',send)
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[{'id':'shopkart','demo':True,'grievance_officer':{'email':'demo@example.test','verified':True}}])
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
         assert client.post('/api/admin/login',json={'passcode':'test-owner'}).status_code==200
         with Session(app.state.engine) as session:
             case=Case(title='Refund',company_id='shopkart',status=CaseStatus.AWAITING_APPROVAL)

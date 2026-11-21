@@ -8,6 +8,10 @@ from .api.health import router
 from .config import Settings, get_settings
 from .db import build_engine, init_db
 from .events import EventBus
+from .privacy import COOKIE, visitor_id, visible, event_visible, retention_loop
+from .models import Case
+from sqlmodel import Session
+from fastapi.responses import JSONResponse
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -21,7 +25,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ping_task = asyncio.create_task(bus.ping_forever())
         from .workers import inbox_loop, deadline_loop
         from .demo.company_bot import company_loop
-        tasks=[asyncio.create_task(worker(app)) for worker in (inbox_loop,deadline_loop,company_loop)]
+        tasks=[asyncio.create_task(worker(app)) for worker in (inbox_loop,deadline_loop,company_loop,retention_loop)]
         try:
             yield
         finally:
@@ -34,8 +38,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             app.state.engine.dispose()
 
     app = FastAPI(title="Shikayat", lifespan=lifespan)
+    app.state.pending_cases = {}
     app.state.events = bus
     app.state.config = config
+    @app.middleware("http")
+    async def isolate_cases(request: Request, call_next):
+        request.state.visitor_id = visitor_id(request)
+        parts = request.url.path.strip('/').split('/')
+        if len(parts) >= 3 and parts[:2] == ['api', 'cases'] and parts[2] != 'sample':
+            with Session(request.app.state.engine) as session:
+                case = session.get(Case, parts[2])
+                allowed = bool(case and visible(request, case))
+            if not allowed:
+                response = JSONResponse({'detail': 'Case not found'}, status_code=404)
+            else:
+                response = await call_next(request)
+        else:
+            response = await call_next(request)
+        if request.cookies.get(COOKIE) != request.state.visitor_id:
+            response.set_cookie(COOKIE, request.state.visitor_id, max_age=365*24*3600,
+                                httponly=True, secure=True, samesite='lax', path='/')
+        if request.url.path.startswith('/api/'):
+            response.headers['Cache-Control'] = 'no-store'
+        return response
+
+    @app.get('/api/session')
+    def visitor_session() -> dict:
+        return {'ready': True}
+
     app.include_router(router, prefix="/api")
     from .api.companies import router as companies_router
     app.include_router(companies_router)
@@ -64,7 +94,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             async with bus.subscribe() as queue:
                 yield ": connected\n\n"
                 while not await request.is_disconnected():
-                    yield await queue.get()
+                    message = await queue.get()
+                    if event_visible(request, message):
+                        yield message
         return StreamingResponse(stream(), media_type="text/event-stream", headers={
             "Cache-Control": "no-cache", "X-Accel-Buffering": "no",
         })

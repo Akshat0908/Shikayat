@@ -23,7 +23,7 @@ def test_discovery_requires_confirmation_and_caches(tmp_path,monkeypatch):
         calls.append(kwargs['search_domains']);return companies.Lead(email='grievance@company.test',officer_name=None,role='grievance_officer',source_url='https://www.company.test/grievance',evidence_quote='Email: grievance@company.test')
     monkeypatch.setattr(companies,'call_structured',search)
     app=create_app(Settings(database_url=f'sqlite:///{root}/test.db',user_email='',demo_company_email=''))
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
         response=client.post('/api/companies/company/discover',json={});assert response.json()['status']=='awaiting_confirmation'
         assert not json.loads(path.read_text())[0]['grievance_officer']['verified']
         assert client.post('/api/companies/company/discover',json={}).json()['cached'] is True
@@ -31,7 +31,7 @@ def test_discovery_requires_confirmation_and_caches(tmp_path,monkeypatch):
         assert client.post('/api/companies/company/confirm-contact',json={}).status_code==200
         assert json.loads(path.read_text())[0]['grievance_officer']['verified'] is True
         # A confirmed contact still cannot be sent directly by an unsigned visitor.
-        assert client.post('/api/cases/unknown/approve').status_code==403
+        assert client.post('/api/cases/unknown/approve').status_code==404
         # An expired lead cannot be confirmed.
         cache=companies.cache_path('company','grievance_officer');data=json.loads(cache.read_text());data['at']=(datetime.now(timezone.utc)-timedelta(days=8)).isoformat();cache.write_text(json.dumps(data))
         assert client.post('/api/companies/company/confirm-contact',json={}).status_code==409

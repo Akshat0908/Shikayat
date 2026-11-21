@@ -30,7 +30,11 @@ def init_db(engine: Engine) -> None:
     if engine.dialect.name=='sqlite':
         from sqlalchemy import inspect, text
         existing={column['name'] for column in inspect(engine).get_columns('message')}
+        case_columns={column['name'] for column in inspect(engine).get_columns('case')}
         with engine.begin() as connection:
+            if 'owner_id' not in case_columns:
+                connection.execute(text("ALTER TABLE \"case\" ADD COLUMN owner_id TEXT NOT NULL DEFAULT 'owner'"))
+            connection.execute(text('CREATE INDEX IF NOT EXISTS ix_case_owner_id ON \"case\" (owner_id)'))
             for name,sql in (('references_json',"JSON NOT NULL DEFAULT '[]'"),('gmail_thread_id','TEXT'),('match_method','TEXT')):
                 if name not in existing: connection.execute(text(f'ALTER TABLE message ADD COLUMN {name} {sql}'))
     with Session(engine) as session:

@@ -12,7 +12,7 @@ def test_test_send_only_uses_demo_inbox_and_never_changes_case(tmp_path,monkeypa
     async def send(contact,subject,body,*args,**kwargs): sent.append((contact,subject,body));return '<test@example.test>'
     monkeypatch.setattr('backend.app.api.drafts.send_email',send)
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[{'id':'leaf','name':'Leaf','grievance_officer':{'email':None,'verified':False}}])
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
         assert client.post('/api/admin/login',json={'passcode':'test-owner'}).status_code==200
         with Session(app.state.engine) as session:
             case=Case(title='x',company_id='leaf',status=CaseStatus.AWAITING_APPROVAL,facts_json={'sample_scan_complete':True,'looks_like_sample':True});session.add(case);session.commit();session.refresh(case);case_id=case.id

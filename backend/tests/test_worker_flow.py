@@ -27,7 +27,7 @@ def test_reply_flow(tmp_path: Path,monkeypatch) -> None:
     contact={'email':'demo@example.test','verified':True}
     monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'sector':'e-commerce','grievance_officer':contact,'nodal_officer':contact}])
     app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/flow.db',autopilot_allowlist='demo@example.test',demo_outbound_interval_seconds=0))
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as session:
             case=Case(title='Refund',company_id='shopkart',amount_inr=4299,status=CaseStatus.WAITING,facts_json={'owner_controlled':True});session.add(case);session.commit();id=case.id
             session.add(Deadline(case_id=id,kind='ack_48h',due_at=datetime.now(timezone.utc)+timedelta(days=2),status='running'));session.commit()

@@ -19,13 +19,14 @@ def test_owner_session_guards_direct_sending_and_tools(tmp_path,monkeypatch):
     async def send(*args,**kwargs):sent.append(args);return '<sent@example.test>'
     monkeypatch.setattr('backend.app.api.drafts.send_email',send)
     app=create_app(config)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as session:
             case=Case(title='A case',company_id='merchant',status=CaseStatus.AWAITING_APPROVAL,facts_json={'sample_scan_complete':True});session.add(case);session.commit();session.refresh(case);cid=case.id
             session.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21').model_dump()));session.add(UserProfile(name='Owner Name',phone='01234567890',email='private@example.test'));session.commit()
         assert client.get('/api/admin/session').json()['admin'] is False
         assert client.get('/api/profile').status_code==403
-        assert client.post(f'/api/cases/{cid}/approve').status_code==403
+        assert client.post(f'/api/cases/{cid}/approve').status_code==404
         for route in ('clock','inject','reset','warm'): assert client.post('/api/demo/'+route,json={'case_id':cid}).status_code==403
         assert client.post('/api/admin/login',json={'passcode':'wrong'}).status_code==403
         assert client.post('/api/admin/login',json={'passcode':'owner-secret'}).status_code==200
@@ -37,7 +38,7 @@ def test_owner_session_guards_direct_sending_and_tools(tmp_path,monkeypatch):
         assert client.post('/api/admin/logout').status_code==200
         assert client.get('/api/admin/session').json()['admin'] is False
         assert client.get('/api/admin/session',headers={'Cookie':f'shikayat_admin={session_cookie}'}).json()['admin'] is False
-        assert client.post(f'/api/cases/{cid}/approve').status_code==403
+        assert client.post(f'/api/cases/{cid}/approve').status_code==404
 
 
 def test_visitor_manual_compose_public_mode_and_confirm(tmp_path,monkeypatch):
@@ -45,9 +46,10 @@ def test_visitor_manual_compose_public_mode_and_confirm(tmp_path,monkeypatch):
     company={'id':'merchant','name':'Merchant','sector':'e-commerce','demo':False,'grievance_officer':{'email':'officer@example.test','verified':True}}
     monkeypatch.setattr('backend.app.api.drafts.load_companies',lambda:[company]);monkeypatch.setattr('backend.app.api.manual_send.load_companies',lambda:[company])
     app=create_app(config)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as session:
-            c=Case(title='Case',company_id='merchant',status=CaseStatus.AWAITING_APPROVAL,facts_json={'sample_scan_complete':True});session.add(c);session.commit();session.refresh(c);cid=c.id
+            c=Case(owner_id=visitor,title='Case',company_id='merchant',status=CaseStatus.AWAITING_APPROVAL,facts_json={'sample_scan_complete':True});session.add(c);session.commit();session.refresh(c);cid=c.id
             draft=EmailDraft(subject='Refund',body='Please refund.\n\nSincerely,\nOwner Name\nprivate@example.test',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
             session.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=draft.model_dump()));session.commit()
         assert client.post(f'/api/cases/{cid}/manual-compose').status_code==409
@@ -68,9 +70,10 @@ def test_visitor_sample_preview_uses_sandbox_only(tmp_path,monkeypatch):
     config=Settings(database_url=f'sqlite:///{tmp_path}/db',public_demo=True,user_email='tracking@example.test',demo_company_email='sandbox@example.test',send_enabled=True)
     monkeypatch.setattr('backend.app.api.manual_send.load_companies',lambda:[{'id':'m','name':'Merchant','grievance_officer':{'email':None,'verified':False}}])
     app=create_app(config)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as s:
-            case=Case(title='Case',company_id='m',status=CaseStatus.AWAITING_APPROVAL,facts_json={'looks_like_sample':True,'sample_scan_complete':True});s.add(case);s.commit();s.refresh(case);cid=case.id
+            case=Case(owner_id=visitor,title='Case',company_id='m',status=CaseStatus.AWAITING_APPROVAL,facts_json={'looks_like_sample':True,'sample_scan_complete':True});s.add(case);s.commit();s.refresh(case);cid=case.id
             s.add(Event(case_id=cid,actor='ai',type='draft',title='Draft',payload_json=EmailDraft(subject='Test',body='Please review.',cited_refs=[],attachments=[],demand='other',deadline_date='2026-12-21').model_dump()));s.commit()
         assert client.post(f'/api/cases/{cid}/test-send').status_code==403
         result=client.post(f'/api/cases/{cid}/preview-compose');assert result.status_code==200
@@ -88,7 +91,7 @@ def test_visitor_case_never_autosends(tmp_path,monkeypatch):
     async def draft(facts,thread,reason,deadline):return EmailDraft(subject='Follow up',body='Please reply.',cited_refs=[],attachments=[],demand='refund',deadline_date=deadline)
     monkeypatch.setattr(workers,'send_email',send);monkeypatch.setattr(workers,'draft_escalation',draft)
     app=create_app(config)
-    with TestClient(app):
+    with TestClient(app,base_url='https://testserver'):
         with Session(app.state.engine) as s:
             c=Case(title='Case',company_id='shopkart',status=CaseStatus.WAITING,facts_json={'sample_scan_complete':True,'owner_controlled':False});s.add(c);s.commit();s.refresh(c);cid=c.id
         analysis=ReplyAnalysis(reply_type='deflection',acknowledged=True,original_remedy='Refund',promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='Follow up',reason='No concrete reply',category='deflection')
@@ -113,7 +116,8 @@ def test_owner_still_cannot_send_paused_or_sample_evidence(tmp_path,monkeypatch)
     async def send(*args,**kwargs):sent.append(args);return '<sent>'
     monkeypatch.setattr('backend.app.api.drafts.send_email',send)
     app=create_app(config)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         assert client.post('/api/admin/login',json={'passcode':'owner-secret'}).status_code==200
         with Session(app.state.engine) as s:
             cases=[]

@@ -1,5 +1,7 @@
 import type {Board,CaseRecord,EmailDraft,FactEvidence,EvalResult,ContactDiscoveryResult} from './types';
-async function request<T>(url:string, options?:RequestInit):Promise<T> { const r=await fetch('/api'+url,options);if(!r.ok){let detail='Request failed';try {const body:unknown=await r.json();if(body && typeof body==='object' && 'detail' in body) detail=String(body.detail);}catch{}throw new Error(detail)}return r.json() as Promise<T>; }
+let session:Promise<void>|undefined;
+export function ensureVisitor():Promise<void>{return session??=(fetch('/api/session').then(r=>{if(!r.ok)throw new Error('Could not start session')}).catch(error=>{session=undefined;throw error}))}
+async function request<T>(url:string, options?:RequestInit):Promise<T> { await ensureVisitor(); const r=await fetch('/api'+url,options);if(!r.ok){let detail='Request failed';try {const body:unknown=await r.json();if(body && typeof body==='object' && 'detail' in body) detail=String(body.detail);}catch{}throw new Error(detail)}return r.json() as Promise<T>; }
 const post=<T>(url:string,body?:unknown)=>request<T>(url,{method:'POST',...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
 const discoveryPending=new Map<string,Promise<ContactDiscoveryResult>>();
 function discoverCase(id:string){const existing=discoveryPending.get(id);if(existing)return existing;const pending=post<ContactDiscoveryResult>(`/cases/${id}/discover-contact`).finally(()=>discoveryPending.delete(id));discoveryPending.set(id,pending);return pending}

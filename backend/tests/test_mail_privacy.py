@@ -58,9 +58,10 @@ def test_unverified_mail_waits_for_user_confirmation(tmp_path,monkeypatch):
     classified=[]
     async def classify(*args): classified.append(True);raise AssertionError('Unverified mail must not be classified')
     monkeypatch.setattr(workers,'classify_reply',classify)
-    with TestClient(app) as client:
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session'); visitor=client.cookies.get('shikayat_visitor')
         with Session(app.state.engine) as session:
-            case=Case(title='Case',status=CaseStatus.WAITING);session.add(case);session.commit();cid=case.id
+            case=Case(owner_id=visitor,title='Case',status=CaseStatus.WAITING);session.add(case);session.commit();cid=case.id
         data={'case_id':cid,'message_id':'<incoming>','sender':'unknown@example.test','subject':'Reply','body':'message','sender_verified':False,'needs_confirmation':True,'match_method':'thread'}
         asyncio.run(workers.receive(app,data))
         with Session(app.state.engine) as session:

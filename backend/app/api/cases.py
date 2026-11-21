@@ -15,12 +15,15 @@ from ..models import Case, Evidence, Event
 
 router=APIRouter(prefix='/api/cases')
 
-async def create(request: Request, text: str, images: list[UploadFile], audio: UploadFile | None, replay: CaseFacts | None = None) -> dict:
+async def _create(request: Request, text: str, images: list[UploadFile], audio: UploadFile | None, replay: CaseFacts | None = None) -> dict:
     if not text.strip() and not images and not audio:
         raise HTTPException(422,'Provide text, screenshots or audio')
     if len(images)>3:
         raise HTTPException(422,'At most three screenshots')
-    case=Case(title='Understanding your complaint')
+    from ..privacy import request_owner
+    case=Case(title='Understanding your complaint', owner_id=request_owner(request))
+    request.app.state.pending_cases[case.id]=case.owner_id
+    request.state.pending_case_id=case.id
     evidence=[]
     original_text=text
     encoded=[]
@@ -100,10 +103,25 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
         with Session(request.app.state.engine) as session:
             case=session.get(Case,case.id)
         await progress('done')
+        request.app.state.pending_cases.pop(case.id,None)
         return {**case.model_dump(mode="json"),"mode":mode}
     except ValueError as error:
+        request.app.state.pending_cases.pop(case.id,None)
         await progress('failed')
         raise HTTPException(503,str(error)) from error
+
+async def create(request: Request, text: str, images: list[UploadFile], audio: UploadFile | None, replay: CaseFacts | None = None) -> dict:
+    try:
+        return await _create(request, text, images, audio, replay)
+    finally:
+        case_id = getattr(request.state, 'pending_case_id', None)
+        if case_id:
+            request.app.state.pending_cases.pop(case_id, None)
+            with Session(request.app.state.engine) as session:
+                persisted = session.get(Case, case_id) is not None
+            if not persisted:
+                import shutil
+                shutil.rmtree(ROOT / 'var' / 'evidence' / case_id, ignore_errors=True)
 
 @router.post('')
 async def new_case(request: Request, images: list[UploadFile] = File(default=[]), audio: UploadFile | None = File(default=None), text: str = Form(default='')) -> dict:
