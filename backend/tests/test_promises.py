@@ -112,3 +112,25 @@ def test_extracted_yearless_date_and_fabricated_date():
     text='We acknowledge your complaint and will refund you soon.'
     analysis=ReplyAnalysis(reply_type='acknowledgment',acknowledged=True,original_remedy=None,promised_action='refund',refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',promised_date='2026-11-25',concrete_action='will refund you soon')
     assert enforce_forensics(analysis,text,4299,'refund').reply_type=='deflection'
+
+
+def test_all_promise_branches_use_demo_clock(tmp_path,monkeypatch):
+    from datetime import timedelta
+    from sqlmodel import Session
+    from backend.app.db import build_engine,init_db
+    from backend.app.demo import clock
+    from backend.app.models import Settings as DbSettings
+    class Frozen(datetime):
+        @classmethod
+        def now(cls,tz=None): return cls(2026,11,20,12,tzinfo=timezone.utc)
+    monkeypatch.setattr(clock,'datetime',Frozen)
+    engine=build_engine(f'sqlite:///{tmp_path}/clock.db');init_db(engine)
+    with Session(engine) as session:
+        current=clock.now(session);redress=current+timedelta(days=30)
+        within=promise_from_reply('We will refund within 3 working days.',None,current,redress)
+        assert within and within.promised_date.isoformat()=='2026-11-25' and not within.exceeds_redress
+        beyond=promise_from_reply('We will refund within 45 days.',None,current,redress)
+        assert beyond and beyond.exceeds_redress
+        assert promise_from_reply('We will refund soon.',None,current,redress) is None
+        settings=session.get(DbSettings,1);settings.demo_clock_offset_seconds=7*86400;session.add(settings);session.commit()
+        assert clock.now(session)>within.grace_until
