@@ -75,7 +75,7 @@ async def receive(app, data: dict) -> None:
         existing=session.exec(select(Message).where(Message.message_id==data['message_id'])).first()
         case=session.get(Case,data['case_id'])
         if existing or not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'): return
-    analysis=await classify_reply(data['body'])
+    analysis=await classify_reply(data['body'],case.amount_inr,case.demand)
     async with _write_lock:
         with Session(app.state.engine) as session:
             if session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return

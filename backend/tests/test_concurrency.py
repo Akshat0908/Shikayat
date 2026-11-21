@@ -28,7 +28,7 @@ def test_pipeline_inbox_and_deadlines_concurrently(tmp_path: Path,monkeypatch,ca
         await paid_step('rationale');return 'Evidence supports the demand.'
     async def classify(*args):
         await paid_step('classify')
-        return ReplyAnalysis(category='deflection',ticket_id=None,promised_date=None,offered_amount_inr=None,requested_info=[],is_templated=True,templated_signals=[],summary_hinglish='No commitment',concrete_action=None)
+        return ReplyAnalysis(reply_type='deflection',acknowledged=True,original_remedy='refund',promised_action=None,refund_confirmed=False,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',category='deflection',ticket_id=None,promised_date=None,offered_amount_inr=None,requested_info=[],is_templated=True,templated_signals=[],summary_hinglish='No commitment',concrete_action=None)
     async def draft(*args):
         await paid_step('draft')
         return EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')

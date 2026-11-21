@@ -10,8 +10,8 @@ from backend.app.ai.draft_complaint import EmailDraft
 from backend.app import workers
 
 def test_reply_flow(tmp_path: Path,monkeypatch) -> None:
-    async def classify(text: str) -> ReplyAnalysis:
-        return ReplyAnalysis(category='resolution_offered' if text=='offer' else 'deflection',ticket_id=None,promised_date=None,offered_amount_inr=4299 if text=='offer' else None,requested_info=[],is_templated=text!='offer',templated_signals=[],summary_hinglish='Demo reply',concrete_action=None)
+    async def classify(text: str, *args) -> ReplyAnalysis:
+        return ReplyAnalysis(reply_type='substantive_resolution' if text=='offer' else 'deflection',acknowledged=True,original_remedy='refund',promised_action=None,refund_confirmed=False,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',category='resolution_offered' if text=='offer' else 'deflection',ticket_id=None,promised_date=None,offered_amount_inr=4299 if text=='offer' else None,requested_info=[],is_templated=text!='offer',templated_signals=[],summary_hinglish='Demo reply',concrete_action=None)
     async def draft(*args) -> EmailDraft:
         return EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
     count=0
