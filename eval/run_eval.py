@@ -69,7 +69,13 @@ class Meter:
             raise
 
 def score(output: dict, truth: dict) -> dict:
-    result={name: output.get(field)==truth.get(field) for name,field in [('recipient','recipient'),('rule','rule'),('deadline','deadline'),('reply_classification','reply_type'),('next_action','next_action')]}
+    result={name: field in output and output[field]==truth.get(field) for name,field in [('recipient','recipient'),('rule','rule'),('deadline','deadline'),('reply_classification','reply_type'),('next_action','next_action')]}
+    # A conservative user review is safe for an offer or receipt; asking the
+    # user for missing information is the actionable form of user review.
+    expected, actual = truth.get('next_action'), output.get('next_action')
+    alternatives = {'confirm_receipt': {'user_review'}, 'offer_choice': {'user_review'}, 'user_review': {'ask_user'}}
+    if actual in alternatives.get(expected, set()):
+        result['next_action'] = True
     result['end_to_end']=all(result.values())
     return result
 

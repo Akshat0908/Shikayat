@@ -25,3 +25,12 @@ def test_budget_guard_stops_before_api_call():
     meter.spent=4.999
     with pytest.raises(BudgetExceeded):
         asyncio.run(meter.call('test','gpt-5.4',Baseline,'instructions','complaint'))
+
+
+def test_safe_review_and_ask_user_are_accepted_symmetrically():
+    base={'recipient':None,'rule':None,'deadline':None,'reply_type':'partial_offer','next_action':'offer_choice'}
+    assert score({**base,'next_action':'user_review'},base)['next_action']
+    for expected,actual in [('confirm_receipt','user_review'),('user_review','ask_user')]:
+        truth={**base,'next_action':expected}
+        assert score({**truth,'next_action':actual},truth)['next_action']
+    assert not score({**base,'next_action':'wait'},base)['next_action']
