@@ -24,7 +24,7 @@ async def send_email(recipient: dict, subject: str, body: str, approved: bool, d
     from .tracking import plus_address,tracked_subject
     message['From']=config.user_email;message['To']=address;message['Subject']=tracked_subject(subject,case_id)
     message['Reply-To']=plus_address(config.user_email,case_id)
-    message['Message-ID']=make_msgid()
+    message['Message-ID']=make_msgid(domain=config.user_email.rsplit('@',1)[-1])
     if in_reply_to:
         message['In-Reply-To']=in_reply_to
         message['References']=' '.join([*(references or []),in_reply_to])

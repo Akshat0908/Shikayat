@@ -123,6 +123,9 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
             if promise and promise.get('exceeds_redress') and not promise.get('pushback_sent'):
                 current.facts_json={**current.facts_json,'promise':{**promise,'pushback_sent':True}}
             current.status=CaseStatus.WAITING;session.add(current);session.commit()
+    if config.user_email_app_password.get_secret_value():
+        from ..mail.threading_gmail import schedule_sent_lookup
+        schedule_sent_lookup(request.app.state.engine,message_id)
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
 
@@ -169,7 +172,7 @@ def verification(case_id: str, request: Request) -> dict:
         if not case: raise HTTPException(404,'Case not found')
         events=session.exec(select(Event).where(Event.case_id==case_id).order_by(Event.at)).all()
         messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
-        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events],'messages':[{'direction':m.direction,'message_id':m.message_id,'in_reply_to':m.in_reply_to,'level':m.level,'classification':m.classification_json} for m in messages],'worker_errors':getattr(request.app.state,'worker_errors',{})}
+        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events],'messages':[{'direction':m.direction,'message_id':m.message_id,'in_reply_to':m.in_reply_to,'references':m.references_json,'gmail_thread_id':m.gmail_thread_id,'match_method':m.match_method,'level':m.level,'classification':m.classification_json} for m in messages],'worker_errors':getattr(request.app.state,'worker_errors',{})}
 
 @router.get('')
 def list_cases(request: Request) -> list[Case]:

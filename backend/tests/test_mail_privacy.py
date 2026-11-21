@@ -12,8 +12,11 @@ def test_search_is_case_restricted_and_no_messages_means_no_query():
     assert queries(c,[],company,'user@gmail.com','')==[]
     m=Message(case_id=c.id,direction='out',to='care@example.test',from_='user@gmail.com',subject='s',body_text='b',message_id='<abc>',sent_at=datetime(2026,11,1,tzinfo=timezone.utc))
     result=queries(c,[m],company,'user@gmail.com','')
-    assert result and all(('TO ' in q or 'HEADER In-Reply-To' in q or 'HEADER References' in q or ('from:example.test' in q and 'after:' in q)) for q in result)
+    assert result and all(('TO ' in q or 'CC ' in q or 'X-GM-THRID ' in q or ('from:example.test' in q and 'after:' in q)) for q in result)
     assert plus_address('user@gmail.com',c.id) in result[0]
+    assert all('HEADER ' not in q for q in result)
+    m.gmail_thread_id='123456789'
+    assert 'X-GM-THRID 123456789' in queries(c,[m],company,'user@gmail.com','')
     assert '[Shikayat #' in tracked_subject('Subject',c.id)
 
 
@@ -29,16 +32,16 @@ def test_authentication_requires_google_authserv_and_aligned_pass():
 def test_matching_ladder_and_domain_only():
     c=Case(title='Case');m=Message(case_id=c.id,direction='out',to='care@example.test',from_='user@gmail.com',subject='s',body_text='b',message_id='<abc>')
     mail=SimpleNamespace(headers={'in-reply-to':['<abc>']},subject='',text='')
-    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='thread'
+    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='in_reply_to'
     mail.headers={'to':[plus_address('user@gmail.com',c.id)]}
-    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='plus address'
+    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='plus_address'
     mail.headers={};mail.subject=case_tag(c.id)
-    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='case tag'
+    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='case_tag'
     mail.subject='';mail.text='Ticket T1234'
-    assert match_candidate(c.id,mail,[m],{'known_ticket_ids':['T1234']},['example.test'],'care@example.test','user@gmail.com')=='ticket ID'
+    assert match_candidate(c.id,mail,[m],{'known_ticket_ids':['T1234']},['example.test'],'care@example.test','user@gmail.com')=='ticket_id'
     mail.text='Order O1234'
-    assert match_candidate(c.id,mail,[m],{'order_id':'O1234'},['example.test'],'care@example.test','user@gmail.com')=='order ID'
-    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='domain only'
+    assert match_candidate(c.id,mail,[m],{'order_id':'O1234'},['example.test'],'care@example.test','user@gmail.com')=='order_id'
+    assert match_candidate(c.id,mail,[m],{},['example.test'],'care@example.test','user@gmail.com')=='domain_only'
     assert match_candidate(c.id,mail,[m],{},['example.test'],'evil@other.test','user@gmail.com') is None
     assert verified_domains({'demo':True},'demo@gmail.com')==['gmail.com']
 
@@ -102,3 +105,42 @@ def test_outbound_message_has_case_tag_and_reply_to(monkeypatch):
     asyncio.run(smtp_send.send_email({'email':'care@example.test','verified':True},'Refund','Body',True,False,None,None,case_id))
     assert captured[0]['Reply-To']=='user+shk12345678@gmail.com'
     assert '[Shikayat #12345678]' in captured[0]['Subject']
+
+
+def test_shikayat_label_is_verified():
+    from backend.app.mail.imap_poll import apply_label
+    class Client:
+        def uid(self,command,uid,*args):
+            if command=='STORE': return 'OK',[b'']
+            return 'OK',[b'1 (X-GM-LABELS ("Shikayat"))']
+    box=SimpleNamespace(client=Client(),folder=SimpleNamespace(list=lambda:[SimpleNamespace(name='Shikayat')]))
+    assert apply_label(box,SimpleNamespace(uid='17')) is True
+
+
+def test_plus_match_returns_before_slow_header_search(tmp_path,monkeypatch):
+    from backend.app.mail import imap_poll
+    from backend.app.db import build_engine,init_db
+    from backend.app.config import Settings
+    from sqlmodel import Session
+    engine=build_engine(f'sqlite:///{tmp_path}/early.db');init_db(engine)
+    with Session(engine) as s:
+        case=Case(title='Case',company_id='shopkart');s.add(case);s.commit();cid=case.id
+        s.add(Message(case_id=cid,direction='out',to='demo@gmail.com',from_='user@gmail.com',subject='s',body_text='b',message_id='<sent>'));s.commit()
+    headers={'to':[plus_address('user@gmail.com',cid)],'in-reply-to':['<sent>'],'authentication-results':['mx.google.com; dkim=pass header.d=gmail.com']}
+    mail=SimpleNamespace(headers=headers,from_='demo@gmail.com',subject='Re: s',text='Reply',uid='17',obj={'Message-ID':'<reply>'})
+    class Box:
+        def __init__(self,*args,**kwargs): self.folder=SimpleNamespace(set=lambda *a,**k:None)
+        def login(self,*args): return self
+        def __enter__(self): return self
+        def __exit__(self,*args): pass
+    calls=[]
+    def search(_box,query,**kwargs):
+        calls.append(query)
+        if len(calls)>1: raise AssertionError('A later search must not discard a definitive reply')
+        return [('All Mail',mail)]
+    monkeypatch.setattr(imap_poll,'get_settings',lambda:Settings(user_email='user@gmail.com',demo_company_email='demo@gmail.com'))
+    monkeypatch.setattr(imap_poll,'load_companies',lambda:[{'id':'shopkart','demo':True}])
+    monkeypatch.setattr(imap_poll,'MailBox',Box);monkeypatch.setattr(imap_poll,'search',search)
+    monkeypatch.setattr(imap_poll,'label_confirmed',lambda *args:True)
+    result=imap_poll.poll(engine)
+    assert len(calls)==1 and result[0]['sender_verified'] and result[0]['label_applied']

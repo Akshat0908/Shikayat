@@ -27,6 +27,12 @@ def build_engine(database_url: str) -> Engine:
 
 def init_db(engine: Engine) -> None:
     SQLModel.metadata.create_all(engine)
+    if engine.dialect.name=='sqlite':
+        from sqlalchemy import inspect, text
+        existing={column['name'] for column in inspect(engine).get_columns('message')}
+        with engine.begin() as connection:
+            for name,sql in (('references_json',"JSON NOT NULL DEFAULT '[]'"),('gmail_thread_id','TEXT'),('match_method','TEXT')):
+                if name not in existing: connection.execute(text(f'ALTER TABLE message ADD COLUMN {name} {sql}'))
     with Session(engine) as session:
         if session.get(models.Settings, 1) is None:
             session.add(models.Settings())

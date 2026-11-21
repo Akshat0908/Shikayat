@@ -97,7 +97,7 @@ def test_bounce_matching_uses_thread_id(tmp_path,monkeypatch):
     engine=build_engine(f'sqlite:///{tmp_path}/imap.db');init_db(engine)
     with Session(engine) as s:
         case=Case(title='case',company_id='shopkart');s.add(case);s.commit()
-        s.add(Message(case_id=case.id,direction='out',to='company@example.test',from_='user@example.test',subject='Grievance',body_text='complaint',message_id='<outbound-123>'));s.commit()
+        s.add(Message(case_id=case.id,direction='out',to='company@example.test',from_='user@example.test',subject='Grievance',body_text='complaint',message_id='<outbound-123>',gmail_thread_id='123'));s.commit()
     mail=SimpleNamespace(headers={'in-reply-to':['<outbound-123>']},from_='MAILER-DAEMON@example.test',subject='Delivery failed',text='Delivery failed',uid='42',obj={'Message-ID':'<bounce-123>'})
     class Box:
         def __init__(self,*args,**kwargs): pass
@@ -107,6 +107,7 @@ def test_bounce_matching_uses_thread_id(tmp_path,monkeypatch):
     monkeypatch.setattr(imap_poll,'MailBox',Box)
     monkeypatch.setattr(imap_poll,'search',lambda *args,**kwargs:[('All Mail',mail)])
     monkeypatch.setattr(imap_poll,'apply_label',lambda *args:None)
+    monkeypatch.setattr(imap_poll,'fetch_thread_id',lambda *args:'123')
     result=imap_poll.poll(engine)
     assert len(result)==1 and result[0]['bounced'] and result[0]['in_reply_to']=='<outbound-123>'
 

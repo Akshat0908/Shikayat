@@ -67,6 +67,9 @@ class Message(SQLModel, table=True):
     body_text: str
     message_id: str | None = Field(default=None, index=True)
     in_reply_to: str | None = None
+    references_json: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    gmail_thread_id: str | None = None
+    match_method: str | None = None
     sent_at: datetime = Field(default_factory=now_utc)
     classification_json: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
 

@@ -123,6 +123,9 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                         session.add(Event(case_id=case.id,actor='ai',type='draft',title='Next action drafted',reason=decision.reason,payload_json=draft.model_dump()))
                         if breached and decision.action=='followup': session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
                         session.commit()
+            if config.user_email_app_password.get_secret_value():
+                from .mail.threading_gmail import schedule_sent_lookup
+                schedule_sent_lookup(app.state.engine,message_id)
             await app.state.events.publish('decision',{'case_id':case.id,'action':decision.action,'reason':decision.reason})
             return
         else: status=CaseStatus.AWAITING_APPROVAL
@@ -162,7 +165,7 @@ async def receive(app, data: dict) -> None:
                 case=session.get(Case,data['case_id'])
                 if not case or session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
                 case.facts_json={**case.facts_json,'recipient_bounced':True};session.add(case)
-                session.add(Message(case_id=case.id,direction='in',level=case.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json={'category':'bounce'},sent_at=now(session)))
+                session.add(Message(case_id=case.id,direction='in',level=case.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),references_json=data.get('references',[]),gmail_thread_id=data.get('gmail_thread_id'),match_method=data.get('match_method'),classification_json={'category':'bounce'},sent_at=now(session)))
                 session.add(Evidence(case_id=case.id,kind='email',transcript=data['body'],extracted_json={'origin':'bounce','message_id':data['message_id']}))
                 session.add(Event(case_id=case.id,actor='system',type='bounce',title='Recipient bounced',reason='Delivery failure detected; emailing stopped and NCH preparation required.',payload_json={'message_id':data['message_id']}));session.commit()
         await app.state.events.publish('case_changed',{'case_id':data['case_id']})
@@ -174,14 +177,17 @@ async def receive(app, data: dict) -> None:
             current=session.get(Case,case.id)
             if not current or session.exec(select(Message).where(Message.message_id==data['message_id'])).first(): return
             reported=data.get('origin')=='user-reported'
+            reply_level=Level(data['reply_level']) if data.get('reply_level') in ('L2','L3','L4','L5') else current.level
+            stale=reply_level!=current.level and analysis.category in ('deflection','acknowledged','auto_reply')
             if current.facts_json.get('paused'):
                 current.facts_json={**current.facts_json,'pending_review':analysis.model_dump()};session.add(current)
-            classification={**analysis.model_dump(),'sender_verified':bool(data.get('sender_verified')),'verification_detail':data.get('verification_detail') or ('Simulated reply' if data.get('simulated') else 'User-reported update' if reported else 'Unverified sender'),'match_method':data.get('match_method')}
-            session.add(Message(case_id=case.id,direction='in',level=current.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=classification,sent_at=now(session)))
+            classification={**analysis.model_dump(),'sender_verified':bool(data.get('sender_verified')),'verification_detail':data.get('verification_detail') or ('Simulated reply' if data.get('simulated') else 'User-reported update' if reported else 'Unverified sender'),'match_method':'user_confirmed' if data.get('user_confirmed') else data.get('match_method'),'label_applied':bool(data.get('label_applied'))}
+            session.add(Message(case_id=case.id,direction='in',level=reply_level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),references_json=data.get('references',[]),gmail_thread_id=data.get('gmail_thread_id'),match_method='user_confirmed' if data.get('user_confirmed') else data.get('match_method'),classification_json=classification,sent_at=now(session)))
+            if stale: session.add(Event(case_id=case.id,actor='system',type='late_reply',title='Earlier-level reply recorded',reason='A late reply to an earlier escalation level does not trigger another follow-up.'))
             if analysis.ticket_id and analysis.ticket_id.casefold() in data['body'].casefold():
                 current.facts_json={**current.facts_json,'known_ticket_ids':list(dict.fromkeys([*current.facts_json.get('known_ticket_ids',[]),analysis.ticket_id]))};session.add(current)
             if reported: session.add(Evidence(case_id=case.id,kind='text',transcript=data['body'],extracted_json={'origin':'user-reported','classification':analysis.model_dump()}))
-            session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated')),'match_method':data.get('match_method')}))
+            session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated')),'match_method':'user_confirmed' if data.get('user_confirmed') else data.get('match_method'),'label_applied':bool(data.get('label_applied'))}))
             if analysis.reply_type not in ('partial_offer','rejection'):
                 from .engine.promises import promise_from_reply
                 redress=session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='resolve_30d',Deadline.status=='running')).first()
@@ -197,7 +203,7 @@ async def receive(app, data: dict) -> None:
                 for item in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind.in_(['ack_48h','followup']),Deadline.status=='running')).all(): item.status='met';session.add(item)
             session.commit()
     await app.state.events.publish('case_changed',{'case_id':case.id})
-    await act(app,case.id,analysis)
+    if not stale: await act(app,case.id,analysis)
 
 
 async def retry_imap(operation, *args):
@@ -212,7 +218,13 @@ async def retry_imap(operation, *args):
 
 
 async def inbox_iteration(app) -> None:
-    for data in await retry_imap(poll,app.state.engine):
+    from .mail.threading_gmail import schedule_sent_lookup
+    with Session(app.state.engine) as session:
+        active={c.id for c in session.exec(select(Case)).all() if c.status!=CaseStatus.RESOLVED and not c.facts_json.get('verification_paused')}
+        missing=[m.message_id for m in session.exec(select(Message).where(Message.direction=='out',Message.gmail_thread_id==None)).all() if m.message_id and m.case_id in active]
+    if app.state.config.user_email_app_password.get_secret_value():
+        for mid in missing: schedule_sent_lookup(app.state.engine,mid)
+    for data in await asyncio.to_thread(poll,app.state.engine):
         await receive(app,data)
 
 
