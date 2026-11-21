@@ -71,3 +71,34 @@ def test_vague_refund_promise_is_deflection():
     text='We acknowledge your complaint and will refund you soon.'
     analysis=ReplyAnalysis(reply_type='acknowledgment',acknowledged=True,original_remedy=None,promised_action='will refund you soon',refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',concrete_action='will refund you soon')
     assert enforce_forensics(analysis,text,4299,'refund').reply_type=='deflection'
+
+
+def test_full_refund_offer_beyond_redress_gets_pushback(tmp_path,monkeypatch):
+    import asyncio
+    from datetime import timedelta
+    from fastapi.testclient import TestClient
+    from sqlmodel import Session,select
+    from backend.app import workers
+    from backend.app.ai.classify_reply import ReplyAnalysis
+    from backend.app.ai.draft_complaint import EmailDraft
+    from backend.app.config import Settings
+    from backend.app.main import create_app
+    from backend.app.models import Case,CaseStatus,Deadline,Message
+    from backend.app.demo.clock import now
+    sent=[]
+    async def classify(*args): return ReplyAnalysis(reply_type='substantive_resolution',acknowledged=True,original_remedy='Refund',promised_action='Refund',refund_confirmed=False,offered_amount_inr=4299,resolution_status='unresolved',evidence_quotes=[],next_action='Wait',reason='Promise',category='resolution_offered')
+    async def draft(facts,thread,reason,deadline): return EmailDraft(subject='Follow-up',body='Please review.',cited_refs=[],attachments=[],demand='refund',deadline_date=deadline)
+    async def send(*args): sent.append(args);return '<pushback>'
+    monkeypatch.setattr(workers,'classify_reply',classify);monkeypatch.setattr(workers,'draft_escalation',draft);monkeypatch.setattr(workers,'send_email',send)
+    contact={'email':'demo@example.test','verified':True}
+    monkeypatch.setattr(workers,'load_companies',lambda:[{'id':'shopkart','demo':True,'sector':'e-commerce','grievance_officer':contact,'nodal_officer':contact}])
+    app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/pushback.db',demo_mode=True,demo_outbound_interval_seconds=0,autopilot_allowlist='demo@example.test'))
+    with TestClient(app):
+        with Session(app.state.engine) as s:
+            clock=now(s);c=Case(title='Refund',company_id='shopkart',status=CaseStatus.WAITING,amount_inr=4299,facts_json={'demo_sample':True});s.add(c);s.commit();cid=c.id
+            s.add(Message(case_id=cid,direction='out',to='demo@example.test',from_='user@example.test',subject='Refund',body_text='Refund',message_id='<sent>',sent_at=clock))
+            deadline=clock+timedelta(days=2);s.add(Deadline(case_id=cid,kind='resolve_30d',due_at=deadline));s.commit()
+        text='We will refund within 7 working days.'
+        asyncio.run(workers.receive(app,{'case_id':cid,'message_id':'<reply>','sender':'demo@example.test','subject':'Re: Refund','body':text}))
+        assert len(sent)==1 and text in sent[0][2] and deadline.date().isoformat() in sent[0][2]
+        with Session(app.state.engine) as s: assert s.get(Case,cid).facts_json['promise']['pushback_sent']

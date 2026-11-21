@@ -52,11 +52,11 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
     decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None,followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case)
     promise=case.facts_json.get('promise')
-    if promise and decision.action in ('wait','followup','escalate') and not redress_breached and not breached:
+    if promise and decision.action in ('wait','followup','escalate','confirm_receipt') and not redress_breached and not breached:
         grace=datetime.fromisoformat(promise['grace_until'])
-        if promise.get('exceeds_redress') and not promise.get('pushback_sent'):
+        if promise.get('exceeds_redress') and not promise.get('pushback_sent') and not (analysis and analysis.refund_confirmed):
             decision=Decision('followup',case.level.value,f"Promise exceeds the redressal deadline {promise['redress_date']}: {promise['quote']}")
-        elif clock<grace:
+        elif clock<grace and decision.action!='confirm_receipt':
             decision=Decision('wait',case.level.value,f"Waiting for the promised date {promise['promised_date']} plus one day of grace.",False)
         elif promise_expired and not promise.get('exceeds_redress'):
             decision=Decision('followup',case.level.value,f"Promise passed on {promise['promised_date']}: {promise['quote']}")
