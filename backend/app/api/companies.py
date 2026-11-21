@@ -31,6 +31,7 @@ class DiscoveryRequest(BaseModel):
     role: Role = 'grievance_officer'
     confirmed_domain: str | None = None
     edited_domain: bool = False
+    domain_hints: list[str] = []
 
 class Confirmation(BaseModel):
     role: Role = 'grievance_officer'
@@ -49,6 +50,11 @@ def domain_name(value: str | None) -> str | None:
     return value
 
 
+def privacy_only(lead: Lead) -> bool:
+    text=((lead.source_url or '')+' '+(lead.evidence_quote or '')).casefold()
+    return any(term in text for term in ('privacy-policy','privacy policy','processing of information','processing of personal','data protection','privacy compliance'))
+
+
 def validate(lead: Lead, domains: list[str], role: Role) -> list[str]:
     errors=[]
     official=[domain_name(item) for item in domains];official=[d for d in official if d]
@@ -63,6 +69,7 @@ def validate(lead: Lead, domains: list[str], role: Role) -> list[str]:
     if address and address not in (lead.evidence_quote or ''): errors.append('Email does not appear literally in the evidence quote')
     if not address or not any(address.rsplit('@',1)[-1].casefold()==d for d in official): errors.append('Email domain does not match an official domain')
     if lead.role!=role: errors.append('Contact role does not match requested role')
+    if privacy_only(lead): errors.append('Privacy-only contact is not established for consumer complaints')
     return errors
 
 
@@ -101,20 +108,26 @@ async def discover(company_id: str, request: DiscoveryRequest) -> dict:
             update_company(company_id,lambda item:item.update(verified_domains=[domain]));domains=[domain];cached=None
         else:
             if not cached or not cached.get('suggested_domain'):
-                suggestion=await call_structured('company_domain',get_settings().model_fast,DomainSuggestion,'Search for the official website of this company. Exclude marketplaces, review sites, social media and complaint aggregators. Return its bare domain, or null if unsure. User confirmation is required.',company['name'],search_domains=[])
+                suggestion=await call_structured('company_domain',get_settings().model_fast,DomainSuggestion,'Search for the official website of this company. Exclude marketplaces, review sites, social media and complaint aggregators. Return its bare domain, or null if unsure. User confirmation is required.',company['name']+'; unverified domain hints from user text: '+', '.join(d for h in request.domain_hints if (d:=domain_name(h))),search_domains=[])
                 proposed=domain_name(suggestion.domain)
                 if not proposed or proposed in DISALLOWED_DOMAINS: return {'status':'domain_unknown','message':'Could not identify an official domain'}
                 cached={'at':datetime.now(timezone.utc).isoformat(),'suggested_domain':proposed};save(path,cached)
             return {'status':'confirm_domain','domain':cached['suggested_domain']}
-    if cached and cached.get('lead') and cached.get('domains')==domains and cached.get('version')==2:
+    if cached and cached.get('lead') and cached.get('domains')==domains and cached.get('version')==3:
         lead=Lead.model_validate(cached['lead']);errors=validate(lead,domains,role)
         return {'status':'unverified_lead' if errors else 'awaiting_confirmation','lead':lead.model_dump(),'errors':errors,'cached':True}
     try:
         lead=await call_structured('contact_discovery',get_settings().model_smart,Lead,'Find the requested official grievance contact. If no designated grievance officer contact exists, find an officially published customer support email and set contact_type to customer_support; otherwise set grievance_officer. Use only official-domain pages. Return only exact text from the source; never invent details. If unavailable return null fields.',f"Company: {company['name']}; role: {role}. Find the official grievance redressal page and its published contact. If available prioritize this company-recorded source: {company.get(role,{}).get('source_url') or 'none'}.",search_domains=domains)
     except Exception as error:
         raise HTTPException(503,'Official contact search failed; please verify manually') from error
+    if lead.contact_type=='grievance_officer' and privacy_only(lead):
+        try:
+            lead=await call_structured('contact_discovery',get_settings().model_smart,Lead,'Find the official customer support email for product and order complaints, not privacy or personal-data grievances. Use only official pages. Set contact_type to customer_support. Quote the exact source containing the email; never invent details.',f"Company: {company['name']}; role: {role}. Search the official contact and customer care pages.",search_domains=domains)
+            lead=lead.model_copy(update={'contact_type':'customer_support'})
+        except Exception:
+            pass
     errors=validate(lead,domains,role)
-    save(path,{'at':datetime.now(timezone.utc).isoformat(),'lead':lead.model_dump(),'domains':domains,'version':2})
+    save(path,{'at':datetime.now(timezone.utc).isoformat(),'lead':lead.model_dump(),'domains':domains,'version':3})
     return {'status':'unverified_lead' if errors else 'awaiting_confirmation','lead':lead.model_dump(),'errors':errors,'cached':False}
 
 

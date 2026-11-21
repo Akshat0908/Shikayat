@@ -41,3 +41,16 @@ def test_disagreement_requires_user_confirmation(tmp_path,monkeypatch):
             case=Case(title='a',company_id=company['id'],facts_json={'screenshot_domains':['leafstudios.in']});s.add(case);s.commit();s.refresh(case);case_id=case.id
         assert client.post(f'/api/cases/{case_id}/discover-contact').json()['status']=='confirm_domain'
         assert calls==[None]
+
+
+def test_nch_pack_is_a_draft_and_labels_sample(tmp_path):
+    from sqlmodel import select
+    from backend.app.models import Event
+    app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/db',user_email='',demo_company_email=''))
+    with TestClient(app) as client:
+        with Session(app.state.engine) as session:
+            case=Case(title='Broken item',facts_json={'looks_like_sample':True,'company_name':'Leaf'});session.add(case);session.commit();session.refresh(case);case_id=case.id
+        assert client.post(f'/api/cases/{case_id}/nch-pack').json()['status']=='draft_ready'
+        with Session(app.state.engine) as session:
+            event=session.exec(select(Event).where(Event.type=='nch_pack')).one()
+            assert 'SAMPLE DATA' in event.payload_json['body'] and 'file themselves' in event.reason

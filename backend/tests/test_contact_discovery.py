@@ -55,3 +55,27 @@ def test_domain_suggestion_needs_confirmation(tmp_path,monkeypatch):
         assert client.post('/api/companies/c/discover',json={'confirmed_domain':'evil.test'}).status_code==422
         assert client.post('/api/companies/c/discover',json={'confirmed_domain':'company.test'}).json()['status']=='unverified_lead'
         assert client.post('/api/companies/c/confirm-contact',json={}).status_code==422
+
+
+def test_privacy_grievance_is_not_a_consumer_contact():
+    lead=companies.Lead(email='developer@company.test',officer_name=None,role='grievance_officer',source_url='https://company.test/privacy-policy',evidence_quote='For processing of information email developer@company.test')
+    assert 'Privacy-only contact is not established for consumer complaints' in companies.validate(lead,['company.test'],'grievance_officer')
+    support=companies.Lead(email='support@company.test',officer_name=None,role='grievance_officer',source_url='https://company.test/contact',evidence_quote='E-MAIL: support@company.test',contact_type='customer_support')
+    assert not companies.validate(support,['company.test'],'grievance_officer')
+
+
+def test_privacy_lead_falls_back_to_customer_support(tmp_path,monkeypatch):
+    (tmp_path/'data').mkdir();path=tmp_path/'data'/'companies.json'
+    path.write_text(json.dumps([{'id':'c','name':'Company','demo':False,'verified_domains':['company.test'],'grievance_officer':{},'nodal_officer':{}}]))
+    monkeypatch.setattr(companies,'ROOT',tmp_path);monkeypatch.setattr(companies,'load_companies',lambda:json.loads(path.read_text()))
+    calls=[]
+    async def search(*args,**kwargs):
+        calls.append(True)
+        if len(calls)==1:return companies.Lead(email='developer@company.test',officer_name=None,role='grievance_officer',source_url='https://company.test/privacy-policy',evidence_quote='processing of information developer@company.test')
+        return companies.Lead(email='support@company.test',officer_name=None,role='grievance_officer',source_url='https://company.test/contact',evidence_quote='Email: support@company.test',contact_type='customer_support')
+    monkeypatch.setattr(companies,'call_structured',search)
+    with TestClient(create_app(Settings(database_url=f'sqlite:///{tmp_path}/db',user_email='',demo_company_email=''))) as client:
+        result=client.post('/api/companies/c/discover',json={}).json()
+        assert len(calls)==2 and result['status']=='awaiting_confirmation'
+        assert result['lead']['email']=='support@company.test' and result['lead']['contact_type']=='customer_support'
+        assert not json.loads(path.read_text())[0]['grievance_officer'].get('verified')
