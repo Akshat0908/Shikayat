@@ -68,6 +68,18 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
         await progress('assessing')
         score,label=strength(facts,len(evidence))
         reason='Synthetic sample replay; deterministic strength calculation.' if mode=='replay' else await rationale(facts,score)
+        fact_values=facts.model_dump(mode='json')
+        records=[]
+        for field in ('company_name','order_id','amount_inr','purchase_date','issue_type','issue_summary_en','user_demand','events','contact_attempts','days_elapsed'):
+            value=fact_values.get(field)
+            if value is None or value==[]: continue
+            sources=[item for item in facts.provenance if item.field==field]
+            if not sources:
+                records.append({'field':field,'value':value,'origin':None,'source_excerpt':None,'bbox':None,'verification_state':'needs_verification'})
+            for source in sources:
+                verified=source.origin=='text' and bool(source.source_excerpt) and source.source_excerpt in text
+                records.append({'field':field,'value':value,'origin':source.origin,'source_excerpt':source.source_excerpt,'bbox':source.bbox,'verification_state':'verified' if verified else 'needs_verification'})
+        evidence.append(Evidence(case_id=case.id,kind='ledger',extracted_json={'facts':records}))
         case.title=facts.issue_summary_en
         case.company_id=company['id'] if company else None
         case.facts_json={**facts.model_dump(mode='json'),'mode':mode,'replay_reason':replay_reason}
@@ -99,3 +111,11 @@ async def sample(request: Request,sample_id: str) -> dict:
     facts=CaseFacts.model_validate_json((directory/'facts.json').read_text())
     image=UploadFile(file=BytesIO((directory/'order.png').read_bytes()),filename='order.png',headers=Headers({'content-type':'image/png'}))
     return await create(request,(directory/'text.txt').read_text(),[image],None,replay=facts)
+
+@router.get('/{case_id}/evidence')
+def case_evidence(case_id: str, request: Request) -> dict:
+    from sqlmodel import select
+    with Session(request.app.state.engine) as session:
+        if not session.get(Case,case_id): raise HTTPException(404,'Case not found')
+        ledger=session.exec(select(Evidence).where(Evidence.case_id==case_id,Evidence.kind=='ledger')).all()
+        return {'case_id':case_id,'facts':[fact for item in ledger for fact in item.extracted_json.get('facts',[])]}

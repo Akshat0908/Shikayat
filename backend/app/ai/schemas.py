@@ -17,6 +17,12 @@ class FieldConfidence(BaseModel):
     amount_inr: float
     purchase_date: float
 
+class FactProvenance(BaseModel):
+    field: str
+    origin: Literal['screenshot','voice','text','email']
+    source_excerpt: str | None
+    bbox: list[float] | None
+
 class CaseFacts(BaseModel):
     company_name: str | None
     order_id: str | None
@@ -30,6 +36,7 @@ class CaseFacts(BaseModel):
     days_elapsed: int | None = Field(ge=0)
     missing_info: list[str]
     field_confidence: FieldConfidence
+    provenance: list[FactProvenance] = []
 
     @model_validator(mode='after')
     def unknowns(self) -> 'CaseFacts':
