@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-06",
+  "category": "deflection",
+  "inputs": {
+    "complaint": "I ordered a book set from Nykaa on its website on 2026-09-12 for ₹1,000, order SYN-006. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹1,000. I sent my grievance on 2026-10-01.",
+    "reply": "We regret the inconvenience. Your concern has been forwarded to the relevant team and will be addressed at the earliest.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "deflection",
+    "next_action": "followup"
+  }
+}

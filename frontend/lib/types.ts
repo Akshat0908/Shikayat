@@ -9,5 +9,5 @@ export interface FactEvidence {field:string;value:unknown;origin:string|null;sou
 export type EvalMetric = 'recipient'|'rule'|'deadline'|'reply_classification'|'next_action'|'end_to_end';
 export interface EvalSystem {metrics:Record<EvalMetric,boolean>;output:string;cost_usd:number;latency_seconds:number}
 export interface EvalCase {id:string;category:'resolution'|'deflection'|'partial offer'|'wrong-sector trap'|'ambiguous';baseline:EvalSystem;shikayat:EvalSystem}
-export interface EvalResult {data_source:'sample'|'measured';evaluated_at:string|null;model:string;case_count:number;cases:EvalCase[]}
+export interface EvalResult {data_source:'sample'|'measured';evaluated_at:string|null;model:string;commit:string|null;total_cost_usd:number|null;case_count:number;cases:EvalCase[]}
 export interface ContactDiscoveryResult {company_id?:string;status:'confirm_domain'|'domain_unknown'|'unverified_lead'|'awaiting_confirmation';domain?:string;lead?:{email:string|null;officer_name:string|null;role:'grievance_officer'|'nodal_officer';source_url:string|null;evidence_quote:string|null;contact_type?:'grievance_officer'|'customer_support'};errors?:string[];cached?:boolean}

@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-13",
+  "category": "partial offer",
+  "inputs": {
+    "complaint": "I ordered a jacket from JioMart on its website on 2026-09-12 for ₹1,800, order SYN-013. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹1,800. I sent my grievance on 2026-10-01.",
+    "reply": "We can offer you a ₹450 voucher to use on a future purchase.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "partial_offer",
+    "next_action": "offer_choice"
+  }
+}

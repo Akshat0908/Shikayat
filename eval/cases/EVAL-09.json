@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-09",
+  "category": "deflection",
+  "inputs": {
+    "complaint": "I ordered a speaker from Zepto on its website on 2026-09-12 for ₹2,200, order SYN-009. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹2,200. I sent my grievance on 2026-10-01.",
+    "reply": "We apologise for your experience. Our team is looking into the matter and will respond shortly.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "deflection",
+    "next_action": "followup"
+  }
+}

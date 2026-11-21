@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-19",
+  "category": "ambiguous",
+  "inputs": {
+    "complaint": "I paid for something but cannot identify the merchant or the amount. I need help.",
+    "reply": "Please tell us the order number, merchant and amount so we can review your complaint.",
+    "received_at": null
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": null,
+    "deadline": null,
+    "reply_type": "evidence_request",
+    "next_action": "user_review"
+  }
+}

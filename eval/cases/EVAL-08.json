@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-08",
+  "category": "deflection",
+  "inputs": {
+    "complaint": "I ordered a grocery order from Zomato on its website on 2026-09-12 for ₹780, order SYN-008. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹780. I sent my grievance on 2026-10-01.",
+    "reply": "We regret the trouble. Your complaint has been shared with the concerned team for review.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "deflection",
+    "next_action": "followup"
+  }
+}

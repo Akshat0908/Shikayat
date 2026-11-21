@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-20",
+  "category": "ambiguous",
+  "inputs": {
+    "complaint": "I am missing a refund but do not know which company handled my order.",
+    "reply": "We cannot trace the complaint without your order number and merchant name. Please provide them.",
+    "received_at": null
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": null,
+    "deadline": null,
+    "reply_type": "evidence_request",
+    "next_action": "user_review"
+  }
+}

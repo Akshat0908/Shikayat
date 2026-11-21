@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-18",
+  "category": "ambiguous",
+  "inputs": {
+    "complaint": "An unknown seller has not refunded me. I do not remember the seller, order number or amount.",
+    "reply": "Please send your order number and the refund amount so we can look into your complaint.",
+    "received_at": null
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": null,
+    "deadline": null,
+    "reply_type": "evidence_request",
+    "next_action": "user_review"
+  }
+}

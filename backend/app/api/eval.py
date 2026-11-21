@@ -1,7 +1,8 @@
-"""A labeled sample evaluation, pending the U3 evaluation pipeline."""
+"""Serve completed measured evaluations, otherwise clearly labeled examples."""
 from typing import Literal
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
+from ..config import ROOT
 
 router = APIRouter(prefix='/api/eval', tags=['evaluation'])
 MetricName = Literal['recipient', 'rule', 'deadline', 'reply_classification', 'next_action', 'end_to_end']
@@ -22,6 +23,8 @@ class EvaluationResult(BaseModel):
     data_source: Literal['sample', 'measured']
     evaluated_at: str | None
     model: str
+    commit: str | None = None
+    total_cost_usd: float | None = None
     case_count: int
     cases: list[EvaluationCase]
 
@@ -30,6 +33,14 @@ CATEGORIES = ('resolution', 'deflection', 'partial offer', 'wrong-sector trap', 
 
 @router.get('/latest', response_model=EvaluationResult)
 def latest() -> EvaluationResult:
+    results = ROOT / 'eval' / 'results'
+    for path in sorted(results.glob('*.json'), reverse=True):
+        try:
+            result = EvaluationResult.model_validate_json(path.read_text())
+            if result.data_source == 'measured' and result.commit and result.evaluated_at and result.case_count == len(result.cases) == 20:
+                return result
+        except (OSError, ValueError, ValidationError):
+            continue
     # Illustrative data only: it is never represented as a measured run.
     cases=[]
     for i in range(20):

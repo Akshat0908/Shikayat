@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-01",
+  "category": "resolution",
+  "inputs": {
+    "complaint": "I ordered a wireless headphones from Flipkart on its website on 2026-09-12 for ₹4,299, order SYN-001. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹4,299. I sent my grievance on 2026-10-01.",
+    "reply": "Your refund of ₹4,299 has been successfully processed and credited. Transaction reference UTR SYNREF101.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": "grievance.officer@flipkart.com",
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "substantive_resolution",
+    "next_action": "confirm_receipt"
+  }
+}

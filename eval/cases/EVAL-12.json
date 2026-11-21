@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-12",
+  "category": "partial offer",
+  "inputs": {
+    "complaint": "I ordered a monitor from Croma on its website on 2026-09-12 for ₹2,500, order SYN-012. I returned it on 2026-09-20, but the refund has not reached me. I want a refund of ₹2,500. I sent my grievance on 2026-10-01.",
+    "reply": "We can refund ₹625 as a partial settlement; the balance is not included.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": "ecom_rules_2020_grievance",
+    "deadline": "2026-11-01",
+    "reply_type": "partial_offer",
+    "next_action": "offer_choice"
+  }
+}

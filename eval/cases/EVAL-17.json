@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-17",
+  "category": "wrong-sector trap",
+  "inputs": {
+    "complaint": "I contacted Harbor Bank about a ₹1,100 card fee on 2026-10-01. It remains unresolved and I want my money back. This concerns banking, not an online retail purchase.",
+    "reply": "We regret the inconvenience. Our team is looking into your complaint.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": null,
+    "deadline": null,
+    "reply_type": "deflection",
+    "next_action": "user_review"
+  }
+}

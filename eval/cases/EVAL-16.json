@@ -1,0 +1,16 @@
+{
+  "id": "EVAL-16",
+  "category": "wrong-sector trap",
+  "inputs": {
+    "complaint": "I contacted IndiGo about a ₹8,940 flight cancellation refund on 2026-10-01. It remains unresolved and I want my money back. This concerns airline, not an online retail purchase.",
+    "reply": "Sorry for the trouble. Your complaint has been shared with the concerned team.",
+    "received_at": "2026-10-01T12:00:00+00:00"
+  },
+  "ground_truth": {
+    "recipient": null,
+    "rule": null,
+    "deadline": null,
+    "reply_type": "deflection",
+    "next_action": "user_review"
+  }
+}
