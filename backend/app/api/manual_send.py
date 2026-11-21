@@ -59,6 +59,9 @@ async def manual_sent(case_id: str,request: Request) -> dict:
             if not prior and company.get('sector')=='e-commerce':
                 for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
             session.add(Event(case_id=case_id,actor='user',type='sent',title='Sent by user (manual)',reason='User confirmed they sent the complaint from their email app.',payload_json={'manual':True,'tracking_address':tracking,'case_tag':case_tag(case_id)}))
+            promise=case.facts_json.get('promise')
+            if promise and promise.get('exceeds_redress') and not promise.get('pushback_sent'):
+                case.facts_json={**case.facts_json,'promise':{**promise,'pushback_sent':True}}
             case.status=CaseStatus.WAITING;session.add(case);session.commit()
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'User confirmed manual send'})
     return {'status':'sent_by_user'}

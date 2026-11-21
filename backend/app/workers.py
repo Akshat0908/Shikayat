@@ -8,7 +8,7 @@ from .ai.draft_complaint import prepare_email, validate_draft
 from .config import get_settings
 from .demo.clock import now
 from .engine.company import load_companies
-from .engine.policy import decide
+from .engine.policy import decide, Decision
 from .mail.imap_poll import poll
 from .mail.smtp_send import send_email
 from .models import Case, CaseStatus, Deadline, Evidence, Event, Level, Message
@@ -34,7 +34,7 @@ _write_lock = asyncio.Lock()
 _send_lock = asyncio.Lock()
 
 
-async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached: bool = False, redress_breached: bool = False) -> None:
+async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached: bool = False, redress_breached: bool = False, promise_expired: bool = False) -> None:
     config=app.state.config
     with Session(app.state.engine) as session:
         case=session.get(Case,case_id)
@@ -45,11 +45,21 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         outbound=sum(m.direction=='out' for m in messages)
         followups=max(0,sum(m.direction=='out' for m in level_messages)-1)
         limit=config.grievance_followup_limit if case.level==Level.L2 else config.nodal_followup_limit
-        deadline=(now(session)+timedelta(days=2)).date().isoformat()
+        clock=now(session) if case.facts_json.get('demo_sample') and config.demo_mode else datetime.now(timezone.utc)
+        deadline=(clock+timedelta(days=2)).date().isoformat()
         from .api.profile import get_profile
         profile=get_profile(session,config.user_email)
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
     decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None,followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case)
+    promise=case.facts_json.get('promise')
+    if promise and decision.action in ('wait','followup','escalate') and not redress_breached and not breached:
+        grace=datetime.fromisoformat(promise['grace_until'])
+        if promise.get('exceeds_redress') and not promise.get('pushback_sent'):
+            decision=Decision('followup',case.level.value,f"Promise exceeds the redressal deadline {promise['redress_date']}: {promise['quote']}")
+        elif clock<grace:
+            decision=Decision('wait',case.level.value,f"Waiting for the promised date {promise['promised_date']} plus one day of grace.",False)
+        elif promise_expired and not promise.get('exceeds_redress'):
+            decision=Decision('followup',case.level.value,f"Promise passed on {promise['promised_date']}: {promise['quote']}")
     event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level,'requires_approval':decision.requires_approval})
     draft=None;outgoing=None;status=case.status;new_level=Level(decision.level)
     if decision.action=='confirm_receipt': status=CaseStatus.AWAITING_RECEIPT
@@ -62,6 +72,12 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
             from .ai.draft_complaint import EmailDraft
             draft=EmailDraft(subject='Consumer complaint',body=f"Issue: {case.facts_json.get('issue_summary_en') or case.title}\nRequested remedy: {case.demand or 'Needs user review'}\nPlease review the case evidence and correspondence.",cited_refs=[],attachments=[],demand=case.demand or '',deadline_date=deadline)
         draft=prepare_email(draft,case.facts_json,profile,company);validate_draft(draft,deadline)
+        if promise and decision.action=='followup' and (promise_expired or promise.get('exceeds_redress')):
+            note=f"Your reply stated: “{promise['quote']}” (promised date: {promise['promised_date']})."
+            if promise.get('exceeds_redress'):
+                note+=f" Please address this by the redressal deadline of {promise['redress_date']}."
+            draft=draft.model_copy(update={'body':draft.body.replace('\n\nSincerely,',f'\n\n{note}\n\nSincerely,')})
+            validate_draft(draft,deadline)
         contact=(company or {}).get('nodal_officer' if new_level==Level.L3 else 'grievance_officer') or {}
         allowlist={s.strip().casefold() for s in config.autopilot_allowlist.split(',') if s.strip()}
         if decision.action=='prepare_filing': status=CaseStatus.NEEDS_INFO
@@ -77,7 +93,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                     if reason:
                         current.level=case.level
                         if due:
-                            current.facts_json={**current.facts_json,'pending_action':{'category':analysis.category if analysis else 'acknowledged','breached':breached,'redress_breached':redress_breached,'due_at':due.isoformat()}}
+                            current.facts_json={**current.facts_json,'pending_action':{'category':analysis.category if analysis else 'acknowledged','breached':breached,'redress_breached':redress_breached,'promise_expired':promise_expired,'due_at':due.isoformat()}}
                             session.add(current)
                         elif current.facts_json.get('paused') and analysis:
                             current.facts_json={**current.facts_json,'pending_review':analysis.model_dump()};session.add(current)
@@ -101,6 +117,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
                         current=session.get(Case,case_id)
                         if not current: return
                         current.facts_json={k:v for k,v in current.facts_json.items() if k!='pending_action'}
+                        if promise and promise.get('exceeds_redress') and decision.action=='followup': current.facts_json={**current.facts_json,'promise':{**promise,'pushback_sent':True}}
                         current.level=new_level;current.status=status;session.add(current);session.add(outgoing);session.add(event)
                         session.add(Event(case_id=case.id,actor='ai',type='draft',title='Next action drafted',reason=decision.reason,payload_json=draft.model_dump()))
                         if breached and decision.action=='followup': session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
@@ -149,6 +166,17 @@ async def receive(app, data: dict) -> None:
             session.add(Message(case_id=case.id,direction='in',level=current.level,to=app.state.config.user_email,from_=data['sender'],subject=data['subject'],body_text=data['body'],message_id=data['message_id'],in_reply_to=data.get('in_reply_to'),classification_json=analysis.model_dump(),sent_at=now(session)))
             if reported: session.add(Evidence(case_id=case.id,kind='text',transcript=data['body'],extracted_json={'origin':'user-reported','classification':analysis.model_dump()}))
             session.add(Event(case_id=case.id,actor='user' if reported else 'company',type='reply',title=('User-reported: ' if reported else 'Simulated reply: ' if data.get('simulated') else '')+analysis.category,reason=analysis.summary_hinglish,payload_json={'origin':'user-reported' if reported else 'email','folder':data.get('folder'),'message_id':data['message_id'],'simulated':bool(data.get('simulated'))}))
+            if analysis.reply_type not in ('partial_offer','rejection'):
+                from .engine.promises import promise_from_reply
+                redress=session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='resolve_30d',Deadline.status=='running')).first()
+                clock=now(session) if current.facts_json.get('demo_sample') and app.state.config.demo_mode else datetime.now(timezone.utc)
+                promise=promise_from_reply(data['body'],analysis.promised_date,clock,redress.due_at if redress else None)
+                if promise:
+                    details={'promised_date':promise.promised_date.isoformat(),'grace_until':promise.grace_until.isoformat(),'quote':promise.quote,'exceeds_redress':promise.exceeds_redress,'redress_date':redress.due_at.date().isoformat() if redress else None,'redress_at':redress.due_at.replace(tzinfo=timezone.utc).isoformat() if redress else None,'pushback_sent':False}
+                    current.facts_json={**current.facts_json,'promise':details};session.add(current)
+                    for old in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind=='promise',Deadline.status=='running')).all(): old.status='superseded';session.add(old)
+                    if not promise.exceeds_redress: session.add(Deadline(case_id=case.id,kind='promise',due_at=promise.grace_until))
+                    session.add(Event(case_id=case.id,actor='company',type='promise',title='Company promised an action',reason=promise.quote,payload_json=details))
             if analysis.acknowledged:
                 for item in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind.in_(['ack_48h','followup']),Deadline.status=='running')).all(): item.status='met';session.add(item)
             session.commit()
@@ -194,17 +222,17 @@ async def deadline_iteration(app) -> None:
                 if item.due_at.replace(tzinfo=timezone.utc)<=current:
                     item.status='breached';session.add(item)
                     session.add(Event(case_id=case.id,actor='system',type='deadline',title='Deadline breached',reason=f'{item.kind} deadline expired.'))
-                    if case.status!=CaseStatus.AWAITING_APPROVAL and item.kind in ('ack_48h','followup','resolve_30d'): triggers.append((case.id,item.kind))
+                    if case.status!=CaseStatus.AWAITING_APPROVAL and item.kind in ('ack_48h','followup','resolve_30d','promise'): triggers.append((case.id,item.kind))
             for case in session.exec(select(Case)).all():
                 entry=case.facts_json.get('pending_action')
                 if entry and not case.facts_json.get('paused'):
                     current=timestamp if case.facts_json.get('demo_sample') and app.state.config.demo_mode else datetime.now(timezone.utc)
                     if datetime.fromisoformat(entry['due_at'])<=current: pending.append((case.id,entry))
             session.commit()
-    for case_id,kind in triggers: await act(app,case_id,breached=kind in ('ack_48h','followup'),redress_breached=kind=='resolve_30d')
+    for case_id,kind in triggers: await act(app,case_id,breached=kind in ('ack_48h','followup'),redress_breached=kind=='resolve_30d',promise_expired=kind=='promise')
     for case_id,entry in pending:
         analysis=ReplyAnalysis(reply_type='deflection' if entry['category']=='deflection' else 'acknowledgment',acknowledged=True,original_remedy=None,promised_action=None,refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='',reason='',category=entry['category'])
-        await act(app,case_id,analysis,breached=entry['breached'],redress_breached=entry['redress_breached'])
+        await act(app,case_id,analysis,breached=entry['breached'],redress_breached=entry['redress_breached'],promise_expired=entry.get('promise_expired',False))
 
 
 async def deadline_loop(app) -> None:

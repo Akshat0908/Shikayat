@@ -118,6 +118,9 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
                 acknowledged=any(m.direction=='in' and m.level==current.level and m.classification_json.get('acknowledged') for m in messages)
                 if missed and not acknowledged: session.add(Deadline(case_id=case_id,kind='followup',due_at=timestamp+timedelta(hours=48)))
             session.add(Event(case_id=case_id,actor='user',type='sent',title='Complaint sent',reason='User explicitly approved this draft.',payload_json={'message_id':message_id}))
+            promise=current.facts_json.get('promise')
+            if promise and promise.get('exceeds_redress') and not promise.get('pushback_sent'):
+                current.facts_json={**current.facts_json,'promise':{**promise,'pushback_sent':True}}
             current.status=CaseStatus.WAITING;session.add(current);session.commit()
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}

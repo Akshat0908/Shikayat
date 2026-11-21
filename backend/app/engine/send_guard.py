@@ -9,6 +9,13 @@ def guard(case: Case, messages: list[Message], current: datetime, config: Settin
     if case.facts_json.get('paused'): return 'Case is paused by the user.', None
     if case.facts_json.get('recipient_bounced'): return 'Recipient bounced; emailing stopped.', None
     if case.level.value not in ('L2','L3'): return 'Company escalation route exhausted; prepare the NCH-ready pack.', None
+    promise=case.facts_json.get('promise')
+    if promise:
+        until=promise.get('redress_at') if promise.get('exceeds_redress') and promise.get('pushback_sent') else promise.get('grace_until') if not promise.get('exceeds_redress') else None
+        if until:
+            due=datetime.fromisoformat(until)
+            if due.tzinfo is None: due=due.replace(tzinfo=timezone.utc)
+            if current<due: return 'Waiting for the company promise or redressal deadline.',due
     outbound=[m for m in messages if m.direction=='out']
     if len(outbound)>=config.max_outbound_per_case: return 'Outbound email limit reached.', None
     level_messages=[m for m in outbound if m.level==case.level]
