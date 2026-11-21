@@ -31,7 +31,7 @@ def test_pipeline_inbox_and_deadlines_concurrently(tmp_path: Path,monkeypatch,ca
         return ReplyAnalysis(reply_type='deflection',acknowledged=True,original_remedy='refund',promised_action=None,refund_confirmed=False,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',category='deflection',ticket_id=None,promised_date=None,offered_amount_inr=None,requested_info=[],is_templated=True,templated_signals=[],summary_hinglish='No commitment',concrete_action=None)
     async def draft(*args):
         await paid_step('draft')
-        return EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
+        return EmailDraft(subject='Refund',body='Please refund.',cited_refs=[],attachments=[],demand='refund',deadline_date=args[-1])
     monkeypatch.setattr(cases,'extract_case',extract)
     monkeypatch.setattr(cases,'rationale',rationale)
     monkeypatch.setattr(workers,'classify_reply',classify)

@@ -4,6 +4,7 @@ from datetime import timedelta, timezone
 from sqlmodel import Session, select
 from .ai.classify_reply import classify_reply, ReplyAnalysis
 from .ai.draft_escalation import draft_escalation
+from .ai.draft_complaint import prepare_email, validate_draft
 from .config import get_settings
 from .demo.clock import now
 from .engine.company import load_companies
@@ -38,6 +39,8 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         messages=session.exec(select(Message).where(Message.case_id==case.id).order_by(Message.sent_at)).all()
         deflections=sum(m.classification_json.get('category')=='deflection' for m in messages if m.direction=='in')
         deadline=(now(session)+timedelta(days=2)).date().isoformat()
+        from .api.profile import get_profile
+        profile=get_profile(session,app.state.config.user_email)
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
     decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=company.get('sector') if company else None)
     event=Event(case_id=case.id,actor='ai',type='decision',title=decision.action,reason=decision.reason,payload_json={'action':decision.action,'level':decision.level,'requires_approval':decision.requires_approval})
@@ -49,6 +52,8 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
         case.level=Level(decision.level)
         draft=await draft_escalation(case.facts_json,[{'date':m.sent_at.date().isoformat(),'body':m.body_text} for m in messages],decision.reason,deadline)
         company=next((c for c in load_companies() if c['id']==case.company_id),None)
+        draft=prepare_email(draft,case.facts_json,profile,company)
+        validate_draft(draft,deadline)
         contact=company['nodal_officer' if case.level==Level.L3 else 'grievance_officer'] if company else {}
         allowlist={s.strip().casefold() for s in get_settings().autopilot_allowlist.split(',') if s.strip()}
         if decision.action!='prepare_filing' and company and company.get('demo') and contact.get('email') and contact['email'].casefold() in allowlist:

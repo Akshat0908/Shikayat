@@ -20,12 +20,13 @@ def test_edit_draft_persists_and_approval_sends_saved_body(tmp_path, monkeypatch
             session.add(case);session.commit();case_id=case.id
             original=EmailDraft(subject='Refund',body='Original',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
             session.add(Event(case_id=case_id,actor='ai',type='draft',title='Draft',reason='Prepared',payload_json=original.model_dump()));session.commit()
-        assert client.patch(f'/api/cases/{case_id}/draft',json={'body':'Edited complaint'}).json()['body']=='Edited complaint'
-        assert client.post(f'/api/cases/{case_id}/draft').json()['body']=='Edited complaint'
+        saved=client.patch(f'/api/cases/{case_id}/draft',json={'body':'Edited complaint'}).json()['body']
+        assert 'Edited complaint' in saved
+        assert client.post(f'/api/cases/{case_id}/draft').json()['body']==saved
         assert client.post(f'/api/cases/{case_id}/approve').status_code==409
         assert client.post(f'/api/cases/{case_id}/confirm-recipient').status_code==200
         assert client.post(f'/api/cases/{case_id}/approve').status_code==200
-        assert sent==['Edited complaint']
+        assert sent==[saved]
         assert client.patch(f'/api/cases/{case_id}/draft',json={'body':'Late edit'}).status_code==409
         with Session(app.state.engine) as session:
             assert session.exec(select(Event).where(Event.case_id==case_id,Event.title=='Complaint edited')).first()

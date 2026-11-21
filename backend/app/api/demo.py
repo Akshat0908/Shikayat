@@ -44,7 +44,7 @@ async def inject(data: CaseInput,request: Request) -> dict:
 async def reset(request: Request) -> dict:
     enabled()
     with Session(request.app.state.engine) as session:
-        ids=[c.id for c in session.exec(select(Case).where(Case.company_id=='shopkart')).all() if c.facts_json.get('demo_sample')]
+        ids=[c.id for c in session.exec(select(Case)).all() if c.facts_json.get('demo_sample') or c.facts_json.get('verification_paused')]
         for model in (Deadline,Evidence,Event,Message): session.exec(delete(model).where(model.case_id.in_(ids)))
         session.exec(delete(Case).where(Case.id.in_(ids)))
         settings=session.get(Settings,1);settings.demo_clock_offset_seconds=0;session.add(settings);session.commit()

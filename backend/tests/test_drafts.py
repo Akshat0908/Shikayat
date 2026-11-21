@@ -18,3 +18,14 @@ def test_month_is_calendar_month() -> None:
     from datetime import datetime, timezone
     sent=datetime(2026,1,31,tzinfo=timezone.utc)
     assert deadlines(sent)['resolve_30d'].date().isoformat()=='2026-02-28'
+
+def test_generated_email_has_no_placeholder_and_uses_profile():
+    from backend.app.ai.draft_complaint import prepare_email
+    from backend.app.models import UserProfile
+    draft=EmailDraft(subject='[subject]',body='Dear Team,\nPlease refund INR 4299.\n\nSincerely,\n[Your Name]\n[Your Contact Information]',cited_refs=[],attachments=[],demand='refund',deadline_date='2026-12-21')
+    result=prepare_email(draft,{'amount_inr':4299,'order_id':'ABC','user_demand':'refund'},UserProfile(name='Akshat',email='user@example.test'),{'sector':'e-commerce'})
+    assert '[' not in result.body and '[' not in result.subject
+    assert 'INR' not in result.body and '₹4,299' in result.body
+    assert 'Akshat' in result.body and 'user@example.test' in result.body
+    assert 'Rule 4(5)' in result.body and result.cited_refs==['ecom_rules_2020_grievance']
+    assert result.subject=='Grievance: Refund of ₹4,299 not received | Order ABC'

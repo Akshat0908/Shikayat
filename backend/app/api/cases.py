@@ -22,6 +22,7 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
         raise HTTPException(422,'At most three screenshots')
     case=Case(title='Understanding your complaint')
     evidence=[]
+    original_text=text
     encoded=[]
     directory=ROOT/'var'/'evidence'/case.id
     directory.mkdir(parents=True,exist_ok=True)
@@ -49,8 +50,8 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
         transcript=await transcribe(path)
         text+='\n'+transcript
         evidence.append(Evidence(case_id=case.id,kind='voice',path=str(path),transcript=transcript))
-    if text:
-        evidence.append(Evidence(case_id=case.id,kind='text',transcript=text))
+    if original_text:
+        evidence.append(Evidence(case_id=case.id,kind='text',transcript=original_text))
     try:
         mode='live'
         replay_reason=None
@@ -119,3 +120,12 @@ def case_evidence(case_id: str, request: Request) -> dict:
         if not session.get(Case,case_id): raise HTTPException(404,'Case not found')
         ledger=session.exec(select(Evidence).where(Evidence.case_id==case_id,Evidence.kind=='ledger')).all()
         return {'case_id':case_id,'facts':[fact for item in ledger for fact in item.extracted_json.get('facts',[])]}
+
+@router.get('/{case_id}/evidence/{evidence_id}/file')
+def evidence_file(case_id: str,evidence_id: str,request: Request):
+    from fastapi.responses import FileResponse
+    with Session(request.app.state.engine) as session:
+        item=session.get(Evidence,evidence_id)
+        if not item or item.case_id!=case_id or item.kind not in ('screenshot','voice') or not item.path or not Path(item.path).is_file():
+            raise HTTPException(404,'Evidence file not found')
+        return FileResponse(item.path)

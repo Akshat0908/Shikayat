@@ -107,3 +107,10 @@ class Settings(SQLModel, table=True):
     id: int = Field(default=1, primary_key=True)
     demo_clock_offset_seconds: int = 0
     autopilot: bool = False
+
+
+class UserProfile(SQLModel, table=True):
+    id: int = Field(default=1, primary_key=True)
+    name: str = ""
+    phone: str = ""
+    email: str = ""

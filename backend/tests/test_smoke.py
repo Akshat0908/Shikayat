@@ -10,5 +10,5 @@ def test_health_and_database(tmp_path):
         assert client.get("/api/health").json() == {"status": "ok"}
         assert client.get("/api/missing").status_code == 404
         assert set(inspect(app.state.engine).get_table_names()) == {
-            "case", "evidence", "message", "event", "deadline", "llm_calls", "settings",
+            "case", "evidence", "message", "event", "deadline", "llm_calls", "settings", "userprofile",
         }
