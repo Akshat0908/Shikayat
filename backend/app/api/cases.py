@@ -95,6 +95,10 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
             session.add_all(evidence)
             session.add(Event(case_id=case.id,actor='ai',type='understood',title='Case understood',reason=reason,payload_json={'mode':mode,'replay_reason':replay_reason}))
             session.commit();session.refresh(case)
+        from ..ai.sample_detection import ensure_sample_scan
+        await ensure_sample_scan(request.app.state.engine,case.id)
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case.id)
         await progress('done')
         return {**case.model_dump(mode="json"),"mode":mode}
     except ValueError as error:

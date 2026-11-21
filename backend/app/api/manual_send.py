@@ -42,7 +42,9 @@ def prepared(session: Session, request: Request, case_id: str) -> tuple[Case,dic
     return case,company,draft,messages,timestamp,tracking
 
 @router.post('/{case_id}/manual-compose')
-def manual_compose(case_id: str,request: Request) -> dict:
+async def manual_compose(case_id: str,request: Request) -> dict:
+    from ..ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(request.app.state.engine,case_id)
     with Session(request.app.state.engine) as session:
         case,company,draft,_,_,tracking=prepared(session,request,case_id)
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
@@ -50,6 +52,8 @@ def manual_compose(case_id: str,request: Request) -> dict:
 
 @router.post('/{case_id}/manual-sent')
 async def manual_sent(case_id: str,request: Request) -> dict:
+    from ..ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(request.app.state.engine,case_id)
     from ..workers import _send_lock
     async with _send_lock:
         with Session(request.app.state.engine) as session:

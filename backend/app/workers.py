@@ -37,6 +37,8 @@ _send_lock = asyncio.Lock()
 
 async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached: bool = False, redress_breached: bool = False, promise_expired: bool = False) -> None:
     config=app.state.config
+    from .ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(app.state.engine,case_id)
     with Session(app.state.engine) as session:
         case=session.get(Case,case_id)
         if not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused') or case.facts_json.get('paused'): return

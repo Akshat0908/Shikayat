@@ -16,6 +16,8 @@ router=APIRouter(prefix='/api/cases')
 
 @router.post('/{case_id}/draft')
 async def draft(case_id: str, request: Request) -> EmailDraft:
+    from ..ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(request.app.state.engine,case_id)
     with Session(request.app.state.engine) as session:
         case=session.get(Case,case_id)
         if not case: raise HTTPException(404,'Case not found')
@@ -68,6 +70,8 @@ async def edit_draft(case_id: str, edit: DraftEdit, request: Request) -> EmailDr
 
 @router.post('/{case_id}/approve')
 async def approve(case_id: str, request: Request) -> dict[str,str]:
+    from ..ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(request.app.state.engine,case_id)
     from datetime import datetime, timezone
     from ..workers import _send_lock
     from ..engine.send_guard import guard
