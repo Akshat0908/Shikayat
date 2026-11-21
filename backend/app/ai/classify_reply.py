@@ -51,8 +51,9 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     has_reference=reference or bool(re.search(r'\bticket\s*(?:id|no\.?|number|#|:|-)?\s*[:#-]?\s*[a-z0-9][a-z0-9-]*\d[a-z0-9-]*',lower)) or bool(result.ticket_id)
     has_date=bool(result.promised_date or re.search(r'\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b|\b\d+\s*(?:working |business )?days?\b',lower))
     concrete=bool(result.concrete_action and result.concrete_action.casefold() in lower and not re.search(r'forward|concerned team|look(?:ing)? into|investigat|review|earliest',result.concrete_action.casefold()))
+    vague_promise=bool(re.search(r'\b(?:will|shall|promise)\b.{0,80}\b(?:refund|resolve|credit|replace|deliver)\w*\b',lower)) and not (amount or has_date or has_reference or result.offered_amount_inr is not None)
     if result.reply_type in ('acknowledgment','deflection'):
-        if result.acknowledged and not (amount or result.offered_amount_inr is not None or has_date or has_reference or concrete) and response_signal and not re.search(r'\bautomat(?:ed|ic)\b',lower):
+        if result.acknowledged and not (amount or result.offered_amount_inr is not None or has_date or has_reference or (concrete and not vague_promise)) and response_signal and not re.search(r'\bautomat(?:ed|ic)\b',lower):
             result.reply_type='deflection';result.reason='Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.'
         elif result.reply_type=='deflection':
             result.reply_type='acknowledgment';result.reason='The reply acknowledges the complaint and includes a reference, date, amount or concrete action.'

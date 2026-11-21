@@ -64,3 +64,10 @@ def test_promise_guard_waits_or_pushes_back_until_redress():
     assert guard(case,[],now,Settings(),False)==(None,None)
     case.facts_json['promise']['pushback_sent']=True
     assert guard(case,[],now,Settings(),False)[1].date().isoformat()=='2026-12-20'
+
+
+def test_vague_refund_promise_is_deflection():
+    from backend.app.ai.classify_reply import ReplyAnalysis,enforce_forensics
+    text='We acknowledge your complaint and will refund you soon.'
+    analysis=ReplyAnalysis(reply_type='acknowledgment',acknowledged=True,original_remedy=None,promised_action='will refund you soon',refund_confirmed=False,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='wait',reason='test',concrete_action='will refund you soon')
+    assert enforce_forensics(analysis,text,4299,'refund').reply_type=='deflection'
