@@ -104,6 +104,7 @@ def test_bounce_matching_uses_thread_id(tmp_path,monkeypatch):
         def login(self,*args): return self
         def __enter__(self): return self
         def __exit__(self,*args): pass
+    monkeypatch.setattr(imap_poll,'received_at',lambda *args: __import__('datetime').datetime.now(__import__('datetime').timezone.utc))
     monkeypatch.setattr(imap_poll,'MailBox',Box)
     monkeypatch.setattr(imap_poll,'search',lambda *args,**kwargs:[('All Mail',mail)])
     monkeypatch.setattr(imap_poll,'apply_label',lambda *args:None)

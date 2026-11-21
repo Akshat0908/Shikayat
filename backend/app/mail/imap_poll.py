@@ -1,6 +1,9 @@
 """Fetch only server-side filtered case candidates; never scan the whole mailbox."""
 import logging
 import re
+import imaplib
+from datetime import datetime, timezone
+from .attach_debug import decision as log_decision
 from email.utils import parseaddr
 from imap_tools import MailBox
 from sqlmodel import Session, select
@@ -48,6 +51,18 @@ def apply_label(box, mail) -> bool:
         return False
 
 
+def received_at(box, uid: str) -> datetime | None:
+    status, records = box.client.uid('FETCH', uid, '(INTERNALDATE)')
+    if status != 'OK': return None
+    for record in records:
+        if isinstance(record, bytes):
+            value = imaplib.Internaldate2tuple(record)
+            if value is not None:
+                from time import mktime
+                return datetime.fromtimestamp(mktime(value), timezone.utc)
+    return None
+
+
 def poll(engine) -> list[dict]:
     config=get_settings()
     companies={c['id']:c for c in load_companies()}
@@ -77,20 +92,32 @@ def poll(engine) -> list[dict]:
                             try: thread_id=fetch_thread_id(box,str(mail.uid))
                             except Exception as error:
                                 logger.warning('Thread metadata skipped: %s',type(error).__name__);thread_id=None
-                            fetched.append((folder,mail,thread_id))
+                            try: received=received_at(box,str(mail.uid))
+                            except Exception as error:
+                                logger.warning('Receipt time skipped: %s',type(error).__name__);received=None
+                            fetched.append((folder,mail,thread_id,received))
                 except Exception as error:
                     logger.warning('IMAP query skipped for this cycle: %s',type(error).__name__)
                 query_cache[query]=fetched
-            for folder,mail,thread_id in query_cache[query]:
+            for folder,mail,thread_id,received in query_cache[query]:
                 mid=message_id(mail)
-                if not mid or mid in seen or (mid,case.id) in examined: continue
+                if not mid or mid in seen or (mid,case.id) in examined:
+                    log_decision(case.id,mid,None,'skipped','missing Message-ID' if not mid else 'already stored or pending review' if mid in seen else 'already examined in this cycle')
+                    continue
+                earliest=min(m.sent_at for m in sent).replace(tzinfo=timezone.utc)
+                if received is None or received < earliest.replace(microsecond=0):
+                    log_decision(case.id,mid,None,'skipped','receipt time unavailable' if received is None else 'received before complaint was sent')
+                    continue
                 examined.add((mid,case.id))
                 sender=parseaddr(mail.from_)[1].casefold()
-                if sender==config.user_email.casefold(): continue
+                if sender==config.user_email.casefold():
+                    log_decision(case.id,mid,None,'skipped','outbound message from user');continue
                 headers={k.lower():v for k,v in mail.headers.items()}
                 bounce=('mailer-daemon' in sender or sender.startswith('postmaster@') or any('delivery-status' in v.lower() for v in headers.get('content-type',())))
                 match=match_candidate(case.id,mail,sent,case.facts_json,domains,sender,config.user_email,thread_id)
-                if not match or (bounce and match not in ('thread_id','in_reply_to')): continue
+                if not match or (bounce and match not in ('thread_id','in_reply_to')):
+                    log_decision(case.id,mid,match,'skipped','no case match' if not match else 'bounce lacks strong thread match');continue
+                log_decision(case.id,mid,match,'candidate','matched; checking sender and ambiguity')
                 if company.get('demo') and sender!=config.demo_company_email.casefold() and not bounce:
                     verified,detail=False,'Sender does not match the configured demo address.'
                 else: verified,detail=sender_authentication(list(headers.get('authentication-results',())),sender,domains)

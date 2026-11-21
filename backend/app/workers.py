@@ -143,10 +143,13 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
 
 
 async def receive(app, data: dict) -> None:
+    from .mail.attach_debug import decision as log_decision
     with Session(app.state.engine) as session:
         existing=session.exec(select(Message).where(Message.message_id==data['message_id'])).first()
         case=session.get(Case,data['case_id'])
-        if existing or not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'): return
+        if existing or not case or case.status==CaseStatus.RESOLVED or case.facts_json.get('verification_paused'):
+            reason='already stored' if existing else 'case missing' if not case else 'case resolved' if case.status==CaseStatus.RESOLVED else 'verification paused'
+            log_decision(data['case_id'],data['message_id'],data.get('match_method'),'skipped',reason);return
     if data.get('needs_confirmation') and not data.get('user_confirmed'):
         async with _send_lock:
             with Session(app.state.engine) as session:
@@ -157,6 +160,7 @@ async def receive(app, data: dict) -> None:
                     pending_case.facts_json={**pending_case.facts_json,'possible_bounce':True};session.add(pending_case)
                 reason='Unverified sender; confirm before any action.' if not data.get('sender_verified') else 'Matched by company domain only; confirm this belongs to the case.'
                 session.add(Event(case_id=data['case_id'],actor='system',type='candidate_pending',title='Unverified sender' if not data.get('sender_verified') else 'Confirm this email',reason=reason,payload_json={**data,'reviewed':False}));session.commit()
+        log_decision(data['case_id'],data['message_id'],data.get('match_method'),'pending_review',reason)
         await app.state.events.publish('case_changed',{'case_id':data['case_id']})
         return
     if data.get('bounced'):
@@ -202,6 +206,7 @@ async def receive(app, data: dict) -> None:
             if analysis.acknowledged:
                 for item in session.exec(select(Deadline).where(Deadline.case_id==case.id,Deadline.kind.in_(['ack_48h','followup']),Deadline.status=='running')).all(): item.status='met';session.add(item)
             session.commit()
+    log_decision(case.id,data['message_id'],data.get('match_method'),'attached','stored inbound message'+('; earlier escalation level' if stale else ''))
     await app.state.events.publish('case_changed',{'case_id':case.id})
     if not stale: await act(app,case.id,analysis)
 

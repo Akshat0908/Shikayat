@@ -37,3 +37,11 @@ def test_stale_reply_keeps_original_level_and_does_not_trigger_followup(tmp_path
             assert session.exec(select(Message).where(Message.case_id==cid)).first().level==Level.L2
             assert session.exec(select(Event).where(Event.case_id==cid,Event.type=='late_reply')).first()
             assert not session.exec(select(Event).where(Event.case_id==cid,Event.type=='decision')).all()
+
+
+def test_received_at_uses_gmail_internal_date():
+    from datetime import datetime, timezone
+    from types import SimpleNamespace
+    from backend.app.mail.imap_poll import received_at
+    box=SimpleNamespace(client=SimpleNamespace(uid=lambda *args: ('OK',[b'1 (UID 7 INTERNALDATE "21-Nov-2026 20:30:00 +0530")'])))
+    assert received_at(box,'7') == datetime(2026,11,21,15,0,tzinfo=timezone.utc)

@@ -140,6 +140,7 @@ def test_plus_match_returns_before_slow_header_search(tmp_path,monkeypatch):
         return [('All Mail',mail)]
     monkeypatch.setattr(imap_poll,'get_settings',lambda:Settings(user_email='user@gmail.com',demo_company_email='demo@gmail.com'))
     monkeypatch.setattr(imap_poll,'load_companies',lambda:[{'id':'shopkart','demo':True}])
+    monkeypatch.setattr(imap_poll,'received_at',lambda *args: __import__('datetime').datetime.now(__import__('datetime').timezone.utc))
     monkeypatch.setattr(imap_poll,'MailBox',Box);monkeypatch.setattr(imap_poll,'search',search)
     monkeypatch.setattr(imap_poll,'label_confirmed',lambda *args:True)
     result=imap_poll.poll(engine)
