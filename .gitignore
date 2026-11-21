@@ -12,3 +12,4 @@ frontend/out/
 var/
 .cache/
 .DS_Store
+*.pem
