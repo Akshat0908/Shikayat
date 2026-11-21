@@ -134,6 +134,34 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
 
+@router.post('/{case_id}/test-send')
+async def test_send(case_id: str, request: Request) -> dict:
+    """Send an explicitly labelled preview only to the configured demo mailbox."""
+    from ..ai.sample_detection import ensure_sample_scan
+    await ensure_sample_scan(request.app.state.engine,case_id)
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Create a draft first')
+        company=next((c for c in load_companies() if c['id']==case.company_id),None)
+        contact=(company or {}).get('nodal_officer' if case.level.value=='L3' else 'grievance_officer') or {}
+        if not case.facts_json.get('looks_like_sample') and contact.get('verified') and contact.get('email'):
+            raise HTTPException(409,'Test send is available for sample or unverified cases')
+        event=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
+        if not event: raise HTTPException(409,'Create a draft first')
+        email=EmailDraft.model_validate(event.payload_json)
+        name=' '.join(str((company or {}).get('name') or case.facts_json.get('company_name') or 'unknown company').split())[:100]
+        config=request.app.state.config
+        if not config.demo_company_email: raise HTTPException(422,'Demo inbox is not configured')
+    subject=f'[TEST — would go to {name}] {email.subject}'
+    try:
+        message_id=await send_email({'email':config.demo_company_email,'verified':True},subject,email.body,True,True,case_id=case_id)
+    except ValueError as error: raise HTTPException(422,str(error)) from error
+    with Session(request.app.state.engine) as session:
+        session.add(Event(case_id=case_id,actor='user',type='test_send',title='Test email sent to demo inbox',reason='Explicit test send; no company was contacted and no deadlines were started.',payload_json={'message_id':message_id,'simulated':True}));session.commit()
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'test_sent','recipient':'demo inbox','message_id':message_id}
+
 @router.post('/{case_id}/confirm-recipient')
 async def confirm_recipient(case_id: str, request: Request) -> dict:
     with Session(request.app.state.engine) as session:
