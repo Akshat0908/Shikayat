@@ -1,0 +1,56 @@
+import asyncio
+from contextlib import asynccontextmanager, suppress
+from collections.abc import AsyncIterator
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from .api.health import router
+from .config import Settings, get_settings
+from .db import build_engine, init_db
+from .events import EventBus
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    config = settings or get_settings()
+    bus = EventBus()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        app.state.engine = build_engine(config.database_url)
+        init_db(app.state.engine)
+        ping_task = asyncio.create_task(bus.ping_forever())
+        try:
+            yield
+        finally:
+            ping_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await ping_task
+            app.state.engine.dispose()
+
+    app = FastAPI(title="Shikayat", lifespan=lifespan)
+    app.state.events = bus
+    app.include_router(router, prefix="/api")
+
+    @app.get("/api/events")
+    async def events(request: Request) -> StreamingResponse:
+        async def stream() -> AsyncIterator[str]:
+            async with bus.subscribe() as queue:
+                yield ": connected\n\n"
+                while not await request.is_disconnected():
+                    yield await queue.get()
+        return StreamingResponse(stream(), media_type="text/event-stream", headers={
+            "Cache-Control": "no-cache", "X-Accel-Buffering": "no",
+        })
+
+    # API routes always take precedence over the production static export.
+    @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+    def unknown_api(path: str) -> None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="API route not found")
+
+    if config.frontend_dist.is_dir():
+        app.mount("/", StaticFiles(directory=config.frontend_dist, html=True), name="frontend")
+    return app
+
+
+app = create_app()

@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+pydantic-settings
+openai
+imap-tools
+aiosmtplib
+python-multipart
+rapidfuzz
+python-dotenv
+pytest
+httpx

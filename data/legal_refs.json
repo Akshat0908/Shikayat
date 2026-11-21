@@ -1,0 +1,31 @@
+[
+  {
+    "id": "ecom_rules_2020_grievance",
+    "description": "Consumer Protection (E-Commerce) Rules, 2020: grievance officer must acknowledge within 48 hours and redress within one month",
+    "source_url": null,
+    "verified": false,
+    "rule_number": null
+  },
+  {
+    "id": "cpa_2019",
+    "description": "Consumer Protection Act, 2019",
+    "source_url": null,
+    "verified": false,
+    "rule_number": null
+  },
+  {
+    "id": "nch",
+    "description": "National Consumer Helpline",
+    "source_url": null,
+    "verified": false,
+    "rule_number": null,
+    "toll_free": "1915"
+  },
+  {
+    "id": "consumer_commission",
+    "description": "Consumer Commission e-filing route",
+    "source_url": null,
+    "verified": false,
+    "rule_number": null
+  }
+]

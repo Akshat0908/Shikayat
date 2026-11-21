@@ -1,0 +1,606 @@
+[
+  {
+    "id": "shopkart",
+    "name": "ShopKart",
+    "aliases": [
+      "shopkart",
+      "shop kart"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": true,
+      "email_env": "DEMO_COMPANY_EMAIL"
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": true,
+      "email_env": "DEMO_COMPANY_EMAIL"
+    },
+    "regulator_route": [
+      "nch",
+      "consumer_commission"
+    ],
+    "demo": true
+  },
+  {
+    "id": "flipkart",
+    "name": "Flipkart",
+    "aliases": [
+      "flipkart"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "amazon_india",
+    "name": "Amazon India",
+    "aliases": [
+      "amazon india"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "myntra",
+    "name": "Myntra",
+    "aliases": [
+      "myntra"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "meesho",
+    "name": "Meesho",
+    "aliases": [
+      "meesho"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "ajio",
+    "name": "Ajio",
+    "aliases": [
+      "ajio"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "nykaa",
+    "name": "Nykaa",
+    "aliases": [
+      "nykaa"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "swiggy",
+    "name": "Swiggy",
+    "aliases": [
+      "swiggy"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "zomato",
+    "name": "Zomato",
+    "aliases": [
+      "zomato"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "zepto",
+    "name": "Zepto",
+    "aliases": [
+      "zepto"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "blinkit",
+    "name": "Blinkit",
+    "aliases": [
+      "blinkit"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "bigbasket",
+    "name": "BigBasket",
+    "aliases": [
+      "bigbasket"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "tata_cliq",
+    "name": "Tata CLiQ",
+    "aliases": [
+      "tata cliq"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "croma",
+    "name": "Croma",
+    "aliases": [
+      "croma"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "reliance_digital",
+    "name": "Reliance Digital",
+    "aliases": [
+      "reliance digital"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "jiomart",
+    "name": "JioMart",
+    "aliases": [
+      "jiomart"
+    ],
+    "sector": "e-commerce",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "ola",
+    "name": "Ola",
+    "aliases": [
+      "ola"
+    ],
+    "sector": "mobility",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "uber",
+    "name": "Uber",
+    "aliases": [
+      "uber"
+    ],
+    "sector": "mobility",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "rapido",
+    "name": "Rapido",
+    "aliases": [
+      "rapido"
+    ],
+    "sector": "mobility",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "makemytrip",
+    "name": "MakeMyTrip",
+    "aliases": [
+      "makemytrip"
+    ],
+    "sector": "travel",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "goibibo",
+    "name": "Goibibo",
+    "aliases": [
+      "goibibo"
+    ],
+    "sector": "travel",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "indigo",
+    "name": "IndiGo",
+    "aliases": [
+      "indigo"
+    ],
+    "sector": "travel",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "air_india",
+    "name": "Air India",
+    "aliases": [
+      "air india"
+    ],
+    "sector": "travel",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "airtel",
+    "name": "Airtel",
+    "aliases": [
+      "airtel"
+    ],
+    "sector": "telecom",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "jio",
+    "name": "Jio",
+    "aliases": [
+      "jio"
+    ],
+    "sector": "telecom",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  },
+  {
+    "id": "vi",
+    "name": "Vi",
+    "aliases": [
+      "vi"
+    ],
+    "sector": "telecom",
+    "care_url": null,
+    "grievance_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "nodal_officer": {
+      "name": null,
+      "email": null,
+      "source_url": null,
+      "verified": false
+    },
+    "regulator_route": null,
+    "demo": false
+  }
+]
