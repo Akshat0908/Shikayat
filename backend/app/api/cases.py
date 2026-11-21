@@ -9,7 +9,7 @@ from ..ai.extract_case import extract_case
 from ..ai.schemas import CaseFacts
 from ..ai.transcribe import transcribe
 from ..config import ROOT, get_settings
-from ..engine.company import match_company
+from ..engine.company import match_company, provisional_company
 from ..engine.strength import strength, rationale
 from ..models import Case, Evidence, Event
 
@@ -66,6 +66,7 @@ async def create(request: Request, text: str, images: list[UploadFile], audio: U
 
         await progress('finding_officer')
         company=await match_company(facts.company_name)
+        if not company and facts.company_name: company=provisional_company(facts.company_name)
         await progress('assessing')
         score,label=strength(facts,len(evidence))
         reason='Synthetic sample replay; deterministic strength calculation.' if mode=='replay' else await rationale(facts,score)

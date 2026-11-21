@@ -88,7 +88,7 @@ async def call_structured(task: str, model: str, schema: type[T], instructions: 
         guard(model)
         content=[{'type':'input_text','text':text}]+[{'type':'input_image','image_url':image,'detail':'auto'} for image in images or []]
         async with AsyncOpenAI(api_key=config.openai_api_key.get_secret_value(),timeout=30,max_retries=2) as client:
-            options={'tools':[{'type':'web_search','filters':{'allowed_domains':search_domains}}], 'tool_choice':'required', 'include':['web_search_call.action.sources']} if search_domains else {}
+            options={'tools':[{'type':'web_search',**({'filters':{'allowed_domains':search_domains}} if search_domains else {})}], 'tool_choice':'required', 'include':['web_search_call.action.sources']} if search_domains is not None else {}
             response=await client.responses.parse(model=model,instructions=instructions,input=[{'role':'user','content':content}],text_format=schema,store=False,**options)
         usage=response.usage
         await asyncio.to_thread(record,task,model,usage.input_tokens if usage else 0,usage.output_tokens if usage else 0,(time.monotonic()-started)*1000,False,0.01*sum(getattr(item,'type',None)=='web_search_call' for item in response.output))
