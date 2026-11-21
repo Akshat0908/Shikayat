@@ -23,13 +23,13 @@ _lock = asyncio.Lock()
 def cache_key(model: str, instructions: str, inputs: object) -> str:
     return hashlib.sha256(json.dumps([model,instructions,inputs],sort_keys=True).encode()).hexdigest()
 
-def record(task: str, model: str, inputs: int, outputs: int, latency: float, cached: bool) -> None:
+def record(task: str, model: str, inputs: int, outputs: int, latency: float, cached: bool, tool_cost: float = 0) -> None:
     config=get_settings()
     rates=json.loads(config.model_rates_json)
     rate=rates.get(model)
     if rate is None and not cached:
         raise ValueError('Configure MODEL_RATES_JSON for this model before making paid calls')
-    cost=0 if cached else (inputs*rate['input']+outputs*rate['output'])/1_000_000
+    cost=0 if cached else (inputs*rate['input']+outputs*rate['output'])/1_000_000 + tool_cost
     import logging
     from uuid import uuid4
     row=dict(id=str(uuid4()),task=task,model=model,input_tokens=inputs,output_tokens=outputs,est_cost_usd=cost,latency_ms=latency,cached=cached)
@@ -71,13 +71,14 @@ def guard(model: str) -> None:
     finally:
         engine.dispose()
 
-async def call_structured(task: str, model: str, schema: type[T], instructions: str, text: str, images: list[str] | None = None) -> T:
+async def call_structured(task: str, model: str, schema: type[T], instructions: str, text: str, images: list[str] | None = None, *, search_domains: list[str] | None = None) -> T:
     inputs={'text':text,'images':images or [],'schema':schema.model_json_schema()}
+    if search_domains is not None: inputs['search_domains']=search_domains
     key=cache_key(model,instructions,inputs)
     path=ROOT/'var'/'llm_cache'/f'{key}.json'
     async with _lock:
         started=time.monotonic()
-        if path.exists():
+        if search_domains is None and path.exists():
             result=schema.model_validate_json(path.read_text())
             await asyncio.to_thread(record,task,model,0,0,(time.monotonic()-started)*1000,True)
             return result
@@ -87,14 +88,16 @@ async def call_structured(task: str, model: str, schema: type[T], instructions: 
         guard(model)
         content=[{'type':'input_text','text':text}]+[{'type':'input_image','image_url':image,'detail':'auto'} for image in images or []]
         async with AsyncOpenAI(api_key=config.openai_api_key.get_secret_value(),timeout=30,max_retries=2) as client:
-            response=await client.responses.parse(model=model,instructions=instructions,input=[{'role':'user','content':content}],text_format=schema,store=False)
+            options={'tools':[{'type':'web_search','filters':{'allowed_domains':search_domains}}], 'tool_choice':'required', 'include':['web_search_call.action.sources']} if search_domains else {}
+            response=await client.responses.parse(model=model,instructions=instructions,input=[{'role':'user','content':content}],text_format=schema,store=False,**options)
         usage=response.usage
-        await asyncio.to_thread(record,task,model,usage.input_tokens if usage else 0,usage.output_tokens if usage else 0,(time.monotonic()-started)*1000,False)
+        await asyncio.to_thread(record,task,model,usage.input_tokens if usage else 0,usage.output_tokens if usage else 0,(time.monotonic()-started)*1000,False,0.01*sum(getattr(item,'type',None)=='web_search_call' for item in response.output))
         if response.output_parsed is None:
             raise ValueError('Model refused or returned no structured result')
         result=response.output_parsed
-        path.parent.mkdir(parents=True,exist_ok=True)
-        temporary=path.with_suffix('.tmp')
-        temporary.write_text(result.model_dump_json())
-        temporary.replace(path)
+        if search_domains is None:
+            path.parent.mkdir(parents=True,exist_ok=True)
+            temporary=path.with_suffix('.tmp')
+            temporary.write_text(result.model_dump_json())
+            temporary.replace(path)
         return result

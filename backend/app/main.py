@@ -37,6 +37,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.events = bus
     app.state.config = config
     app.include_router(router, prefix="/api")
+    from .api.companies import router as companies_router
+    app.include_router(companies_router)
     from .api.cases import router as cases_router
     app.include_router(cases_router)
     from .api.drafts import router as drafts_router
