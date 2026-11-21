@@ -15,9 +15,11 @@ async def draft(case_id: str, request: Request) -> EmailDraft:
     with Session(request.app.state.engine) as session:
         case=session.get(Case,case_id)
         if not case: raise HTTPException(404,'Case not found')
-        try:
-            result=await draft_complaint(case,now(session)+timedelta(days=30))
-        except ValueError as e: raise HTTPException(503,str(e)) from e
+        deadline=now(session)+timedelta(days=30)
+    try:
+        result=await draft_complaint(case,deadline)
+    except ValueError as e: raise HTTPException(503,str(e)) from e
+    with Session(request.app.state.engine) as session:
         session.add(Event(case_id=case.id,actor='ai',type='draft',title='Complaint drafted',reason='Only verified references were supplied; deadline computed in code.',payload_json=result.model_dump()))
         case.status=CaseStatus.AWAITING_APPROVAL;session.add(case);session.commit()
     await request.app.state.events.publish('draft',{'case_id':case_id,'reason':'Ready for user approval'})
@@ -37,9 +39,10 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
         contact=company['nodal_officer' if case.level.value=='L3' else 'grievance_officer']
         email=EmailDraft.model_validate(events[0].payload_json)
         previous=session.exec(select(Message).where(Message.case_id==case_id,Message.direction=='out').order_by(Message.sent_at.desc())).first()
-        try:
-            message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
-        except ValueError as e: raise HTTPException(422,str(e)) from e
+    try:
+        message_id=await send_email(contact,email.subject,email.body,True,company.get('demo',False),previous.message_id if previous else None)
+    except ValueError as e: raise HTTPException(422,str(e)) from e
+    with Session(request.app.state.engine) as session:
         from ..config import get_settings
         sent_at=now(session)
         session.add(Message(case_id=case_id,direction='out',level=case.level,to=contact['email'],from_=get_settings().user_email,subject=email.subject,body_text=email.body,message_id=message_id,sent_at=sent_at))
@@ -69,3 +72,12 @@ async def receipt(case_id: str, request: Request) -> Case:
         session.add(case);session.add(Event(case_id=case_id,actor='user',type='resolved',title='Receipt confirmed',reason='User confirmed funds were received.'));session.commit();session.refresh(case)
     await request.app.state.events.publish('resolved',{'case_id':case_id,'reason':'Receipt confirmed by user'})
     return case
+
+@router.get('/{case_id}/verification')
+def verification(case_id: str, request: Request) -> dict:
+    with Session(request.app.state.engine) as session:
+        case=session.get(Case,case_id)
+        if not case: raise HTTPException(404,'Case not found')
+        events=session.exec(select(Event).where(Event.case_id==case_id).order_by(Event.at)).all()
+        messages=session.exec(select(Message).where(Message.case_id==case_id).order_by(Message.sent_at)).all()
+        return {'case':case.model_dump(mode='json'),'events':[e.model_dump(mode='json') for e in events],'messages':[{'direction':m.direction,'message_id':m.message_id,'in_reply_to':m.in_reply_to,'level':m.level,'classification':m.classification_json} for m in messages],'worker_errors':getattr(request.app.state,'worker_errors',{})}

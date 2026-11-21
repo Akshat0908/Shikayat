@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     user_email_app_password: SecretStr = SecretStr("")
     demo_company_email: str = ""
     demo_company_app_password: SecretStr = SecretStr("")
+    replay_mode: bool = False
     demo_mode: bool = True
     demo_reply_delay_seconds: int = 20
     send_enabled: bool = True

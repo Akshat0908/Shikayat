@@ -30,14 +30,30 @@ def record(task: str, model: str, inputs: int, outputs: int, latency: float, cac
     if rate is None and not cached:
         raise ValueError('Configure MODEL_RATES_JSON for this model before making paid calls')
     cost=0 if cached else (inputs*rate['input']+outputs*rate['output'])/1_000_000
-    engine=build_engine(config.database_url)
-    init_db(engine)
+    import logging
+    from uuid import uuid4
+    row=dict(id=str(uuid4()),task=task,model=model,input_tokens=inputs,output_tokens=outputs,est_cost_usd=cost,latency_ms=latency,cached=cached)
+    for attempt in range(2):
+        engine=None
+        try:
+            engine=build_engine(config.database_url)
+            init_db(engine)
+            with Session(engine) as session:
+                if session.get(LlmCall,row['id']) is None:
+                    session.add(LlmCall(**row));session.commit()
+            return
+        except Exception as error:
+            logging.getLogger(__name__).warning('LLM telemetry write failed: %s; attempt=%s',type(error).__name__,attempt+1)
+        finally:
+            if engine: engine.dispose()
+    # Preserve the charge for budget accounting even if SQLite remains unavailable.
     try:
-        with Session(engine) as session:
-            session.add(LlmCall(task=task,model=model,input_tokens=inputs,output_tokens=outputs,est_cost_usd=cost,latency_ms=latency,cached=cached))
-            session.commit()
-    finally:
-        engine.dispose()
+        pending=ROOT/'var'/'llm_pending'
+        pending.mkdir(parents=True,exist_ok=True)
+        (pending/(row['id']+'.json')).write_text(json.dumps(row))
+    except OSError:
+        logging.getLogger(__name__).error('LLM telemetry fallback unavailable')
+
 
 def guard(model: str) -> None:
     config=get_settings()
@@ -48,6 +64,8 @@ def guard(model: str) -> None:
     try:
         with Session(engine) as session:
             spent=session.exec(select(func.coalesce(func.sum(LlmCall.est_cost_usd),0))).one()
+            pending=ROOT/'var'/'llm_pending'
+            spent+=sum(json.loads(path.read_text())['est_cost_usd'] for path in pending.glob('*.json'))
             if spent >= config.budget_usd:
                 raise ValueError('API budget exhausted')
     finally:
@@ -61,7 +79,7 @@ async def call_structured(task: str, model: str, schema: type[T], instructions: 
         started=time.monotonic()
         if path.exists():
             result=schema.model_validate_json(path.read_text())
-            record(task,model,0,0,(time.monotonic()-started)*1000,True)
+            await asyncio.to_thread(record,task,model,0,0,(time.monotonic()-started)*1000,True)
             return result
         config=get_settings()
         if not model or not config.openai_api_key.get_secret_value():
@@ -71,7 +89,7 @@ async def call_structured(task: str, model: str, schema: type[T], instructions: 
         async with AsyncOpenAI(api_key=config.openai_api_key.get_secret_value(),timeout=30,max_retries=2) as client:
             response=await client.responses.parse(model=model,instructions=instructions,input=[{'role':'user','content':content}],text_format=schema,store=False)
         usage=response.usage
-        record(task,model,usage.input_tokens if usage else 0,usage.output_tokens if usage else 0,(time.monotonic()-started)*1000,False)
+        await asyncio.to_thread(record,task,model,usage.input_tokens if usage else 0,usage.output_tokens if usage else 0,(time.monotonic()-started)*1000,False)
         if response.output_parsed is None:
             raise ValueError('Model refused or returned no structured result')
         result=response.output_parsed

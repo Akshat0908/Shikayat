@@ -13,11 +13,13 @@ def build_engine(database_url: str) -> Engine:
     url = make_url(database_url)
     if url.drivername == "sqlite" and url.database not in (None, ":memory:"):
         Path(url.database).parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(database_url, connect_args={"check_same_thread": False} if url.drivername == "sqlite" else {})
+    engine = create_engine(database_url, connect_args={"check_same_thread": False, "timeout": 5} if url.drivername == "sqlite" else {})
     if url.drivername == "sqlite":
         @event.listens_for(engine, "connect")
         def enable_foreign_keys(connection: Connection, _: ConnectionPoolEntry) -> None:
             cursor = connection.cursor()
+            cursor.execute("PRAGMA busy_timeout=5000")
+            cursor.execute("PRAGMA journal_mode=WAL")
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
     return engine

@@ -11,6 +11,12 @@ class ContactAttempt(BaseModel):
     channel: str
     ticket_id: str | None
 
+class FieldConfidence(BaseModel):
+    company_name: float
+    order_id: float
+    amount_inr: float
+    purchase_date: float
+
 class CaseFacts(BaseModel):
     company_name: str | None
     order_id: str | None
@@ -23,14 +29,14 @@ class CaseFacts(BaseModel):
     contact_attempts: list[ContactAttempt]
     days_elapsed: int | None = Field(ge=0)
     missing_info: list[str]
-    field_confidence: dict[str, float]
+    field_confidence: FieldConfidence
 
     @model_validator(mode='after')
     def unknowns(self) -> 'CaseFacts':
         for name in ('company_name','order_id','amount_inr','purchase_date','days_elapsed'):
             if getattr(self,name) is None and name not in self.missing_info:
                 self.missing_info.append(name)
-        if any(not 0 <= n <= 1 for n in self.field_confidence.values()):
+        if any(not 0 <= n <= 1 for n in self.field_confidence.model_dump().values()):
             raise ValueError('Confidence must be between zero and one')
         return self
 
