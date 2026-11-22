@@ -1,0 +1,1841 @@
+{
+  "data_source": "measured",
+  "evaluated_at": "2026-11-22T03:41:02.344821+00:00",
+  "model": "gpt-5.4",
+  "commit": "e1a6b3a6093ede51d4e79933712eb0e06e9553f9",
+  "case_count": 10,
+  "cases": [
+    {
+      "id": "CC-001",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "acknowledgment",
+        "resolved": false,
+        "safest_next_action": "Send a written escalation to the company's Grievance Officer with the order ID, photos of the damage, delivery date, and prior ticket history. Request a specific remedy and timeline; if unresolved, escalate to the National Consumer Helpline (NCH)."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "user_review",
+            "reasoning": "The company is VoltNest Electronics, which is not present in the verified company directory, so no verified recipient can be selected. The complaint concerns a purchase on the company’s own website, so the verified legal reference for e-commerce grievance handling is applicable. However, no complaint_received_at timestamp is provided, so a specific deadline cannot be calculated from the supplied information. The company reply is generic, expresses regret, and says the case is escalated and the customer will hear shortly, but it provides no concrete resolution, timeline, refund, or replacement; this is best classified as an acknowledgment rather than a substantive resolution. Safest next action is user_review because there is no verified recipient for escalation and no date to compute the statutory timeline precisely."
+          },
+          "cost_usd": 0.0057775,
+          "latency_seconds": 7.306
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "followup",
+            "reason": "No concrete commitment; send a firm follow-up.",
+            "case_facts": {
+              "company_name": "VoltNest Electronics",
+              "order_id": "VN-FX-10482",
+              "amount_inr": 24999.0,
+              "purchase_date": "2026-11-10",
+              "issue_type": "damaged",
+              "issue_summary_en": "Customer states that a phone ordered from the company's website was delivered with a cracked screen. A support ticket was raised, but the customer reports only generic responses and no refund, replacement, or timeline.",
+              "user_demand": "replacement",
+              "events": [
+                {
+                  "date": "2026-11-10",
+                  "what": "Order placed for a phone on the company's website."
+                },
+                {
+                  "date": null,
+                  "what": "Phone was delivered with a cracked screen."
+                },
+                {
+                  "date": null,
+                  "what": "Customer raised a support ticket and reports repeated generic responses without refund, replacement, or timeline."
+                }
+              ],
+              "contact_attempts": [
+                {
+                  "date": null,
+                  "channel": "support ticket / customer support",
+                  "ticket_id": null
+                }
+              ],
+              "days_elapsed": null,
+              "missing_info": [
+                "delivery date",
+                "ticket date",
+                "ticket ID",
+                "explicit refund or replacement preference",
+                "exact dates needed to compute elapsed days",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.99,
+                "order_id": 0.99,
+                "amount_inr": 0.99,
+                "purchase_date": 0.99
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"VoltNest Electronics\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"VN-FX-10482\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 24999",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-10\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "\"issue\": \"Phone delivered with cracked screen\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"Ordered a phone from your website 12 days ago. It arrived with a cracked screen. I raised a ticket 8 days back and every time your support says 'we are working on a resolution'. No refund, no replacement, no timeline. Please stop giving generic replies.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"No refund, no replacement, no timeline.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Company's own website\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "brand_website"
+            },
+            "reply_forensics": {
+              "reply_type": "deflection",
+              "acknowledged": true,
+              "original_remedy": "Replacement of ₹24,999",
+              "promised_action": "Case escalated to internal resolution team; customer will hear from them shortly.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear Customer, we understand your concern and sincerely regret the inconvenience.",
+                "Your case has been escalated to our internal resolution team and we are working on the best possible resolution.",
+                "You will hear from us shortly.",
+                "Thank you for your patience."
+              ],
+              "next_action": "Wait for follow-up from the internal resolution team; no concrete remedy has been confirmed yet.",
+              "reason": "Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear Customer'",
+                "No ticket/reference number provided",
+                "Vague promise: 'best possible resolution'",
+                "Non-specific timeline: 'shortly'",
+                "No concrete remedy or case-specific details"
+              ],
+              "summary_hinglish": "Unhone issue acknowledge kiya hai aur case escalate kiya hai, lekin replacement confirm nahi kiya. Koi refund amount, ticket ID, ya clear timeline nahi di gayi. Abhi matter unresolved hai.",
+              "concrete_action": null,
+              "category": "deflection"
+            }
+          },
+          "cost_usd": 0.0162525,
+          "latency_seconds": 9.03
+        }
+      }
+    },
+    {
+      "id": "CC-002",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer of the marketplace",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "deflection",
+        "resolved": false,
+        "safest_next_action": "Escalate to the marketplace Grievance Officer and request either delivery confirmation or refund. Preserve tracking screenshots and payment proof. Do not rely solely on the courier referral."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "user_review",
+            "reasoning": "Company named in complaint is ShopSutra, but no verified grievance recipient for ShopSutra appears in the supplied directory, so recipient must be null. The complaint concerns an e-commerce marketplace, so the verified legal reference on E-Commerce Rules 2020 grievance handling is applicable. No complaint_received_at timestamp is provided, so a concrete deadline cannot be calculated. The company reply shifts responsibility to the logistics partner and does not address the requested refund or platform responsibility, so it is best classified as deflection. Safest next step is user review because there is no verified ShopSutra recipient available in the provided data and no calculable statutory deadline from the missing receipt date."
+          },
+          "cost_usd": 0.00553,
+          "latency_seconds": 2.882
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "wait",
+            "reason": "No escalation trigger; continue watching the thread.",
+            "case_facts": {
+              "company_name": "ShopSutra",
+              "order_id": "SS-FX-88201",
+              "amount_inr": 3499.0,
+              "purchase_date": "2026-11-08",
+              "issue_type": "not_delivered",
+              "issue_summary_en": "Consumer paid ₹3,499 for a smartwatch on ShopSutra, but it has not been delivered and tracking shows 'shipment exception'. The consumer is seeking a refund.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": "2026-11-08",
+                  "what": "Order placed for a smartwatch on ShopSutra."
+                },
+                {
+                  "date": null,
+                  "what": "Tracking status showed 'shipment exception'."
+                },
+                {
+                  "date": null,
+                  "what": "Expected delivery was last week, but the item was not delivered."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "exact expected delivery date",
+                "actual complaint date",
+                "proof of payment",
+                "tracking ID",
+                "dates of any contact attempts with the company or courier",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.98,
+                "order_id": 0.96,
+                "amount_inr": 0.98,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "I paid ₹3,499 for a smartwatch on ShopSutra.",
+                  "bbox": null
+                },
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"ShopSutra\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"SS-FX-88201\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "I paid ₹3,499 for a smartwatch on ShopSutra.",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 3499",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-08\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "It was supposed to be delivered last week but the tracking keeps showing 'shipment exception'.",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "I paid ₹3,499 for a smartwatch on ShopSutra. It was supposed to be delivered last week but the tracking keeps showing 'shipment exception'. I want my money back.",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "I want my money back.",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Third-party e-commerce marketplace\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "marketplace"
+            },
+            "reply_forensics": {
+              "reply_type": "acknowledgment",
+              "acknowledged": false,
+              "original_remedy": "Refund of ₹3,499",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Hi, for delivery-related issues, customers are advised to contact the logistics partner directly.",
+                "The courier company is responsible for last-mile delivery and can provide the most accurate updates.",
+                "We recommend contacting them using the tracking number in your order details."
+              ],
+              "next_action": "Seller/customer support should directly address the refund request instead of redirecting the customer to the courier.",
+              "reason": "The reply acknowledges the complaint and includes a reference, date, amount or concrete action.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "tracking number"
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic instruction to contact logistics partner directly",
+                "No case-specific details or personalized resolution",
+                "Uses broad advisory language: 'customers are advised' and 'We recommend'"
+              ],
+              "summary_hinglish": "Email refund issue solve nahi karta; bas customer ko courier/logistics partner se contact karne ko bolta hai. Ye deflection hai, refund na acknowledge hua hai na offer.",
+              "concrete_action": null,
+              "category": "acknowledged"
+            }
+          },
+          "cost_usd": 0.016245,
+          "latency_seconds": 10.033
+        }
+      }
+    },
+    {
+      "id": "CC-003",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "acknowledgment",
+        "resolved": false,
+        "safest_next_action": "Request the refund transaction reference, ARN or equivalent traceable reference, initiation date, refund amount, and payment method. If none is provided, escalate with the original payment proof and complaint history."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "reply_info",
+            "reasoning": "The company AudioOrbit does not appear in the supplied verified directory, so no verified recipient can be selected. The purchase was made on the brand's own website in an e-commerce context, so the supplied verified legal reference on E-Commerce Rules, 2020 grievance handling is applicable. However, no complaint receipt date is provided, so a concrete statutory deadline cannot be calculated. The company reply merely says the refund was initiated and asks the customer to wait, without giving proof, refund reference/UTR, transaction date, or a firm resolution timeline; this is best classified as deflection rather than substantive resolution. Safest next step is to send a reply asking for specific refund proof/details such as refund reference/UTR/ARN, initiation date, payment mode, and expected credit timeline."
+          },
+          "cost_usd": 0.00588,
+          "latency_seconds": 4.839
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "wait",
+            "reason": "No escalation trigger; continue watching the thread.",
+            "case_facts": {
+              "company_name": "AudioOrbit",
+              "order_id": "AO-FX-55670",
+              "amount_inr": 5799.0,
+              "purchase_date": "2026-11-02",
+              "issue_type": "refund_not_received",
+              "issue_summary_en": "Consumer reports headphones were delivered defective (one side not working). A refund was requested, and the company allegedly said the refund was initiated, but after 9 working days no credit is visible in the consumer's account and no refund reference number has been provided.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": "2026-11-02",
+                  "what": "Order/purchase date provided."
+                },
+                {
+                  "date": null,
+                  "what": "Headphones were delivered but one side did not work."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer requested a refund."
+                },
+                {
+                  "date": null,
+                  "what": "Company allegedly stated refund was initiated."
+                },
+                {
+                  "date": null,
+                  "what": "After 9 working days, consumer reports no refund credit received and no refund reference number provided."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "delivery date",
+                "date refund was requested",
+                "date company said refund was initiated",
+                "date of complaint/current reference date",
+                "refund reference number",
+                "proof of refund initiation",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.95,
+                "order_id": 0.95,
+                "amount_inr": 0.95,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"AudioOrbit\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"AO-FX-55670\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 5799",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-02\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "\"I requested a refund. Your team says refund initiated but it has been 9 working days. I don't see any credit in my account.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"My headphones were delivered but one side doesn't work. I requested a refund. Your team says refund initiated but it has been 9 working days. I don't see any credit in my account. There is no refund reference number either. Please provide proof.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"I requested a refund.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Brand's own website\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "brand_website"
+            },
+            "reply_forensics": {
+              "reply_type": "substantive_resolution",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹5,799",
+              "promised_action": "Refund has been initiated; customer asked to wait for bank processing and credit.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear Customer, we confirm that your refund has been initiated from our end.",
+                "Depending on your bank's processing time, the amount may take some time to reflect in your account.",
+                "Kindly wait for the refund to be credited."
+              ],
+              "next_action": "Wait for the refund to be credited; follow up if it does not reflect after reasonable bank processing time.",
+              "reason": "The email promises initiation of the requested refund but does not confirm that the customer has actually received the money. No refund amount or timeline is specified.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear Customer'",
+                "No ticket/reference number",
+                "Standardized refund-processing language"
+              ],
+              "summary_hinglish": "Unhone bola hai refund unki side se initiate ho gaya hai, lekin paisa account me receive hona confirm nahi hua. Abhi wait karne ko bola gaya hai, amount aur exact date nahi di gayi.",
+              "concrete_action": "Refund initiated from merchant side; pending bank credit.",
+              "category": "resolution_offered"
+            }
+          },
+          "cost_usd": 0.01667,
+          "latency_seconds": 10.891
+        }
+      }
+    },
+    {
+      "id": "CC-004",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "partial_offer",
+        "resolved": false,
+        "safest_next_action": "Decline the voucher if it does not meet the requested remedy and request a refund or replacement under the applicable return/refund terms. Escalate to the Grievance Officer with photos and the voucher offer."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reasoning": "The company named in the complaint is HomeHive, but there is no verified grievance recipient for HomeHive in the provided company directory, so recipient must be null. The matter concerns an e-commerce purchase via the company's app, so the supplied verified legal reference for the Consumer Protection (E-Commerce) Rules, 2020 grievance process is applicable. No complaint_received_at date is provided, so a concrete acknowledgment/redress deadline cannot be calculated. The company's reply does not address the requested refund to the original payment method and instead offers only a limited-value voucher as a goodwill gesture, so it is best classified as a partial_offer. Safest next action is user_review because there is no verified recipient available and the user may need to decide whether to reject the voucher and escalate further."
+          },
+          "cost_usd": 0.0058725,
+          "latency_seconds": 3.319
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "offer_choice",
+            "reason": "Offer is partial or a voucher; user must choose whether to accept or counter.",
+            "case_facts": {
+              "company_name": "HomeHive",
+              "order_id": "HH-FX-19043",
+              "amount_inr": 6200.0,
+              "purchase_date": "2026-11-12",
+              "issue_type": "damaged",
+              "issue_summary_en": "User states that a mixer grinder ordered via the company's app arrived damaged, and support offered a ₹1,000 coupon expiring in 30 days instead of processing a refund.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": "2026-11-12",
+                  "what": "Order placed for a mixer grinder."
+                },
+                {
+                  "date": null,
+                  "what": "Product arrived damaged."
+                },
+                {
+                  "date": null,
+                  "what": "Support offered a ₹1,000 coupon valid for 30 days instead of a refund."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "delivery date",
+                "date support offered coupon",
+                "date of complaint/contact attempt evidence",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.97,
+                "order_id": 0.96,
+                "amount_inr": 0.98,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"HomeHive\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"HH-FX-19043\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 6200",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-12\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "\"It arrived damaged.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"I ordered a mixer grinder from your app for ₹6,200. It arrived damaged. Instead of refunding my money, support is offering a ₹1,000 coupon that expires in 30 days.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"I want a refund to my original payment method.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Company mobile app\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "brand_app"
+            },
+            "reply_forensics": {
+              "reply_type": "partial_offer",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹6,200",
+              "promised_action": "Offer of a ₹1,000 HomeHive voucher valid for 30 days as a goodwill gesture",
+              "refund_confirmed": false,
+              "offered_amount_inr": 1000.0,
+              "resolution_status": "partially_resolved",
+              "evidence_quotes": [
+                "We apologize for the inconvenience caused.",
+                "As a goodwill gesture, we can offer you a ₹1,000 HomeHive voucher, valid for 30 days.",
+                "This is the fastest solution available from our end, and we hope you will accept it."
+              ],
+              "next_action": "Customer can decide whether to accept the voucher or continue pursuing the original refund request of ₹6,200.",
+              "reason": "Offer is a voucher or less than the requested amount; user must decide.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": false,
+              "templated_signals": [],
+              "summary_hinglish": "Unhone inconvenience acknowledge kiya hai, lekin refund dene ke bajay sirf ₹1,000 ka HomeHive voucher 30 din ke liye offer kiya hai. ₹6,200 refund ka demand resolve nahi hua; yeh sirf partial offer hai.",
+              "concrete_action": "₹1,000 HomeHive voucher offer kiya gaya hai, valid for 30 days.",
+              "category": "partial_resolution"
+            }
+          },
+          "cost_usd": 0.015545,
+          "latency_seconds": 9.94
+        }
+      }
+    },
+    {
+      "id": "CC-005",
+      "ground_truth": {
+        "correct_recipient_role": "No further escalation required; Customer Support for any follow-up",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "substantive_resolution",
+        "resolved": true,
+        "safest_next_action": "Verify the credit against the UTR and retain the refund confirmation and return records. No escalation is needed if the refund amount is correct and credited."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "confirm_receipt",
+            "reasoning": "The complaint itself states the refund of ₹42,000 has been received in the bank account and provides the UTR, and the company reply confirms the same refund and UTR. This indicates the issue is resolved on the merits. No verified recipient for ByteBasket appears in the supplied company directory, so recipient is null. The e-commerce grievance rule is relevant to the sector, but no complaint receipt date is provided, so no calculable deadline can be derived. Safest next action is to confirm receipt/closure rather than escalate."
+          },
+          "cost_usd": 0.0051725,
+          "latency_seconds": 2.585
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "ByteBasket",
+              "order_id": "BB-FX-73615",
+              "amount_inr": 42000.0,
+              "purchase_date": "2026-11-05",
+              "issue_type": "refund_not_received",
+              "issue_summary_en": "Consumer reports that a laptop purchase was returned and the refund of ₹42,000 has been received in the bank account today; issue is resolved.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": "2026-11-05",
+                  "what": "Laptop order placed."
+                },
+                {
+                  "date": null,
+                  "what": "Laptop was returned."
+                },
+                {
+                  "date": null,
+                  "what": "Refund of ₹42,000 received in bank account; consumer confirms issue is resolved."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "refund receipt date",
+                "return date",
+                "contact attempts/support ticket details",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.95,
+                "order_id": 0.92,
+                "amount_inr": 0.97,
+                "purchase_date": 0.92
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"ByteBasket\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"BB-FX-73615\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 42000",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-05\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"I paid for a laptop through UPI. The laptop was returned and I got the refund today. UTR is 638291740512 and ₹42,000 has actually reached my bank account. Just confirming the issue is resolved.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"E-commerce website\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "substantive_resolution",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹42,000",
+              "promised_action": "Refund processed to the original payment-linked account.",
+              "refund_confirmed": false,
+              "offered_amount_inr": 42000.0,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear Customer, we have successfully processed the refund of ₹42,000.",
+                "UPI refund transaction reference (UTR): 638291740512.",
+                "The refund has been credited to the account linked to your original payment."
+              ],
+              "next_action": "Customer should verify receipt in the original payment-linked account using the provided UTR 638291740512 and contact support if not received.",
+              "reason": "The email states that a full refund of the demanded amount has been processed and credited to the original payment-linked account. However, receipt is not independently confirmed; only processing/crediting is claimed in the email.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": false,
+              "templated_signals": [],
+              "summary_hinglish": "Email ke hisaab se ₹42,000 ka refund process ho chuka hai aur original payment se linked account me credit hone ka claim hai. UTR bhi diya gaya hai, lekin actual receipt independently confirm nahi hui.",
+              "concrete_action": "Full refund of ₹42,000 processed to the original payment-linked account.",
+              "category": "resolution_offered"
+            }
+          },
+          "cost_usd": 0.01438,
+          "latency_seconds": 8.663
+        }
+      }
+    },
+    {
+      "id": "CC-006",
+      "ground_truth": {
+        "correct_recipient_role": "Insurance Grievance Redressal Officer (GRO)",
+        "e_commerce_rules_2020_apply": false,
+        "reply_type": "evidence_request",
+        "resolved": false,
+        "safest_next_action": "Request an itemized written list of missing documents and the claim status. Submit documents through the official claims channel, keep acknowledgments, and escalate to the insurer's GRO if the delay or unclear requests persist; consider IRDAI's Bima Bharosa mechanism if unresolved."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "ask_user",
+            "reasoning": "The company reply asks for supporting documents but does not specify which documents are required, matching an evidence request. No verified recipient is available for ShieldSure Insurance in the provided directory. The only verified legal reference supplied is for e-commerce grievance officers and does not apply to an insurance claim, so rule and deadline should be null. Safest next action is to ask the user to seek a precise document list or share any prior claim communication before drafting/escalating."
+          },
+          "cost_usd": 0.004765,
+          "latency_seconds": 3.725
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "ask_user",
+            "reason": "Requested information is missing.",
+            "case_facts": {
+              "company_name": "ShieldSure Insurance",
+              "order_id": "SH-FX-CLAIM-90217",
+              "amount_inr": 38500.0,
+              "purchase_date": "2026-10-28",
+              "issue_type": "service_failure",
+              "issue_summary_en": "Motor insurance claim is pending. The surveyor visited and uploaded photos, but the portal shows 'pending documents' and the consumer was not informed which documents are required.",
+              "user_demand": "other",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Car was damaged in an accident."
+                },
+                {
+                  "date": null,
+                  "what": "Insurance claim was submitted 3 weeks ago."
+                },
+                {
+                  "date": null,
+                  "what": "Surveyor visited, uploaded photos, and said everything was okay."
+                },
+                {
+                  "date": null,
+                  "what": "Portal shows pending documents."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer says no one has told them which documents are needed and requests clarification."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "Exact date of accident",
+                "Exact date of claim submission",
+                "Exact date when surveyor visited",
+                "Exact date when portal showed pending documents",
+                "Requested resolution category is not explicit (clarification/update rather than refund/replacement/delivery/compensation)",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.98,
+                "order_id": 0.9,
+                "amount_inr": 0.9,
+                "purchase_date": 0.9
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "ShieldSure Insurance",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "SH-FX-CLAIM-90217",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "38500",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "2026-10-28",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "My car was damaged in an accident and I submitted the insurance claim 3 weeks ago. Your surveyor visited, uploaded photos and said everything was okay. Now the portal says pending documents, but no one has told me which documents. Please clarify.",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "Insurance policy purchased directly from insurer",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "brand_website"
+            },
+            "reply_forensics": {
+              "reply_type": "evidence_request",
+              "acknowledged": true,
+              "original_remedy": "Other of ₹38,500",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear Policyholder, your claim cannot be processed further until the required supporting documents are received.",
+                "Kindly upload the necessary documents through the claims portal.",
+                "We appreciate your cooperation."
+              ],
+              "next_action": "Provide the required supporting documents via the claims portal to allow claim processing to continue.",
+              "reason": "The email does not offer or confirm any refund, payment, or other remedy. It states that processing is blocked pending documents and asks the customer to upload them.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "required supporting documents",
+                "necessary documents"
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear Policyholder'",
+                "Standard procedural language",
+                "No case-specific details such as claim number, amount, or timeline"
+              ],
+              "summary_hinglish": "Email mein bola gaya hai ki claim tab tak process nahi hoga jab tak required supporting documents receive nahi hote. Customer se claims portal par documents upload karne ko kaha gaya hai. Koi refund ya payment confirm ya promise nahi kiya gaya.",
+              "concrete_action": null,
+              "category": "info_requested"
+            }
+          },
+          "cost_usd": 0.014925,
+          "latency_seconds": 9.921
+        }
+      }
+    },
+    {
+      "id": "CC-007",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer of the online education provider",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "deflection",
+        "resolved": false,
+        "safest_next_action": "Keep the chargeback case number, payment statement, screenshots of missing access, and merchant correspondence. Respond to the bank within its deadlines and avoid withdrawing the chargeback solely on an unverified promise. Escalate to the merchant's Grievance Officer and NCH if appropriate."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "user_review",
+            "reasoning": "LearnPeak Academy is not present in the supplied verified company directory, so no verified grievance recipient can be selected. The complaint concerns an online purchase of a course on a website, so the supplied e-commerce grievance rule is plausibly applicable. However, no complaint receipt date is provided, so a concrete 48-hour or one-month deadline cannot be calculated. The company reply does not resolve the access issue, provide activation, refund, or a grievance path; it mainly asks the consumer to check spam/wait and defers to the bank chargeback process, so it is best classified as deflection. Safest next action is user review because there is no verified recipient available and any further step would require the user to decide whether to continue with the chargeback, gather evidence, or pursue another complaint channel."
+          },
+          "cost_usd": 0.0059425,
+          "latency_seconds": 4.818
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "wait",
+            "reason": "No escalation trigger; continue watching the thread.",
+            "case_facts": {
+              "company_name": "LearnPeak Academy",
+              "order_id": "LP-FX-43109",
+              "amount_inr": 18500.0,
+              "purchase_date": "2026-11-01",
+              "issue_type": "service_failure",
+              "issue_summary_en": "The consumer paid for an online course, but course access was never activated. The consumer emailed the merchant twice without meaningful response and has filed a bank chargeback.",
+              "user_demand": "other",
+              "events": [
+                {
+                  "date": "2026-11-01",
+                  "what": "Paid ₹18,500 by card for an online course."
+                },
+                {
+                  "date": null,
+                  "what": "Course access was not activated."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer emailed the merchant twice."
+                },
+                {
+                  "date": null,
+                  "what": "Merchant did not respond meaningfully."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer raised a chargeback with their bank."
+                }
+              ],
+              "contact_attempts": [
+                {
+                  "date": null,
+                  "channel": "email",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "email",
+                  "ticket_id": null
+                }
+              ],
+              "days_elapsed": null,
+              "missing_info": [
+                "exact dates of merchant contact attempts",
+                "exact date when access should have been activated",
+                "exact date chargeback was filed",
+                "desired resolution/remedy",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.95,
+                "order_id": 0.95,
+                "amount_inr": 0.98,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"LearnPeak Academy\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"LP-FX-43109\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 18500",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-01\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"I paid ₹18,500 by card for an online course but the course access was never activated. I emailed the merchant twice and they haven't responded meaningfully. I have now raised a chargeback with my bank.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Online website\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "brand_website"
+            },
+            "reply_forensics": {
+              "reply_type": "acknowledgment",
+              "acknowledged": true,
+              "original_remedy": "Other of ₹18,500",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear Learner, your payment appears successful on our end.",
+                "Please check your spam folder for the activation email and allow 24 to 48 hours for system synchronization.",
+                "If you have already contacted your bank, please wait for the bank's process to complete."
+              ],
+              "next_action": "Wait 24 to 48 hours for system synchronization, check spam folder for the activation email, and if bank was contacted, wait for the bank's process to complete.",
+              "reason": "The reply acknowledges the complaint and includes a reference, date, amount or concrete action.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear Learner'",
+                "Standard troubleshooting steps: check spam folder, wait 24 to 48 hours",
+                "No case-specific details such as ticket ID, order ID, or amount"
+              ],
+              "summary_hinglish": "Unhone issue ko broadly acknowledge kiya hai, but refund ya koi concrete remedy nahi diya. Bas spam folder check karne, 24–48 hours wait karne, aur bank process ka wait karne ko bola hai.",
+              "concrete_action": null,
+              "category": "acknowledged"
+            }
+          },
+          "cost_usd": 0.0159075,
+          "latency_seconds": 9.38
+        }
+      }
+    },
+    {
+      "id": "CC-008",
+      "ground_truth": {
+        "correct_recipient_role": "Store Manager / Retailer's Customer Complaint Officer",
+        "e_commerce_rules_2020_apply": false,
+        "reply_type": "deflection",
+        "resolved": false,
+        "safest_next_action": "Visit or write to the store manager with the invoice and defect evidence, request a written inspection report and specific remedy, and preserve all communications. If unresolved, lodge a complaint with NCH or the appropriate consumer commission."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reasoning": "Company is KitchenKraft Retail, an offline physical retail store, and no verified recipient for this company is present in the supplied directory. The only verified legal reference provided is for the Consumer Protection (E-Commerce) Rules, 2020 grievance officer timeline, which does not clearly apply to an offline retail showroom purchase based on the supplied facts. The company has not rejected the complaint outright; it has asked the customer to bring the product to the store/service centre route and says refund depends on the service report, so this is best classified as a partial offer rather than a full resolution. No complaint receipt date is provided, so no deadline can be computed from the supplied rule anyway. Safest next action is user review, since there is no verified grievance contact or clearly applicable verified rule in the provided data."
+          },
+          "cost_usd": 0.00591,
+          "latency_seconds": 3.652
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "KitchenKraft Retail",
+              "order_id": "KK-FX-22018",
+              "amount_inr": 8999.0,
+              "purchase_date": "2026-11-14",
+              "issue_type": "damaged",
+              "issue_summary_en": "The user purchased an induction cooktop from the company's showroom for ₹8,999 on 2026-11-14. Within two days, the switch stopped working. The store directed the user to visit a service centre, but the user states the product is defective and wants a refund or replacement rather than only service.",
+              "user_demand": "replacement",
+              "events": [
+                {
+                  "date": "2026-11-14",
+                  "what": "User purchased an induction cooktop from the showroom for ₹8,999."
+                },
+                {
+                  "date": null,
+                  "what": "Within two days of purchase, the switch stopped working."
+                },
+                {
+                  "date": null,
+                  "what": "Store told the user to take the product to the service centre."
+                },
+                {
+                  "date": null,
+                  "what": "User requested refund or replacement instead of only service."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "exact date when the switch stopped working",
+                "exact date when the store directed the user to visit the service centre",
+                "whether the user prefers refund or replacement as the primary remedy",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.96,
+                "order_id": 0.95,
+                "amount_inr": 0.97,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "company_name\": \"KitchenKraft Retail\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"KK-FX-22018\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 8999",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-14\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Offline physical retail store\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "Maine aapke showroom se 14 November ko ₹8,999 ka induction cooktop liya tha. 2 din baad hi switch kaam karna band ho gaya. Store wale bol rahe hain service centre le jao, par itna naya product defective hai. Refund ya replacement chahiye, sirf service nahi.",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "offline"
+            },
+            "reply_forensics": {
+              "reply_type": "partial_offer",
+              "acknowledged": true,
+              "original_remedy": "Replacement of ₹8,999",
+              "promised_action": "Take the product to the store; they will show it to the service centre and decide on refund after the service centre report.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Sir, aap store pe product leke aa jaiye.",
+                "Hum service centre ko dikha denge.",
+                "Refund ka decision service centre ki report ke baad hi ho sakta hai.",
+                "Abhi hum direct refund confirm nahi kar sakte.",
+                "Aap tension mat lijiye, dekh lenge."
+              ],
+              "next_action": "Customer should bring the product to the store for service-centre inspection and await the report-based decision.",
+              "reason": "The reply acknowledges the issue and offers inspection/escalation, but does not approve the original remedy or confirm any refund/replacement. It makes any refund conditional on a future service-centre report.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": false,
+              "templated_signals": [],
+              "summary_hinglish": "Unhone issue ko acknowledge kiya hai aur bola hai product store par le aao, service centre ko dikhayenge. Refund abhi confirm nahi hai; service centre ki report ke baad hi decision hoga. Isliye replacement/refund abhi unresolved hai.",
+              "concrete_action": "Customer ko product store par le jaana hai inspection ke liye.",
+              "category": "partial_resolution"
+            }
+          },
+          "cost_usd": 0.01652,
+          "latency_seconds": 10.468
+        }
+      }
+    },
+    {
+      "id": "CC-009",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer of the marketplace",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "evidence_request",
+        "resolved": false,
+        "safest_next_action": "Submit the available photos, package label, delivery-weight evidence, and a concise written statement that no unboxing video exists. Request that the investigation proceed using available evidence and escalate if the complaint is closed solely for lack of video."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "reply_info",
+            "reasoning": "The company named in the complaint is CartCove, which does not appear in the provided verified company directory, so no verified recipient can be selected. The sector is an e-commerce marketplace, so the supplied verified legal reference on e-commerce grievance handling is applicable in general. However, no complaint_received_at date is provided, so a specific acknowledgment or redress deadline cannot be calculated. The company’s reply does not reject the complaint; it asks for parcel photographs and other supporting evidence and explicitly allows submission even without an unboxing video, so this is best classified as an evidence_request. Safest next step is to reply with the available photos, delivery-weight screenshot, and an explanation that no unboxing video exists, rather than escalate yet."
+          },
+          "cost_usd": 0.00579,
+          "latency_seconds": 4.47
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "ask_user",
+            "reason": "Requested information is missing.",
+            "case_facts": {
+              "company_name": "CartCove",
+              "order_id": "CC-FX-67591",
+              "amount_inr": 2799.0,
+              "purchase_date": "2026-11-16",
+              "issue_type": "wrong_item",
+              "issue_summary_en": "Consumer reports purchasing a Bluetooth speaker on an online marketplace, but received an empty package containing only packing material. Seller says the parcel was sealed, and the platform requested an unboxing video which the consumer does not have. Consumer says they have photos taken immediately after opening and a delivery weight screenshot.",
+              "user_demand": "replacement",
+              "events": [
+                {
+                  "date": "2026-11-16",
+                  "what": "Order for Bluetooth speaker placed on online marketplace."
+                },
+                {
+                  "date": null,
+                  "what": "Package delivered, but consumer found no speaker inside, only packing material."
+                },
+                {
+                  "date": null,
+                  "what": "Seller stated the parcel was sealed."
+                },
+                {
+                  "date": null,
+                  "what": "Platform requested an unboxing video."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer reported not having an unboxing video but having photos taken immediately after opening and a delivery weight screenshot."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "delivery date",
+                "date(s) of seller/platform contact",
+                "consumer's explicit demand/remedy preference",
+                "support ticket/reference IDs",
+                "documentary evidence files not provided",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.96,
+                "order_id": 0.98,
+                "amount_inr": 0.98,
+                "purchase_date": 0.97
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"CartCove\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_id\": \"CC-FX-67591\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 2799",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "\"order_date\": \"2026-11-16\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "\"purchase_channel\": \"Online marketplace\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"I bought a ₹2,799 Bluetooth speaker from an online marketplace. It arrived but the box had no speaker, only packing material. Seller is saying the parcel was sealed. Platform wants me to submit an unboxing video, which I don't have. I do have photos taken immediately after opening and a delivery weight screenshot.\"",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "marketplace"
+            },
+            "reply_forensics": {
+              "reply_type": "evidence_request",
+              "acknowledged": true,
+              "original_remedy": "Replacement of ₹2,799",
+              "promised_action": "Our team will review the case.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "please upload the unboxing video, parcel photographs, and any other supporting evidence to help us investigate the complaint.",
+                "If an unboxing video is unavailable, kindly submit the available evidence and explain the circumstances.",
+                "Our team will review the case."
+              ],
+              "next_action": "Provide the requested evidence: unboxing video, parcel photographs, or other supporting evidence, and explain circumstances if the unboxing video is unavailable.",
+              "reason": "The email does not offer or confirm the requested replacement. It asks for supporting evidence before reviewing the complaint.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "unboxing video",
+                "parcel photographs",
+                "other supporting evidence",
+                "explanation of circumstances if unboxing video is unavailable"
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: \"Dear Customer\"",
+                "Standard support phrasing requesting evidence",
+                "No case-specific details, agent name, or ticket reference"
+              ],
+              "summary_hinglish": "Unhone abhi replacement approve nahi kiya hai. Email me sirf evidence manga gaya hai—unboxing video, parcel photos, aur baaki supporting proof. Agar video nahi hai, to available proof aur circumstances explain karne ko bola hai. Team review karegi, isliye issue abhi unresolved hai.",
+              "concrete_action": null,
+              "category": "info_requested"
+            }
+          },
+          "cost_usd": 0.01655,
+          "latency_seconds": 11.159
+        }
+      }
+    },
+    {
+      "id": "CC-010",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "e_commerce_rules_2020_apply": true,
+        "reply_type": "acknowledgment",
+        "resolved": false,
+        "safest_next_action": "Keep the ticket number, invoice, photos of the expired item, and order details. Follow up through the grievance channel requesting refund or replacement for missing and expired items, and escalate to NCH if unresolved."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "user_review",
+            "reasoning": "The company reply is only an automated acknowledgment with a ticket number and no resolution on the missing/expired items, so it is an acknowledgment. The complaint concerns an online grocery/e-commerce transaction, so the supplied verified legal reference for E-Commerce Rules 2020 grievance handling is applicable. However, FreshFlick does not appear in the provided verified company directory, so no verified recipient can be selected. A concrete deadline cannot be calculated because complaint_received_at is null, and the rule’s timelines run from grievance receipt/acknowledgment. Safest next step is user review because there is no verified grievance contact for FreshFlick in the supplied data and timing details are incomplete."
+          },
+          "cost_usd": 0.0055875,
+          "latency_seconds": 4.004
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "FreshFlick",
+              "order_id": "FF-FX-31985",
+              "amount_inr": 1560.0,
+              "purchase_date": "2026-11-20",
+              "issue_type": "other",
+              "issue_summary_en": "Consumer reports an online grocery order had two missing items and one expired item. A complaint was raised immediately, but the response received appeared to be an automated message that did not address the issue.",
+              "user_demand": "other",
+              "events": [
+                {
+                  "date": "2026-11-20",
+                  "what": "Order placed for groceries worth ₹1,560."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer reports two items were missing and one item was expired."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer raised a complaint immediately after discovering the issue."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer received a reply that appeared to be a bot message and did not address the issue."
+                }
+              ],
+              "contact_attempts": [
+                {
+                  "date": null,
+                  "channel": "complaint to company",
+                  "ticket_id": null
+                }
+              ],
+              "days_elapsed": null,
+              "missing_info": [
+                "exact date of complaint",
+                "date of company reply",
+                "desired resolution",
+                "proof of expired item",
+                "proof of missing items",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.94,
+                "order_id": 0.96,
+                "amount_inr": 0.97,
+                "purchase_date": 0.95
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "FreshFlick",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "FF-FX-31985",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "₹1,560",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": "2026-11-20",
+                  "bbox": null
+                }
+              ],
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "acknowledgment",
+              "acknowledged": true,
+              "original_remedy": "Other of ₹1,560",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Thank you for contacting FreshFlick Support.",
+                "This is an automated acknowledgment confirming receipt of your request.",
+                "Your ticket number is FF-TKT-FX-00421.",
+                "Our team may contact you if additional information is required."
+              ],
+              "next_action": "Wait for a substantive response from support; no remedy, refund, or concrete resolution has been offered in this email.",
+              "reason": "The email is only an automated acknowledgment of receipt and does not offer or confirm any remedy, refund, or resolution.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": "FF-TKT-FX-00421",
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "\"This is an automated acknowledgment confirming receipt of your request.\"",
+                "\"Please do not reply to this automated message.\""
+              ],
+              "summary_hinglish": "Yeh sirf automated acknowledgment hai. Ticket receive hone ki confirmation di gayi hai, lekin refund ya koi actual resolution offer nahi kiya gaya.",
+              "concrete_action": null,
+              "category": "acknowledged"
+            }
+          },
+          "cost_usd": 0.0132275,
+          "latency_seconds": 8.914
+        }
+      }
+    }
+  ],
+  "total_cost_usd": 0.21245,
+  "usage": [
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1153,
+      "output_tokens": 193,
+      "cost_usd": 0.0057775,
+      "latency_seconds": 7.305599957995582
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 903,
+      "output_tokens": 531,
+      "cost_usd": 0.0102225,
+      "latency_seconds": 5.070666084007826
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 576,
+      "output_tokens": 306,
+      "cost_usd": 0.00603,
+      "latency_seconds": 3.9190121249994263
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1150,
+      "output_tokens": 177,
+      "cost_usd": 0.00553,
+      "latency_seconds": 2.8816718329908326
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 900,
+      "output_tokens": 552,
+      "cost_usd": 0.01053,
+      "latency_seconds": 5.940985791996354
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 576,
+      "output_tokens": 285,
+      "cost_usd": 0.005715,
+      "latency_seconds": 4.087414417008404
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1146,
+      "output_tokens": 201,
+      "cost_usd": 0.00588,
+      "latency_seconds": 4.8381722920021275
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 899,
+      "output_tokens": 568,
+      "cost_usd": 0.0107675,
+      "latency_seconds": 5.787549165994278
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 573,
+      "output_tokens": 298,
+      "cost_usd": 0.0059025,
+      "latency_seconds": 5.098782832996221
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1161,
+      "output_tokens": 198,
+      "cost_usd": 0.0058725,
+      "latency_seconds": 3.3191319999896223
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 909,
+      "output_tokens": 472,
+      "cost_usd": 0.0093525,
+      "latency_seconds": 5.070473833999131
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 581,
+      "output_tokens": 316,
+      "cost_usd": 0.0061925,
+      "latency_seconds": 4.865257583995117
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1151,
+      "output_tokens": 153,
+      "cost_usd": 0.0051725,
+      "latency_seconds": 2.584644999995362
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 893,
+      "output_tokens": 415,
+      "cost_usd": 0.0084575,
+      "latency_seconds": 4.521197916998062
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 587,
+      "output_tokens": 297,
+      "cost_usd": 0.0059225,
+      "latency_seconds": 4.13888179200876
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1138,
+      "output_tokens": 128,
+      "cost_usd": 0.004765,
+      "latency_seconds": 3.7245681669883197
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 902,
+      "output_tokens": 470,
+      "cost_usd": 0.009305,
+      "latency_seconds": 4.794232791013201
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 562,
+      "output_tokens": 281,
+      "cost_usd": 0.00562,
+      "latency_seconds": 5.121578917009174
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1153,
+      "output_tokens": 204,
+      "cost_usd": 0.0059425,
+      "latency_seconds": 4.817719250000664
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 899,
+      "output_tokens": 487,
+      "cost_usd": 0.0095525,
+      "latency_seconds": 4.850552667005104
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 580,
+      "output_tokens": 327,
+      "cost_usd": 0.006355,
+      "latency_seconds": 4.523298084008275
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1188,
+      "output_tokens": 196,
+      "cost_usd": 0.00591,
+      "latency_seconds": 3.6511313330120174
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 924,
+      "output_tokens": 527,
+      "cost_usd": 0.010215,
+      "latency_seconds": 5.258588124997914
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 590,
+      "output_tokens": 322,
+      "cost_usd": 0.006305,
+      "latency_seconds": 5.2056793329975335
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1164,
+      "output_tokens": 192,
+      "cost_usd": 0.00579,
+      "latency_seconds": 4.4700685829884605
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 911,
+      "output_tokens": 527,
+      "cost_usd": 0.0101825,
+      "latency_seconds": 5.975178459004383
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 579,
+      "output_tokens": 328,
+      "cost_usd": 0.0063675,
+      "latency_seconds": 5.178909541005851
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1149,
+      "output_tokens": 181,
+      "cost_usd": 0.0055875,
+      "latency_seconds": 4.004078458005097
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 893,
+      "output_tokens": 369,
+      "cost_usd": 0.0077675,
+      "latency_seconds": 4.796275500004413
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 582,
+      "output_tokens": 267,
+      "cost_usd": 0.00546,
+      "latency_seconds": 4.112463375000516
+    }
+  ],
+  "limitations": "Only rule applicability and reply type are scored. Recipient labels describe roles, not verified email addresses; action labels are free text, not scorer enums; complaint receipt dates are not supplied. These comparisons and resolution status require review."
+}
