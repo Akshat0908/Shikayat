@@ -156,7 +156,17 @@ curl -sS -b /tmp/shk-cookies "$BASE/api/cases/$CASE/board" > /tmp/shk-board.json
 .venv/bin/python -c 'import json; x=json.load(open("/tmp/shk-board.json")); print([(e["type"],e["title"],e["reason"]) for e in x["events"] if e["type"] in ("promise","decision","draft","deadline")])'
 ```
 
-Expected: promise event, breached promise deadline and a next-action draft citing the company's promise. Simulated clock affects only demo sample cases.
+Expected: promise event, breached promise deadline and a next-action draft citing the company's promise. Simulated clock affects only demo sample cases. To reach an escalation draft without pretending a missed promise automatically requires escalation, inject two further deflections:
+
+```sh
+curl -sS -b /tmp/shk-cookies -H 'Content-Type: application/json' -d "{\"case_id\":\"$CASE\",\"text\":\"We regret the inconvenience. Your concern has been forwarded to the concerned team.\"}" "$BASE/api/demo/inject"
+curl -sS -b /tmp/shk-cookies -H 'Content-Type: application/json' -d "{\"case_id\":\"$CASE\",\"text\":\"Your concern remains with the concerned team. We will respond at the earliest.\"}" "$BASE/api/demo/inject"
+curl -sS -b /tmp/shk-cookies "$BASE/api/cases/$CASE/board" > /tmp/shk-board.json
+.venv/bin/python -c 'import json; x=json.load(open("/tmp/shk-board.json")); print(x["case"]["level"],[(e["type"],e["title"]) for e in x["events"] if e["type"] in ("decision","draft")])'
+```
+
+Expected: `L3`, an `escalate` decision and a draft awaiting approval. For a fully simulated closure, start a fresh sample, inject two deflections, then inject `Your refund of ₹4,299 has been credited to your account. UTR: 123456789012.` and use **I received** in the case view; the equivalent receipt API is `curl -sS -b /tmp/shk-cookies -X POST "$BASE/api/cases/$CASE/confirm-receipt"`. This records a simulated case, not real recovered money.
+
 
 ## Troubleshooting
 

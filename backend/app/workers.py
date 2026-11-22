@@ -245,7 +245,7 @@ async def inbox_iteration(app) -> None:
 
 async def inbox_loop(app) -> None:
     if not (app.state.config.user_email and app.state.config.user_email_app_password.get_secret_value()):
-        logger.info('Inbox poller disabled: Gmail credentials not configured')
+        logging.getLogger('uvicorn.error').info('Inbox poller disabled: Gmail credentials not configured')
     while True:
         config=get_settings()
         if config.user_email and config.user_email_app_password.get_secret_value():
