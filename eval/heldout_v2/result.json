@@ -1,0 +1,1904 @@
+{
+  "data_source": "measured",
+  "evaluated_at": "2026-11-22T04:11:28.451317+00:00",
+  "model": "gpt-5.4",
+  "commit": "7809a2db0e68e3541651d015ca45035387cd98b0",
+  "case_count": 10,
+  "cases": [
+    {
+      "id": "CC-001",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "ecommerce_rules_apply": true,
+        "reply_type": "acknowledgment",
+        "resolved": "no",
+        "safest_next_action": "Escalate to the platform's Grievance Officer and request a refund for the missing item with a complaint reference number."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "user_review",
+            "reasoning": "The company name is BiteDash, which does not appear in the supplied company_directory, so there is no verified recipient available. The complaint concerns an online platform order in the e-commerce/food delivery context, so the supplied verified legal reference on e-commerce grievance handling is applicable. No complaint_received_at date is provided, so a concrete 48-hour or one-month deadline cannot be calculated. The company reply is generic, does not address refund for the missing fries/cold wrap, and provides no action or timeline, so it is best classified as deflection. Safest next step is user review because there is no verified recipient to escalate to from the supplied data."
+          },
+          "cost_usd": 0.0054125,
+          "latency_seconds": 5.651
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "BiteDash",
+              "order_id": "BD-FAKE-78214",
+              "amount_inr": 347.0,
+              "purchase_date": null,
+              "issue_type": "wrong_item",
+              "issue_summary_en": "Customer says the order included a paneer wrap and fries, but the fries were missing and the wrap arrived cold. They want a refund for the missing item rather than a coupon. They report contacting app support three times via chat and receiving only bot responses.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Customer ordered paneer wrap and fries."
+                },
+                {
+                  "date": null,
+                  "what": "Fries were missing from the order."
+                },
+                {
+                  "date": null,
+                  "what": "Wrap was delivered cold."
+                },
+                {
+                  "date": null,
+                  "what": "Customer requested refund for the missing item instead of a coupon."
+                }
+              ],
+              "contact_attempts": [
+                {
+                  "date": null,
+                  "channel": "app chat",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "app chat",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "app chat",
+                  "ticket_id": null
+                }
+              ],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "contact attempt dates",
+                "support ticket IDs",
+                "evidence confirming whether ₹347 is total order amount or disputed amount",
+                "clear sector mapping to allowed taxonomy",
+                "clear purchase channel mapping to allowed taxonomy",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.95,
+                "order_id": 0.95,
+                "amount_inr": 0.78,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"BiteDash\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"BD-FAKE-78214\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 347",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"₹189 ka item missing hai practically.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"Order mein paneer wrap aur fries dono mangaye the, but fries missing thi and wrap bhi cold tha. ₹189 ka item missing hai practically. App support bas bot chala raha hai, 3 baar chat kiya. Please refund the missing item, not just a coupon.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"Please refund the missing item, not just a coupon.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "contact_attempts",
+                  "origin": "text",
+                  "source_excerpt": "\"App support bas bot chala raha hai, 3 baar chat kiya.\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "deflection",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹347",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Hi, we understand your concern and have noted your feedback.",
+                "Your experience matters to us and our team is continuously working to improve delivery quality.",
+                "We appreciate your patience and cooperation."
+              ],
+              "next_action": "Ask customer care to explicitly confirm whether a refund of INR 347 will be processed and request a timeline or transaction/reference ID.",
+              "reason": "Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic empathy language",
+                "No case-specific details",
+                "No refund amount mentioned",
+                "No concrete action or timeline",
+                "No ticket/reference ID"
+              ],
+              "summary_hinglish": "Email sirf concern acknowledge karta hai aur generic feedback language use karta hai. Refund ka koi confirmation, promise, amount, ya timeline nahi diya gaya, isliye issue unresolved hai.",
+              "concrete_action": null,
+              "needs_refund_proof": false,
+              "category": "deflection"
+            }
+          },
+          "cost_usd": 0.01643,
+          "latency_seconds": 9.252
+        }
+      }
+    },
+    {
+      "id": "CC-002",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "ecommerce_rules_apply": true,
+        "reply_type": "partial_offer",
+        "resolved": "no",
+        "safest_next_action": "Ask for the refund transaction reference and a defined credit timeline before treating the complaint as resolved."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "wait",
+            "reasoning": "Company states a refund of ₹499 has already been initiated, which addresses the user's requested remedy (refund, not store credit). No verified recipient for FlashBasket is present in the supplied directory, so recipient must be null. The supplied legal reference on e-commerce grievance redress is applicable in principle, but no complaint receipt date is provided, so no calculable deadline can be derived. Safest next action is to wait for the refund to reflect; absence of a transaction reference alone does not negate the offered resolution."
+          },
+          "cost_usd": 0.005005,
+          "latency_seconds": 2.747
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "FlashBasket",
+              "order_id": "FB-QC-FAKE-90173",
+              "amount_inr": 812.0,
+              "purchase_date": null,
+              "issue_type": "not_delivered",
+              "issue_summary_en": "Consumer states that 2 packs of baby diapers and a milk carton were ordered, but 1 diaper pack was not delivered while invoice and payment covered all 3 items. Consumer wants a refund and not store credit.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Ordered 2 packs of baby diapers and a milk carton."
+                },
+                {
+                  "date": null,
+                  "what": "One diaper pack was not delivered."
+                },
+                {
+                  "date": null,
+                  "what": "Invoice and payment were for all 3 products."
+                },
+                {
+                  "date": null,
+                  "what": "Delivery person said the packet was sealed and could not help."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "explicit contact attempt details",
+                "amount of the missing pack as a standalone billed line item proof",
+                "purchase channel evidence",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.78,
+                "order_id": 0.74,
+                "amount_inr": 0.71,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"FlashBasket\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"FB-QC-FAKE-90173\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 812",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"Ordered 2 packs of baby diapers and a milk carton. One diaper pack wasn't delivered, but invoice and payment are for all 3 products. Delivery guy says packet was sealed so he can't help. Amount of missing pack is ₹499. Need refund, not store credits.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"Need refund, not store credits.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "\"sector\": \"Quick Commerce\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "partial_offer",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹812",
+              "promised_action": "Refund of ₹499 has been initiated; customer should wait for amount to reflect.",
+              "refund_confirmed": false,
+              "offered_amount_inr": 499.0,
+              "resolution_status": "partially_resolved",
+              "evidence_quotes": [
+                "We have forwarded your concern to our concerned team.",
+                "A refund of ₹499 has been initiated from our end.",
+                "Kindly allow some time for the amount to reflect in your account.",
+                "We are unable to share a transaction reference at this moment."
+              ],
+              "next_action": "Wait for the initiated refund to reflect, and request proof/reference later if needed; note that only ₹499 is promised against the demanded ₹812.",
+              "reason": "Offer is a voucher or less than the requested amount; user must decide.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic phrasing: 'concerned team'",
+                "No agent name or case-specific details",
+                "No transaction reference shared",
+                "Standard wait-language: 'allow some time'"
+              ],
+              "summary_hinglish": "Unhone issue acknowledge karke concerned team ko forward kiya hai. ₹499 ka refund initiate karne ka promise kiya gaya hai, lekin receive hona confirm nahi hai. Aapne ₹812 demand kiye the, isliye yeh sirf partial resolution hai.",
+              "concrete_action": "Refund initiation of ₹499 from their end.",
+              "needs_refund_proof": false,
+              "category": "partial_resolution"
+            }
+          },
+          "cost_usd": 0.0159575,
+          "latency_seconds": 8.527
+        }
+      }
+    },
+    {
+      "id": "CC-003",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "ecommerce_rules_apply": true,
+        "reply_type": "substantive_resolution",
+        "resolved": "yes",
+        "safest_next_action": "Verify the refund against the provided UTR with your bank and reopen the grievance if the credit is missing."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "user_review",
+            "reasoning": "The company named in the complaint is ThreadTheory, which does not appear in the verified company directory, so no verified recipient can be selected. The complaint concerns an online marketplace purchase, so the verified e-commerce grievance rule is applicable in general. No complaint receipt date is provided, so a calculable deadline cannot be derived. The company reply states that the full refund of ₹1,299 has already been processed and provides a UTR reference, which is a substantive resolution rather than a mere acknowledgment. The safest next step is user review, since the user should verify whether the refund has actually credited to the original payment method or with the bank using the UTR."
+          },
+          "cost_usd": 0.00548,
+          "latency_seconds": 2.623
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "substantive_resolution",
+            "next_action": "confirm_receipt",
+            "reason": "Full demand offered; receipt requires user confirmation.",
+            "case_facts": {
+              "company_name": "ThreadTheory",
+              "order_id": "TT-MKT-FAKE-55108",
+              "amount_inr": 1299.0,
+              "purchase_date": null,
+              "issue_type": "wrong_item",
+              "issue_summary_en": "Consumer reports receiving a different colour kurta than shown in the listing: listing showed navy blue but the delivered item was black. Return pickup occurred 8 days ago, tracking says the item was returned to the seller, but refund has still not been received.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Consumer received a black kurta instead of the navy blue kurta shown in the listing."
+                },
+                {
+                  "date": null,
+                  "what": "Return pickup happened 8 days ago."
+                },
+                {
+                  "date": null,
+                  "what": "Tracking indicates the return was delivered back to the seller."
+                },
+                {
+                  "date": null,
+                  "what": "Refund has not been received yet."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "explicit return pickup date",
+                "explicit delivery date",
+                "any contact attempts/ticket IDs",
+                "supported purchase channel classification",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.94,
+                "order_id": 0.92,
+                "amount_inr": 0.97,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"ThreadTheory\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"TT-MKT-FAKE-55108\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 1299",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"₹1,299 paid.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "\"Received a different colour kurta than what was shown in listing. Listing was navy blue but received black.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"Received a different colour kurta than what was shown in listing. Listing was navy blue but received black. Return pickup happened 8 days ago and tracking says returned to seller, still refund is not done.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "\"still refund is not done.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "\"sector\": \"Fashion Marketplace\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "marketplace"
+            },
+            "reply_forensics": {
+              "reply_type": "substantive_resolution",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹1,299",
+              "promised_action": "processed refund of ₹1,299 to the original payment method",
+              "refund_confirmed": false,
+              "offered_amount_inr": 1299.0,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear customer, we regret the inconvenience.",
+                "We have processed your refund of ₹1,299 to the original payment method.",
+                "The refund transaction reference is UTR 847261903518.",
+                "Please check with your bank if the amount has not yet appeared in your account."
+              ],
+              "next_action": "Check with the bank using the provided UTR if the refund has not appeared; monitor for receipt of funds.",
+              "reason": "The email acknowledges the issue and states that a refund matching the demanded amount has been processed, but receipt is not confirmed. A promised or initiated refund is not the same as confirmed receipt.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear customer'",
+                "Generic apology without case-specific details: 'we regret the inconvenience'"
+              ],
+              "summary_hinglish": "Unhone inconvenience acknowledge kiya hai aur bola hai ki ₹1,299 ka refund original payment method par process kar diya gaya hai, UTR bhi diya hai. Lekin refund account me receive hona confirm nahi hai, isliye issue partially resolved hai.",
+              "concrete_action": "Refund of ₹1,299 has been stated as processed to the original payment method, with UTR 847261903518 provided.",
+              "needs_refund_proof": false,
+              "category": "resolution_offered"
+            }
+          },
+          "cost_usd": 0.0170175,
+          "latency_seconds": 8.862
+        }
+      }
+    },
+    {
+      "id": "CC-004",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "ecommerce_rules_apply": true,
+        "reply_type": "rejection",
+        "resolved": "no",
+        "safest_next_action": "Escalate to the brand's Grievance Officer with the warranty terms, purchase invoice and inspection findings."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "rejection",
+            "next_action": "user_review",
+            "reasoning": "VoltEdge India is not present in the supplied verified company directory, so no verified recipient can be selected. The only verified legal reference provided is the Consumer Protection (E-Commerce) Rules grievance-officer timeline, but there is no verified grievance contact for this company and no complaint_received_at date to compute any deadline. The company reply denies a free replacement and inspection-charge waiver, so it is a rejection. Safest next step is user review, since proceeding would require an unverified contact or additional evidence/details not supplied."
+          },
+          "cost_usd": 0.0048975,
+          "latency_seconds": 2.904
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "rejection",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "VoltEdge India",
+              "order_id": "VE-WEB-FAKE-30462",
+              "amount_inr": 2499.0,
+              "purchase_date": null,
+              "issue_type": "service_failure",
+              "issue_summary_en": "Consumer says earbuds bought from the company's official website stopped working on the left side after 11 days, and the service centre is asking for inspection charges despite the product being under warranty and replacement being possible.",
+              "user_demand": "replacement",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Consumer bought earbuds from the company's official website."
+                },
+                {
+                  "date": null,
+                  "what": "Left side of the earbuds stopped working after 11 days of use/purchase."
+                },
+                {
+                  "date": null,
+                  "what": "Service centre stated replacement is possible but asked the consumer to pay inspection charges despite warranty coverage."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "exact failure date",
+                "service centre contact date",
+                "proof of warranty terms",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.92,
+                "order_id": 0.82,
+                "amount_inr": 0.95,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "company_name\": \"VoltEdge India\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "order_reference\": \"VE-WEB-FAKE-30462\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "Order value ₹2,499.",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 2499",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_date",
+                  "origin": "text",
+                  "source_excerpt": null,
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "Service centre says replacement is possible but I need to pay inspection charges even though product is under warranty.",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "Service centre says replacement is possible",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "Bought earbuds from your official website.",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "\"sector\": \"Consumer Electronics\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "brand_website"
+            },
+            "reply_forensics": {
+              "reply_type": "rejection",
+              "acknowledged": true,
+              "original_remedy": "Replacement of ₹2,499",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Our service team has reviewed the complaint and the product does not qualify for a free replacement under the current assessment.",
+                "We regret that we cannot accommodate the request for free replacement at this stage."
+              ],
+              "next_action": "No remedy offered; customer may need to challenge the assessment or request escalation.",
+              "reason": "The email explicitly denies the requested free replacement and offers no refund or alternative resolution.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: \"Dear customer\"",
+                "Policy-based language: \"as per our service policy\"",
+                "Formal standardized phrasing without case-specific details"
+              ],
+              "summary_hinglish": "Company ne replacement request reject kar di hai. Free replacement current assessment ke hisaab se applicable nahi bataya, aur koi refund ya alternative remedy offer nahi kiya.",
+              "concrete_action": null,
+              "needs_refund_proof": false,
+              "category": "rejected"
+            }
+          },
+          "cost_usd": 0.0148375,
+          "latency_seconds": 7.352
+        }
+      }
+    },
+    {
+      "id": "CC-005",
+      "ground_truth": {
+        "correct_recipient_role": "Airline Customer Relations / Nodal Officer",
+        "ecommerce_rules_apply": false,
+        "reply_type": "acknowledgment",
+        "resolved": "no",
+        "safest_next_action": "Escalate through the airline's grievance and nodal officer channels with the cancellation notice and replacement-ticket receipt."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "user_review",
+            "reasoning": "The company is SkyTrail Airways, which does not appear in the supplied verified company directory, so no verified recipient can be selected. The only verified legal reference provided is the Consumer Protection (E-Commerce) Rules, 2020 grievance rule, which is specific to e-commerce and not safely applicable to an airline complaint based on the supplied information. The company reply merely acknowledges receipt and says the matter will be reviewed, with no substantive resolution or evidence request. Because complaint_received_at is null, no deadline can be calculated even if a rule applied. Safest next action is user review, since there is no verified airline-specific recipient or rule in the provided data."
+          },
+          "cost_usd": 0.0053325,
+          "latency_seconds": 2.533
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": false
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "deflection",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "SkyTrail Airways",
+              "order_id": "ST-FAKE-PNR-6K2M8",
+              "amount_inr": 6800.0,
+              "purchase_date": null,
+              "issue_type": "cancellation",
+              "issue_summary_en": "Flight ST 614 was cancelled 5 hours before departure. The consumer says the airline offered a next-day flight, but they booked another airline themselves due to a connection. They seek a refund and applicable compensation.",
+              "user_demand": "compensation",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Flight ST 614 was cancelled 5 hours before departure."
+                },
+                {
+                  "date": null,
+                  "what": "Airline offered another flight the next day."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer booked another airline themselves because they had a connection to catch."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "event dates",
+                "evidence of any contact attempt",
+                "whether refund is still pending",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.97,
+                "order_id": 0.95,
+                "amount_inr": 0.96,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "SkyTrail Airways",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "ST-FAKE-PNR-6K2M8",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "₹6,800 for original ticket.",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "6800",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "Flight ST 614 was cancelled 5 hours before departure.",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "Flight ST 614 was cancelled 5 hours before departure. I was offered another flight next day but had to book another airline myself because I had a connection to catch. ₹6,800 for original ticket. I want a refund and compensation as applicable.",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "I want a refund and compensation as applicable.",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "Airline",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "airlines",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "deflection",
+              "acknowledged": true,
+              "original_remedy": "Compensation of ₹6,800",
+              "promised_action": "Concern registered and will be reviewed; they may request more information later.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear passenger, we acknowledge receipt of your feedback.",
+                "Your concern has been registered with our customer care team and will be reviewed in accordance with our applicable policies.",
+                "We will get back to you if further information is required."
+              ],
+              "next_action": "Wait for a substantive response or provide any requested information if they follow up.",
+              "reason": "Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear passenger'",
+                "No agent name or case-specific details",
+                "Standard acknowledgment language about receipt, registration, and policy review",
+                "No specific resolution, amount, or timeline"
+              ],
+              "summary_hinglish": "Airline ne sirf aapki feedback receive hone aur concern register hone ki acknowledgment di hai. Compensation approve ya pay karne ka koi mention nahi hai, isliye issue abhi unresolved hai.",
+              "concrete_action": null,
+              "needs_refund_proof": false,
+              "category": "deflection"
+            }
+          },
+          "cost_usd": 0.01559,
+          "latency_seconds": 8.188
+        }
+      }
+    },
+    {
+      "id": "CC-006",
+      "ground_truth": {
+        "correct_recipient_role": "Telecom Appellate Authority",
+        "ecommerce_rules_apply": false,
+        "reply_type": "acknowledgment",
+        "resolved": "no",
+        "safest_next_action": "Follow up on the complaint ticket and escalate to the Telecom Appellate Authority if the service and billing issue remain unresolved."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "wait",
+            "reasoning": "The company reply only acknowledges the complaint, says the technical team has been reassigned, and defers any billing adjustment until after restoration. No substantive resolution or evidence request is provided. There is no verified recipient for ConnectOne Telecom in the supplied directory. The only verified legal reference provided is for e-commerce grievances, which does not clearly apply to a telecom complaint, so no rule or deadline should be selected from the supplied information."
+          },
+          "cost_usd": 0.0046225,
+          "latency_seconds": 2.013
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "acknowledgment",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "ConnectOne Telecom",
+              "order_id": "C1-TKT-FAKE-22190",
+              "amount_inr": 999.0,
+              "purchase_date": null,
+              "issue_type": "service_failure",
+              "issue_summary_en": "Broadband service has been down for 4 days. An engineer visited once and the issue was marked resolved without being fixed. The user seeks service restoration and billing adjustment for outage days.",
+              "user_demand": "other",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Broadband service down for 4 days"
+                },
+                {
+                  "date": null,
+                  "what": "Engineer visited once"
+                },
+                {
+                  "date": null,
+                  "what": "Issue/ticket marked resolved without fixing the problem"
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "explicit event dates",
+                "evidence from screenshots",
+                "whether billing adjustment should be classified as refund or compensation",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.96,
+                "order_id": 0.78,
+                "amount_inr": 0.93,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "ConnectOne Telecom",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "C1-TKT-FAKE-22190",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "monthly bill is full ₹999",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "999",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "My broadband has been down for 4 days",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_type",
+                  "origin": "text",
+                  "source_excerpt": "Engineer visited once and marked issue resolved without fixing anything.",
+                  "bbox": null
+                },
+                {
+                  "field": "user_demand",
+                  "origin": "text",
+                  "source_excerpt": "Please restore service and adjust billing for outage days.",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "order_reference: C1-TKT-FAKE-22190",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "Telecom",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "telecom",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "acknowledgment",
+              "acknowledged": true,
+              "original_remedy": "Other of ₹999",
+              "promised_action": "Technical team ko dobara assign kiya hai; jaldi update karenge; billing adjustment ka decision service restoration ke baad liya jayega.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Sir, aapki complaint note kar li gayi hai.",
+                "Technical team ko dobara assign kiya hai.",
+                "Hum aapko jaldi update karenge.",
+                "Billing adjustment ka decision service restoration ke baad liya jayega.",
+                "Kindly wait."
+              ],
+              "next_action": "Wait for update and service restoration; no concrete remedy has been provided yet.",
+              "reason": "Email only acknowledges the complaint, says the technical team has been reassigned, and defers any billing adjustment decision until after service restoration. No refund or completed resolution is confirmed.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic acknowledgment language",
+                "No ticket/reference ID provided",
+                "No personalized details",
+                "Vague timeline: 'jaldi update karenge'",
+                "Standard closing: 'Kindly wait.'"
+              ],
+              "summary_hinglish": "Complaint acknowledge ki gayi hai, technical team ko reassign kiya gaya hai, aur update baad mein dene ka bola hai. Billing adjustment abhi decide nahi hua; service restore hone ke baad decide hoga. Abhi issue unresolved hai.",
+              "concrete_action": "Technical team ko dobara assign kiya hai.",
+              "needs_refund_proof": false,
+              "category": "acknowledged"
+            }
+          },
+          "cost_usd": 0.015745,
+          "latency_seconds": 9.471
+        }
+      }
+    },
+    {
+      "id": "CC-007",
+      "ground_truth": {
+        "correct_recipient_role": "Insurance Grievance Redressal Officer",
+        "ecommerce_rules_apply": false,
+        "reply_type": "evidence_request",
+        "resolved": "no",
+        "safest_next_action": "Submit the requested medical records and escalate the denial through the insurer's grievance process if the clause-based explanation remains inadequate."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "ask_user",
+            "reasoning": "The company named in the complaint is CareShield Health in the health insurance sector, but there is no verified recipient for this company in the supplied directory. The only verified legal reference provided is for e-commerce grievance timelines, which does not apply to a health insurance claim based on the supplied information. No complaint receipt date is available, so no deadline can be computed. The company reply does not address the requested policy clause or explain the denial; instead it asks for discharge summary, 5-year medical history, consultation records, diagnostic reports, and other documents, so it is best classified as an evidence request. Safest next step is to ask the user to review whether these documents were already submitted and, if available, provide the denial letter/policy wording so a targeted follow-up can be drafted requesting the exact exclusion clause and reconsideration."
+          },
+          "cost_usd": 0.005845,
+          "latency_seconds": 2.97
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "CareShield Health",
+              "order_id": "CSH-FAKE-CLAIM-774102",
+              "amount_inr": 86400.0,
+              "purchase_date": null,
+              "issue_type": "service_failure",
+              "issue_summary_en": "Cashless health insurance claim for the user's father's hospitalisation was denied. The insurer allegedly cited a pre-existing condition without explaining the applicable policy clause. The user seeks the exact clause and reconsideration of the claim.",
+              "user_demand": "other",
+              "events": [
+                {
+                  "date": null,
+                  "what": "User states a cashless claim for father's hospitalisation was denied."
+                },
+                {
+                  "date": null,
+                  "what": "Hospital allegedly said all documents were submitted."
+                },
+                {
+                  "date": null,
+                  "what": "Insurer allegedly rejected the claim citing a pre-existing condition without explaining the clause."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "dates of hospitalisation/claim denial",
+                "policy number",
+                "claim number",
+                "specific policy clause cited by insurer",
+                "evidence of insurer communication",
+                "contact attempts with insurer",
+                "basis for purchase channel",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.87,
+                "order_id": 0.52,
+                "amount_inr": 0.95,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"CareShield Health\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"CSH-FAKE-CLAIM-774102\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 86400",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"Claim amount is ₹86,400.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"Cashless claim was denied for my father's hospitalisation. Hospital says all documents were submitted, but insurer rejected saying pre-existing condition without explaining which clause. Claim amount is ₹86,400. I need the exact policy clause and reconsideration.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "\"sector\": \"Health Insurance\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "insurance",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "evidence_request",
+              "acknowledged": true,
+              "original_remedy": "Other of ₹86,400",
+              "promised_action": "Your claim will be reviewed upon receipt of these documents.",
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [],
+              "next_action": "Submit the requested medical and claims documents for reconsideration.",
+              "reason": "The email does not provide a resolution or monetary remedy. It asks for additional documents before the claim can be reconsidered and reviewed.",
+              "invalid_evidence_quotes": [
+                "\"to reconsider your claim, please submit the discharge summary, complete medical history for the preceding 5 years, consultation records, diagnostic reports and any additional documents requested by the claims team.\"",
+                "\"Your claim will be reviewed upon receipt of these documents.\""
+              ],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "discharge summary",
+                "complete medical history for the preceding 5 years",
+                "consultation records",
+                "diagnostic reports",
+                "any additional documents requested by the claims team"
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: \"Dear policyholder\"",
+                "Standardized document request language",
+                "No claim-specific identifiers or personalized details"
+              ],
+              "summary_hinglish": "Company ne abhi claim resolve nahi kiya. Unhone reconsideration ke liye discharge summary, pichhle 5 saal ki medical history, consultation records, diagnostic reports aur claims team ke additional documents maange hain. Documents milne ke baad hi claim review hoga.",
+              "concrete_action": "Review claim after receiving the requested documents.",
+              "needs_refund_proof": false,
+              "category": "info_requested"
+            }
+          },
+          "cost_usd": 0.01598,
+          "latency_seconds": 8.734
+        }
+      }
+    },
+    {
+      "id": "CC-008",
+      "ground_truth": {
+        "correct_recipient_role": "Bank Grievance Officer / Nodal Officer",
+        "ecommerce_rules_apply": false,
+        "reply_type": "rejection",
+        "resolved": "no",
+        "safest_next_action": "Raise a formal UPI dispute with the bank and escalate through its nodal grievance channel if the failed merchant payment is not reversed."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "rejection",
+            "next_action": "user_review",
+            "reasoning": "The company is MetroVale Bank in the Banking/UPI sector, but no verified grievance recipient for this company is present in the supplied directory. The only verified legal reference provided is the Consumer Protection (E-Commerce) Rules, 2020 grievance rule, which does not clearly apply to a bank/UPI dispute based on the supplied information. No complaint receipt date is provided, so no deadline can be calculated. The company reply substantively denies reversal and relies on its internal success status despite the merchant non-receipt, so this is best classified as a rejection. Safest next step is user review because there is no verified recipient or applicable verified rule in the provided data, and banking-specific escalation paths are not supplied."
+          },
+          "cost_usd": 0.0055425,
+          "latency_seconds": 2.946
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "rejection",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "MetroVale Bank",
+              "order_id": "MV-UPI-FAKE-617320948",
+              "amount_inr": 4750.0,
+              "purchase_date": null,
+              "issue_type": "service_failure",
+              "issue_summary_en": "UPI payment of ₹4,750 is reported as failed at the merchant end, but the amount was deducted from the user's account. The merchant says they did not receive the payment, while the bank app shows the transaction as successful. No reversal has been received after 6 days.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": null,
+                  "what": "UPI payment of ₹4,750 failed at merchant but amount was deducted from user's account."
+                },
+                {
+                  "date": null,
+                  "what": "Merchant confirmed they did not receive the payment."
+                },
+                {
+                  "date": null,
+                  "what": "Bank app showed the transaction as successful."
+                },
+                {
+                  "date": null,
+                  "what": "No reversal received after 6 days."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "explicit transaction date",
+                "contact attempts with bank or merchant",
+                "valid UPI transaction/reference ID",
+                "proof of bank app status or merchant confirmation",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.93,
+                "order_id": 0.35,
+                "amount_inr": 0.97,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"MetroVale Bank\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"MV-UPI-FAKE-617320948\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 4750",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"UPI payment of ₹4,750 failed at merchant but money deducted from my account.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "\"UPI payment of ₹4,750 failed at merchant but money deducted from my account. Merchant confirms they didn't receive payment. Bank app says successful. It's been 6 days and no reversal. UPI transaction ID fake format? Actual ID is below.\"",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "\"sector\": \"Banking / UPI\"",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "banking",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "rejection",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹4,750",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Dear customer, we have reviewed your dispute and the transaction was completed successfully as per our records.",
+                "Since the payment was authenticated using your registered device and UPI PIN, we are unable to process a reversal.",
+                "The merchant-side confirmation does not alter the status of the transaction in our system."
+              ],
+              "next_action": "No refund or reversal offered; dispute remains unresolved. Customer should escalate or provide additional evidence through formal complaint channels if available.",
+              "reason": "The email acknowledges the dispute but explicitly denies the requested refund/reversal, stating the transaction was successful and they are unable to process a reversal.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear customer'",
+                "Standard policy-style wording without case-specific details",
+                "No ticket/reference number or agent signature"
+              ],
+              "summary_hinglish": "Unhone dispute review karne ki baat boli, lekin clearly refund/reversal deny kar diya. Transaction ko successful bataya gaya hai, isliye issue unresolved hai.",
+              "concrete_action": null,
+              "needs_refund_proof": false,
+              "category": "rejected"
+            }
+          },
+          "cost_usd": 0.0157825,
+          "latency_seconds": 8.497
+        }
+      }
+    },
+    {
+      "id": "CC-009",
+      "ground_truth": {
+        "correct_recipient_role": "Store Manager / Company Customer Care",
+        "ecommerce_rules_apply": false,
+        "reply_type": "partial_offer",
+        "resolved": "no",
+        "safest_next_action": "Decline the voucher if cash reimbursement is preferred and escalate with the bill and staff's written promise."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reasoning": "The company is UrbanNest Retail, which is not present in the supplied verified company directory, so no verified recipient can be selected. The verified legal reference provided applies to e-commerce grievance officers, but this complaint concerns an offline store purchase, so that rule is not applicable. No complaint receipt date is provided, so no deadline can be computed. The company reply offers a ₹350 shopping voucher instead of the requested refund of ₹350 cash, so it is a partial offer rather than a full resolution. Safest next step is user review because acceptance of the voucher depends on whether the user is willing to settle for store credit instead of a refund."
+          },
+          "cost_usd": 0.005245,
+          "latency_seconds": 2.862
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": true
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "partial_offer",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "UrbanNest Retail",
+              "order_id": "UN-STORE-FAKE-1187",
+              "amount_inr": 7350.0,
+              "purchase_date": null,
+              "issue_type": "overcharged",
+              "issue_summary_en": "Consumer says they bought a study chair from a physical store in Jaipur. Store staff allegedly promised free assembly, but the delivery team charged an extra ₹350 stating it was not included. Consumer seeks return of the extra amount.",
+              "user_demand": "refund",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Study chair purchased from a physical store in Jaipur."
+                },
+                {
+                  "date": null,
+                  "what": "Store staff allegedly promised free assembly."
+                },
+                {
+                  "date": null,
+                  "what": "Delivery team allegedly charged an extra ₹350 for assembly and said it was not included."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer requests return of the extra amount."
+                }
+              ],
+              "contact_attempts": [],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "supporting bill copy",
+                "WhatsApp message copy",
+                "date of extra charge",
+                "proof of payment for the extra ₹350",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.89,
+                "order_id": 0.46,
+                "amount_inr": 0.55,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "company_name\": \"UrbanNest Retail\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "order_reference\": \"UN-STORE-FAKE-1187\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "amount_inr\": 7350",
+                  "bbox": null
+                },
+                {
+                  "field": "issue_summary_en",
+                  "origin": "text",
+                  "source_excerpt": "Bought a study chair from your physical store in Jaipur. Staff promised free assembly but delivery team charged ₹350 extra and said it wasn't included. I have the bill and WhatsApp message from store staff. Please return the extra amount.",
+                  "bbox": null
+                },
+                {
+                  "field": "sector",
+                  "origin": "text",
+                  "source_excerpt": "sector\": \"Offline Retail\"",
+                  "bbox": null
+                },
+                {
+                  "field": "purchase_channel",
+                  "origin": "text",
+                  "source_excerpt": "Bought a study chair from your physical store in Jaipur.",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "offline"
+            },
+            "reply_forensics": {
+              "reply_type": "partial_offer",
+              "acknowledged": true,
+              "original_remedy": "Refund of ₹7,350",
+              "promised_action": "Provide a ₹350 shopping voucher valid for 30 days if the customer confirms acceptance.",
+              "refund_confirmed": false,
+              "offered_amount_inr": 350.0,
+              "resolution_status": "partially_resolved",
+              "evidence_quotes": [
+                "Dear customer, we are sorry for the inconvenience.",
+                "As a goodwill gesture, we can provide a ₹350 shopping voucher valid for 30 days at our store.",
+                "Please confirm if you would like to accept this offer so we can arrange it."
+              ],
+              "next_action": "Customer can decide whether to accept the voucher offer; refund remedy remains unmet.",
+              "reason": "Offer is a voucher or less than the requested amount; user must decide.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "Confirmation of whether the customer wants to accept the voucher offer."
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic salutation: 'Dear customer'",
+                "Generic apology without case-specific details",
+                "Standard goodwill-offer phrasing"
+              ],
+              "summary_hinglish": "Unhone inconvenience ke liye sorry bola, lekin refund ₹7350 dene ke bajay sirf ₹350 ka 30 days valid shopping voucher offer kiya hai, woh bhi aapke confirmation par. Isliye refund issue resolve nahi hua.",
+              "concrete_action": "Offer a ₹350 shopping voucher after customer confirmation.",
+              "needs_refund_proof": false,
+              "category": "partial_resolution"
+            }
+          },
+          "cost_usd": 0.01566,
+          "latency_seconds": 8.956
+        }
+      }
+    },
+    {
+      "id": "CC-010",
+      "ground_truth": {
+        "correct_recipient_role": "Grievance Officer",
+        "ecommerce_rules_apply": true,
+        "reply_type": "ambiguous",
+        "resolved": "no",
+        "safest_next_action": "Escalate to the OTA's Grievance Officer with the booking confirmation, hotel refusal evidence and replacement booking receipt."
+      },
+      "systems": {
+        "baseline": {
+          "metrics": {
+            "rule": true,
+            "reply_classification": null
+          },
+          "output": {
+            "recipient": null,
+            "rule": "ecom_rules_2020_grievance",
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "reply_info",
+            "reasoning": "TripOrbit is not present in the supplied company_directory, so no verified recipient can be selected. The complaint concerns an online platform/OTA, so the supplied verified legal reference on e-commerce grievance handling is applicable. No complaint receipt date is provided, so a one-month deadline cannot be calculated. The company reply does not offer a remedy and invites the consumer to submit further information for reconsideration, which fits an evidence_request. Safest next action is to reply with supporting evidence and request reconsideration/refund, rather than escalating to an unverified contact."
+          },
+          "cost_usd": 0.0052025,
+          "latency_seconds": 2.776
+        },
+        "shikayat": {
+          "metrics": {
+            "rule": false,
+            "reply_classification": null
+          },
+          "output": {
+            "recipient": null,
+            "rule": null,
+            "deadline": null,
+            "reply_type": "evidence_request",
+            "next_action": "user_review",
+            "reason": "Sector-specific rules not configured; user review is required.",
+            "case_facts": {
+              "company_name": "TripOrbit",
+              "order_id": "TO-FAKE-HOTEL-904681",
+              "amount_inr": 3600.0,
+              "purchase_date": null,
+              "issue_type": "service_failure",
+              "issue_summary_en": "Hotel booking made through TripOrbit was allegedly not received by the property, resulting in refusal of check-in. The consumer states they contacted support 4 times at the hotel, then had to book another property for ₹5,200, and seeks refund of the original booking amount plus compensation for the additional expense.",
+              "user_demand": "compensation",
+              "events": [
+                {
+                  "date": null,
+                  "what": "Consumer booked a hotel through TripOrbit."
+                },
+                {
+                  "date": null,
+                  "what": "Property refused check-in, stating the booking was never received."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer called OTA support 4 times while at the hotel."
+                },
+                {
+                  "date": null,
+                  "what": "Consumer booked another property for ₹5,200."
+                }
+              ],
+              "contact_attempts": [
+                {
+                  "date": null,
+                  "channel": "phone",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "phone",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "phone",
+                  "ticket_id": null
+                },
+                {
+                  "date": null,
+                  "channel": "phone",
+                  "ticket_id": null
+                }
+              ],
+              "days_elapsed": null,
+              "missing_info": [
+                "purchase_date",
+                "event dates",
+                "support ticket/case ID",
+                "hotel/property name",
+                "proof of second booking/payment",
+                "explicit evidence for purchase channel classification within allowed categories",
+                "days_elapsed"
+              ],
+              "field_confidence": {
+                "company_name": 0.95,
+                "order_id": 0.95,
+                "amount_inr": 0.95,
+                "purchase_date": 0.0
+              },
+              "provenance": [
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "Booked a hotel through TripOrbit",
+                  "bbox": null
+                },
+                {
+                  "field": "company_name",
+                  "origin": "text",
+                  "source_excerpt": "\"company_name\": \"TripOrbit\"",
+                  "bbox": null
+                },
+                {
+                  "field": "order_id",
+                  "origin": "text",
+                  "source_excerpt": "\"order_reference\": \"TO-FAKE-HOTEL-904681\"",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "Original booking was ₹3,600.",
+                  "bbox": null
+                },
+                {
+                  "field": "amount_inr",
+                  "origin": "text",
+                  "source_excerpt": "\"amount_inr\": 3600",
+                  "bbox": null
+                }
+              ],
+              "chargeback_pending": false,
+              "sector": "other",
+              "purchase_channel": "unknown"
+            },
+            "reply_forensics": {
+              "reply_type": "evidence_request",
+              "acknowledged": true,
+              "original_remedy": "Compensation of ₹3,600",
+              "promised_action": null,
+              "refund_confirmed": false,
+              "offered_amount_inr": null,
+              "resolution_status": "unresolved",
+              "evidence_quotes": [
+                "Hello, we understand that this experience was disappointing.",
+                "Your booking and the associated complaint have been reviewed by our team.",
+                "Based on the information currently available, we believe the matter has been handled in accordance with the booking conditions.",
+                "However, if you have any further information that you feel may assist us in reconsidering the outcome, please reply to this email."
+              ],
+              "next_action": "Provide further information/evidence by replying to the email if seeking reconsideration.",
+              "reason": "The email acknowledges the complaint and says it was reviewed, but it does not offer compensation or any other remedy. It asks for further information to reconsider the outcome, so the requested compensation remains unresolved.",
+              "invalid_evidence_quotes": [],
+              "ticket_id": null,
+              "promised_date": null,
+              "requested_info": [
+                "further information that may assist in reconsidering the outcome"
+              ],
+              "is_templated": true,
+              "templated_signals": [
+                "Generic empathy opening without case specifics",
+                "No named agent or ticket/reference number",
+                "Broad review language with no concrete details",
+                "Standard request to reply with further information"
+              ],
+              "summary_hinglish": "Unhone issue acknowledge kiya hai aur bola hai complaint review ho chuki hai, lekin compensation approve nahi ki. Abhi sirf bola hai ki agar aapke paas aur information ho to email ka reply karein for reconsideration.",
+              "concrete_action": null,
+              "needs_refund_proof": false,
+              "category": "info_requested"
+            }
+          },
+          "cost_usd": 0.016135,
+          "latency_seconds": 8.92
+        }
+      }
+    }
+  ],
+  "total_cost_usd": 0.21172,
+  "usage": [
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1109,
+      "output_tokens": 176,
+      "cost_usd": 0.0054125,
+      "latency_seconds": 5.651123165996978
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 928,
+      "output_tokens": 570,
+      "cost_usd": 0.01087,
+      "latency_seconds": 5.449178791997838
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 580,
+      "output_tokens": 274,
+      "cost_usd": 0.00556,
+      "latency_seconds": 3.7683985420007957
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1120,
+      "output_tokens": 147,
+      "cost_usd": 0.005005,
+      "latency_seconds": 2.745705541005009
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 927,
+      "output_tokens": 470,
+      "cost_usd": 0.0093675,
+      "latency_seconds": 4.507359208000707
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 596,
+      "output_tokens": 340,
+      "cost_usd": 0.00659,
+      "latency_seconds": 4.016447916001198
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1124,
+      "output_tokens": 178,
+      "cost_usd": 0.00548,
+      "latency_seconds": 2.6217973330058157
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 925,
+      "output_tokens": 530,
+      "cost_usd": 0.0102625,
+      "latency_seconds": 4.760687000001781
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 602,
+      "output_tokens": 350,
+      "cost_usd": 0.006755,
+      "latency_seconds": 4.0945192079962
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1125,
+      "output_tokens": 139,
+      "cost_usd": 0.0048975,
+      "latency_seconds": 2.9029910000099335
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 925,
+      "output_tokens": 482,
+      "cost_usd": 0.0095425,
+      "latency_seconds": 4.38903195799503
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 600,
+      "output_tokens": 253,
+      "cost_usd": 0.005295,
+      "latency_seconds": 2.9587167910067365
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1119,
+      "output_tokens": 169,
+      "cost_usd": 0.0053325,
+      "latency_seconds": 2.5328489169914974
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 930,
+      "output_tokens": 484,
+      "cost_usd": 0.009585,
+      "latency_seconds": 4.115193541001645
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 590,
+      "output_tokens": 302,
+      "cost_usd": 0.006005,
+      "latency_seconds": 4.067049708988634
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1117,
+      "output_tokens": 122,
+      "cost_usd": 0.0046225,
+      "latency_seconds": 2.012226708000526
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 921,
+      "output_tokens": 449,
+      "cost_usd": 0.0090375,
+      "latency_seconds": 4.720914833000279
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 595,
+      "output_tokens": 348,
+      "cost_usd": 0.0067075,
+      "latency_seconds": 4.74693062499864
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1120,
+      "output_tokens": 203,
+      "cost_usd": 0.005845,
+      "latency_seconds": 2.9691117920010583
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 923,
+      "output_tokens": 474,
+      "cost_usd": 0.0094175,
+      "latency_seconds": 4.454012791000423
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 597,
+      "output_tokens": 338,
+      "cost_usd": 0.0065625,
+      "latency_seconds": 4.275753250010894
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1131,
+      "output_tokens": 181,
+      "cost_usd": 0.0055425,
+      "latency_seconds": 2.945266000009724
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 928,
+      "output_tokens": 506,
+      "cost_usd": 0.00991,
+      "latency_seconds": 4.885909916993114
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 603,
+      "output_tokens": 291,
+      "cost_usd": 0.0058725,
+      "latency_seconds": 3.606534124992322
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1114,
+      "output_tokens": 164,
+      "cost_usd": 0.005245,
+      "latency_seconds": 2.861339124996448
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 920,
+      "output_tokens": 463,
+      "cost_usd": 0.009245,
+      "latency_seconds": 4.564781416993355
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 598,
+      "output_tokens": 328,
+      "cost_usd": 0.006415,
+      "latency_seconds": 4.386193208993063
+    },
+    {
+      "task": "eval_baseline",
+      "input_tokens": 1151,
+      "output_tokens": 155,
+      "cost_usd": 0.0052025,
+      "latency_seconds": 2.7753688329976285
+    },
+    {
+      "task": "extract_case",
+      "input_tokens": 935,
+      "output_tokens": 478,
+      "cost_usd": 0.0095075,
+      "latency_seconds": 4.675542458004202
+    },
+    {
+      "task": "reply_forensics_v2",
+      "input_tokens": 617,
+      "output_tokens": 339,
+      "cost_usd": 0.0066275,
+      "latency_seconds": 4.241949584000395
+    }
+  ],
+  "limitations": "Only rule applicability and compatible reply types are scored. The ambiguous reply label is outside the existing taxonomy and is unscored. Recipient roles, free-text actions, complaint-receipt deadlines, and resolution status require review."
+}
