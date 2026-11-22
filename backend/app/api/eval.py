@@ -56,3 +56,15 @@ def latest() -> EvaluationResult:
             shikayat=EvaluationSystem(metrics=shikayat, output=f'Illustrative Shikayat output for {category}. Evaluation pending.', cost_usd=0.018, latency_seconds=7.6),
         ))
     return EvaluationResult(data_source='sample', evaluated_at=None, model='Not run', case_count=len(cases), cases=cases)
+
+
+@router.get('/heldout/latest')
+def latest_heldout() -> dict:
+    import json
+    from fastapi import HTTPException
+    path=ROOT/'eval'/'heldout'/'result.json'
+    if not path.is_file(): raise HTTPException(404,'Held-out evaluation pending')
+    data=json.loads(path.read_text())
+    if data.get('data_source')!='measured' or data.get('case_count')!=10 or len(data.get('cases',[]))!=10:
+        raise HTTPException(404,'Held-out evaluation incomplete')
+    return data

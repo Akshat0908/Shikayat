@@ -1,0 +1,212 @@
+[
+  {
+    "case_id": "CC-001",
+    "complaint_text": "Ordered a phone from your website 12 days ago. It arrived with a cracked screen. I raised a ticket 8 days back and every time your support says 'we are working on a resolution'. No refund, no replacement, no timeline. Please stop giving generic replies.",
+    "company_name": "VoltNest Electronics",
+    "sector": "Consumer Electronics / E-commerce",
+    "order_details": {
+      "purchase_channel": "Company's own website",
+      "order_id": "VN-FX-10482",
+      "order_date": "2026-11-10",
+      "amount_inr": 24999,
+      "issue": "Phone delivered with cracked screen"
+    },
+    "company_reply_email": "Dear Customer, we understand your concern and sincerely regret the inconvenience. Your case has been escalated to our internal resolution team and we are working on the best possible resolution. You will hear from us shortly. Thank you for your patience.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "acknowledgment",
+      "resolved": false,
+      "safest_next_action": "Send a written escalation to the company's Grievance Officer with the order ID, photos of the damage, delivery date, and prior ticket history. Request a specific remedy and timeline; if unresolved, escalate to the National Consumer Helpline (NCH)."
+    }
+  },
+  {
+    "case_id": "CC-002",
+    "complaint_text": "I paid ₹3,499 for a smartwatch on ShopSutra. It was supposed to be delivered last week but the tracking keeps showing 'shipment exception'. I want my money back. Don't just tell me to contact the courier because I purchased it from your platform.",
+    "company_name": "ShopSutra",
+    "sector": "E-commerce Marketplace",
+    "order_details": {
+      "purchase_channel": "Third-party e-commerce marketplace",
+      "order_id": "SS-FX-88201",
+      "order_date": "2026-11-08",
+      "amount_inr": 3499,
+      "issue": "Non-delivery of smartwatch"
+    },
+    "company_reply_email": "Hi, for delivery-related issues, customers are advised to contact the logistics partner directly. The courier company is responsible for last-mile delivery and can provide the most accurate updates. We recommend contacting them using the tracking number in your order details.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer of the marketplace",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "deflection",
+      "resolved": false,
+      "safest_next_action": "Escalate to the marketplace Grievance Officer and request either delivery confirmation or refund. Preserve tracking screenshots and payment proof. Do not rely solely on the courier referral."
+    }
+  },
+  {
+    "case_id": "CC-003",
+    "complaint_text": "My headphones were delivered but one side doesn't work. I requested a refund. Your team says refund initiated but it has been 9 working days. I don't see any credit in my account. There is no refund reference number either. Please provide proof.",
+    "company_name": "AudioOrbit",
+    "sector": "Consumer Electronics / E-commerce",
+    "order_details": {
+      "purchase_channel": "Brand's own website",
+      "order_id": "AO-FX-55670",
+      "order_date": "2026-11-02",
+      "amount_inr": 5799,
+      "issue": "Defective headphones; refund allegedly initiated"
+    },
+    "company_reply_email": "Dear Customer, we confirm that your refund has been initiated from our end. Depending on your bank's processing time, the amount may take some time to reflect in your account. Kindly wait for the refund to be credited.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "acknowledgment",
+      "resolved": false,
+      "safest_next_action": "Request the refund transaction reference, ARN or equivalent traceable reference, initiation date, refund amount, and payment method. If none is provided, escalate with the original payment proof and complaint history."
+    }
+  },
+  {
+    "case_id": "CC-004",
+    "complaint_text": "I ordered a mixer grinder from your app for ₹6,200. It arrived damaged. Instead of refunding my money, support is offering a ₹1,000 coupon that expires in 30 days. I never asked for a coupon. I want a refund to my original payment method.",
+    "company_name": "HomeHive",
+    "sector": "Home Appliances / E-commerce",
+    "order_details": {
+      "purchase_channel": "Company mobile app",
+      "order_id": "HH-FX-19043",
+      "order_date": "2026-11-12",
+      "amount_inr": 6200,
+      "issue": "Damaged mixer grinder; voucher offered instead of refund"
+    },
+    "company_reply_email": "We apologize for the inconvenience caused. As a goodwill gesture, we can offer you a ₹1,000 HomeHive voucher, valid for 30 days. This is the fastest solution available from our end, and we hope you will accept it.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "partial_offer",
+      "resolved": false,
+      "safest_next_action": "Decline the voucher if it does not meet the requested remedy and request a refund or replacement under the applicable return/refund terms. Escalate to the Grievance Officer with photos and the voucher offer."
+    }
+  },
+  {
+    "case_id": "CC-005",
+    "complaint_text": "I paid for a laptop through UPI. The laptop was returned and I got the refund today. UTR is 638291740512 and ₹42,000 has actually reached my bank account. Just confirming the issue is resolved.",
+    "company_name": "ByteBasket",
+    "sector": "Consumer Electronics / E-commerce",
+    "order_details": {
+      "purchase_channel": "E-commerce website",
+      "order_id": "BB-FX-73615",
+      "order_date": "2026-11-05",
+      "amount_inr": 42000,
+      "issue": "Returned laptop; refund received"
+    },
+    "company_reply_email": "Dear Customer, we have successfully processed the refund of ₹42,000. UPI refund transaction reference (UTR): 638291740512. The refund has been credited to the account linked to your original payment. Please let us know if you need any further assistance.",
+    "ground_truth": {
+      "correct_recipient_role": "No further escalation required; Customer Support for any follow-up",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "substantive_resolution",
+      "resolved": true,
+      "safest_next_action": "Verify the credit against the UTR and retain the refund confirmation and return records. No escalation is needed if the refund amount is correct and credited."
+    }
+  },
+  {
+    "case_id": "CC-006",
+    "complaint_text": "My car was damaged in an accident and I submitted the insurance claim 3 weeks ago. Your surveyor visited, uploaded photos and said everything was okay. Now the portal says pending documents, but no one has told me which documents. Please clarify.",
+    "company_name": "ShieldSure Insurance",
+    "sector": "Insurance",
+    "order_details": {
+      "purchase_channel": "Insurance policy purchased directly from insurer",
+      "order_id": "SH-FX-CLAIM-90217",
+      "order_date": "2026-10-28",
+      "amount_inr": 38500,
+      "issue": "Motor insurance claim pending; unclear document requirements"
+    },
+    "company_reply_email": "Dear Policyholder, your claim cannot be processed further until the required supporting documents are received. Kindly upload the necessary documents through the claims portal. We appreciate your cooperation.",
+    "ground_truth": {
+      "correct_recipient_role": "Insurance Grievance Redressal Officer (GRO)",
+      "e_commerce_rules_2020_apply": false,
+      "reply_type": "evidence_request",
+      "resolved": false,
+      "safest_next_action": "Request an itemized written list of missing documents and the claim status. Submit documents through the official claims channel, keep acknowledgments, and escalate to the insurer's GRO if the delay or unclear requests persist; consider IRDAI's Bima Bharosa mechanism if unresolved."
+    }
+  },
+  {
+    "case_id": "CC-007",
+    "complaint_text": "I paid ₹18,500 by card for an online course but the course access was never activated. I emailed the merchant twice and they haven't responded meaningfully. I have now raised a chargeback with my bank. What should I do next?",
+    "company_name": "LearnPeak Academy",
+    "sector": "Online Education / E-commerce",
+    "order_details": {
+      "purchase_channel": "Online website",
+      "order_id": "LP-FX-43109",
+      "order_date": "2026-11-01",
+      "amount_inr": 18500,
+      "issue": "Course access never activated; bank chargeback filed"
+    },
+    "company_reply_email": "Dear Learner, your payment appears successful on our end. Please check your spam folder for the activation email and allow 24 to 48 hours for system synchronization. If you have already contacted your bank, please wait for the bank's process to complete.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer of the online education provider",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "deflection",
+      "resolved": false,
+      "safest_next_action": "Keep the chargeback case number, payment statement, screenshots of missing access, and merchant correspondence. Respond to the bank within its deadlines and avoid withdrawing the chargeback solely on an unverified promise. Escalate to the merchant's Grievance Officer and NCH if appropriate."
+    }
+  },
+  {
+    "case_id": "CC-008",
+    "complaint_text": "Maine aapke showroom se 14 November ko ₹8,999 ka induction cooktop liya tha. 2 din baad hi switch kaam karna band ho gaya. Store wale bol rahe hain service centre le jao, par itna naya product defective hai. Refund ya replacement chahiye, sirf service nahi.",
+    "company_name": "KitchenKraft Retail",
+    "sector": "Retail / Consumer Appliances",
+    "order_details": {
+      "purchase_channel": "Offline physical retail store",
+      "order_id": "KK-FX-22018",
+      "order_date": "2026-11-14",
+      "amount_inr": 8999,
+      "issue": "Induction cooktop failed within two days of purchase"
+    },
+    "company_reply_email": "Sir, aap store pe product leke aa jaiye. Hum service centre ko dikha denge. Refund ka decision service centre ki report ke baad hi ho sakta hai. Abhi hum direct refund confirm nahi kar sakte. Aap tension mat lijiye, dekh lenge.",
+    "ground_truth": {
+      "correct_recipient_role": "Store Manager / Retailer's Customer Complaint Officer",
+      "e_commerce_rules_2020_apply": false,
+      "reply_type": "deflection",
+      "resolved": false,
+      "safest_next_action": "Visit or write to the store manager with the invoice and defect evidence, request a written inspection report and specific remedy, and preserve all communications. If unresolved, lodge a complaint with NCH or the appropriate consumer commission."
+    }
+  },
+  {
+    "case_id": "CC-009",
+    "complaint_text": "I bought a ₹2,799 Bluetooth speaker from an online marketplace. It arrived but the box had no speaker, only packing material. Seller is saying the parcel was sealed. Platform wants me to submit an unboxing video, which I don't have. I do have photos taken immediately after opening and a delivery weight screenshot.",
+    "company_name": "CartCove",
+    "sector": "E-commerce Marketplace",
+    "order_details": {
+      "purchase_channel": "Online marketplace",
+      "order_id": "CC-FX-67591",
+      "order_date": "2026-11-16",
+      "amount_inr": 2799,
+      "issue": "Empty package delivered; unboxing video unavailable"
+    },
+    "company_reply_email": "Dear Customer, please upload the unboxing video, parcel photographs, and any other supporting evidence to help us investigate the complaint. If an unboxing video is unavailable, kindly submit the available evidence and explain the circumstances. Our team will review the case.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer of the marketplace",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "evidence_request",
+      "resolved": false,
+      "safest_next_action": "Submit the available photos, package label, delivery-weight evidence, and a concise written statement that no unboxing video exists. Request that the investigation proceed using available evidence and escalate if the complaint is closed solely for lack of video."
+    }
+  },
+  {
+    "case_id": "CC-010",
+    "complaint_text": "I ordered groceries online for ₹1,560, but two items were missing and one item was expired. I raised a complaint immediately. The reply I received looks like a bot message and doesn't address the issue at all.",
+    "company_name": "FreshFlick",
+    "sector": "Online Grocery / E-commerce",
+    "order_details": {
+      "purchase_channel": "Online grocery app",
+      "order_id": "FF-FX-31985",
+      "order_date": "2026-11-20",
+      "amount_inr": 1560,
+      "issue": "Two missing items and one expired item"
+    },
+    "company_reply_email": "Thank you for contacting FreshFlick Support. This is an automated acknowledgment confirming receipt of your request. Your ticket number is FF-TKT-FX-00421. Please do not reply to this automated message. Our team may contact you if additional information is required.",
+    "ground_truth": {
+      "correct_recipient_role": "Grievance Officer",
+      "e_commerce_rules_2020_apply": true,
+      "reply_type": "acknowledgment",
+      "resolved": false,
+      "safest_next_action": "Keep the ticket number, invoice, photos of the expired item, and order details. Follow up through the grievance channel requesting refund or replacement for missing and expired items, and escalate to NCH if unresolved."
+    }
+  }
+]
