@@ -44,13 +44,11 @@ def promise_from_reply(text: str, extracted_date: str | None, received_at: datet
 
 
 def unquoted_reply(text: str) -> str:
-    lines = []
-    for line in text.splitlines():
-        if re.match(r'^\s*On\s+.+\bwrote:\s*$', line, re.I):
-            break
-        if not line.lstrip().startswith('>'):
-            lines.append(line)
-    return "\n".join(lines)
+    # Gmail may wrap the "On ... wrote:" separator across multiple lines.
+    separator = re.search(r'(?im)^\s*On [^\n]*(?:\n(?!\s*>)[^\n]*){0,3}?\bwrote:\s*$', text)
+    if separator:
+        text = text[:separator.start()]
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith('>'))
 
 
 def promise_is_real(promise: dict, messages: list) -> bool:

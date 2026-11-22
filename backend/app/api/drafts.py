@@ -282,7 +282,7 @@ def case_board(case_id: str, request: Request) -> dict:
         from ..engine.send_guard import guard
         blocked,next_allowed=guard(case,messages,timestamp,config,bool(company and company.get('demo')))
         public_block=False
-        from ..engine.promises import promise_status_text, promise_is_real
+        from ..engine.promises import promise_status_text, promise_is_real, unquoted_reply
         pending_promise=next((d for d in deadlines_ if d.kind=='promise' and d.status=='running'),None)
         promise_text=promise_status_text(case.facts_json.get('promise'),messages,case.demand,pending_promise.due_at.date().isoformat() if pending_promise else None)
         old_promise=case.facts_json.get('promise')
@@ -294,7 +294,14 @@ def case_board(case_id: str, request: Request) -> dict:
             elif invalid_promise and event.type=='decision' and event.reason and event.reason.startswith('Waiting for the promised date ' + old_promise['promised_date']):
                 data['reason']=promise_text
             return data
-        return {'promise_status_text':promise_text, 'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[event_for_board(e) for e in events], 'messages':[m.model_dump(mode='json') for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':(config.user_email or None) if is_admin(request) else None,'recipient':contact,'sector_message':sector_message(company,case.facts_json),'followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
+        def message_for_board(message):
+            data=message.model_dump(mode='json')
+            if message.direction=='in':
+                analysis=dict(data.get('classification_json') or {})
+                analysis['evidence_quotes']=[q for q in analysis.get('evidence_quotes',[]) if q and q in unquoted_reply(message.body_text)]
+                data['classification_json']=analysis
+            return data
+        return {'promise_status_text':promise_text, 'evidence':[{'id':e.id,'kind':e.kind,'transcript':e.transcript,'url':f'/api/cases/{case_id}/evidence/{e.id}/file' if e.path else None} for e in evidence], 'case':case.model_dump(mode='json'),'events':[event_for_board(e) for e in events], 'messages':[message_for_board(m) for m in messages], 'deadlines':[d.model_dump(mode='json') for d in deadlines_], 'now':timestamp.isoformat(), 'sender':(config.user_email or None) if is_admin(request) else None,'recipient':contact,'sector_message':sector_message(company,case.facts_json),'followups':{'count':max(0,len(level_sent)-1),'limit':limit,'next_allowed_at':next_allowed.isoformat() if next_allowed else None,'blocked_reason':blocked if not next_allowed else None},'sending_disabled':public_block}
 
 class OfferResponse(BaseModel):
     action: Literal['accept','counter']

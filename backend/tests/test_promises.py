@@ -157,3 +157,26 @@ def test_dated_replacement_promise_uses_case_remedy():
     promise={'promised_date':'2026-11-27','quote':parsed.quote}
     reply=Message(case_id='c',direction='in',body_text=body,classification_json={'promised_action':'replace the item'},sent_at=now)
     assert promise_status_text(promise,[reply],'replacement') == 'Waiting on their promise: replacement by 2026-11-27'
+
+
+def test_quoted_complaint_cannot_supply_promise_or_forensics(monkeypatch):
+    import asyncio
+    import json
+    from backend.app.ai import classify_reply as classifier
+    from backend.app.ai.classify_reply import ReplyAnalysis
+    body=('Forwarded to team.\n\nOn Sun, 22 Nov 2026 at 10:47, Customer\n'
+          'wrote:\n> Please provide an update within 24-48 hours.\n')
+    received=[]
+    async def fake_call(*args):
+        received.append(json.loads(args[-1])['email'])
+        return ReplyAnalysis(reply_type='acknowledgment',acknowledged=True,original_remedy=None,
+            promised_action='Forwarded to team',refund_confirmed=False,offered_amount_inr=None,
+            resolution_status='unresolved',evidence_quotes=['Please provide an update within 24-48 hours.'],
+            next_action='Wait',reason='Forwarded',promised_date='2026-11-24')
+    monkeypatch.setattr(classifier,'call_structured',fake_call)
+    result=asyncio.run(classifier.classify_reply(body,1099,'replacement'))
+    assert received==['Forwarded to team.']
+    assert result.promised_date is None
+    assert not result.evidence_quotes
+    assert result.invalid_evidence_quotes==['Please provide an update within 24-48 hours.']
+    assert promise_from_reply(body,result.promised_date,datetime(2026,11,22,tzinfo=timezone.utc),None) is None
