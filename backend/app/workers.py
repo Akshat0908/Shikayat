@@ -55,7 +55,14 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
     company=next((c for c in load_companies() if c['id']==case.company_id),None)
     decision=decide(case.level.value,analysis.category if analysis else 'acknowledged',deflections,breached,analysis.offered_amount_inr if analysis else None,case.amount_inr,bool(case.facts_json.get('missing_info')),sector=effective_sector(company,case.facts_json),followups=followups,followup_limit=limit,redress_breached=redress_breached,bounced=bool(case.facts_json.get('recipient_bounced')),outbound_count=outbound,outbound_limit=config.max_outbound_per_case,needs_refund_proof=bool(analysis and analysis.needs_refund_proof),chargeback_pending=bool(case.facts_json.get('chargeback_pending')))
     promise=case.facts_json.get('promise')
-    if promise and decision.action in ('wait','followup','escalate','confirm_receipt') and not redress_breached and not breached:
+    from .engine.promises import promise_is_real
+    genuine_promise=bool(promise and promise_is_real(promise,messages))
+    if promise and not genuine_promise and decision.action in ('wait','followup','escalate') and not redress_breached and not breached:
+        if promise_expired:
+            decision=Decision('followup',case.level.value,'No date was given by the company; the scheduled check-back is due.')
+        elif clock < datetime.fromisoformat(promise['grace_until']):
+            decision=Decision('wait',case.level.value,'No date was given by the company; a check-back is scheduled.',False)
+    if genuine_promise and decision.action in ('wait','followup','escalate','confirm_receipt') and not redress_breached and not breached:
         grace=datetime.fromisoformat(promise['grace_until'])
         if promise.get('exceeds_redress') and not promise.get('pushback_sent') and not (analysis and analysis.refund_confirmed):
             decision=Decision('followup',case.level.value,f"Promise exceeds the redressal deadline {promise['redress_date']}: {promise['quote']}")
@@ -75,7 +82,7 @@ async def act(app, case_id: str, analysis: ReplyAnalysis | None = None, breached
             from .ai.draft_complaint import EmailDraft
             draft=EmailDraft(subject='Consumer complaint',body=f"Issue: {case.facts_json.get('issue_summary_en') or case.title}\nRequested remedy: {case.demand or 'Needs user review'}\nPlease review the case evidence and correspondence.",cited_refs=[],attachments=[],demand=case.demand or '',deadline_date=deadline)
         draft=prepare_email(draft,case.facts_json,profile,company);validate_draft(draft,deadline)
-        if promise and decision.action=='followup' and (promise_expired or promise.get('exceeds_redress')):
+        if genuine_promise and decision.action=='followup' and (promise_expired or promise.get('exceeds_redress')):
             note=f"Your reply stated: “{promise['quote']}” (promised date: {promise['promised_date']})."
             if promise.get('exceeds_redress'):
                 note+=f" Please address this by the redressal deadline of {promise['redress_date']}."

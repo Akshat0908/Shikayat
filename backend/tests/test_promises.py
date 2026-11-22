@@ -134,3 +134,26 @@ def test_all_promise_branches_use_demo_clock(tmp_path,monkeypatch):
         assert promise_from_reply('We will refund soon.',None,current,redress) is None
         settings=session.get(DbSettings,1);settings.demo_clock_offset_seconds=7*86400;session.add(settings);session.commit()
         assert clock.now(session)>within.grace_until
+
+
+def test_acknowledgment_quoted_history_is_not_a_company_promise():
+    from backend.app.engine.promises import promise_status_text
+    from backend.app.models import Message
+    now=datetime(2026,11,22,tzinfo=timezone.utc)
+    body='Your concern has been forwarded.\n\n> Within 5 days of delivery, the item broke.'
+    assert promise_from_reply(body,None,now,None) is None
+    old={'promised_date':'2026-11-27','quote':'> Within 5 days of delivery, the item broke.'}
+    reply=Message(case_id='c',direction='in',body_text=body,classification_json={'promised_action':'forwarded'},sent_at=now)
+    assert promise_status_text(old,[reply],'replacement','2026-11-28') == 'No date given by the company. Shikayat will follow up on 2026-11-28 if nothing changes.'
+
+
+def test_dated_replacement_promise_uses_case_remedy():
+    from backend.app.engine.promises import promise_status_text
+    from backend.app.models import Message
+    now=datetime(2026,11,22,tzinfo=timezone.utc)
+    body='We will replace the item by 2026-11-27.'
+    parsed=promise_from_reply(body,'2026-11-27',now,None)
+    assert parsed is not None
+    promise={'promised_date':'2026-11-27','quote':parsed.quote}
+    reply=Message(case_id='c',direction='in',body_text=body,classification_json={'promised_action':'replace the item'},sent_at=now)
+    assert promise_status_text(promise,[reply],'replacement') == 'Waiting on their promise: replacement by 2026-11-27'

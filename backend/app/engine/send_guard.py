@@ -24,7 +24,9 @@ def guard(case: Case, messages: list[Message], current: datetime, config: Settin
         if until:
             due=datetime.fromisoformat(until)
             if due.tzinfo is None: due=due.replace(tzinfo=timezone.utc)
-            if current<due: return 'Waiting for the company promise or redressal deadline.',due
+            if current<due:
+                from .promises import promise_is_real
+                return ('Waiting for the company promise or redressal deadline.' if promise_is_real(promise,messages) else 'Waiting for the scheduled check-back.'),due
     outbound=[m for m in messages if m.direction=='out']
     if len(outbound)>=config.max_outbound_per_case: return 'Outbound email limit reached.', None
     level_messages=[m for m in outbound if m.level==case.level]
