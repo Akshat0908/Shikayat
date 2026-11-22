@@ -13,3 +13,7 @@ var/
 .cache/
 .DS_Store
 *.pem
+
+# Recorded demo media
+demo/*.mp4
+demo/*.webm

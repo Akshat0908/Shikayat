@@ -8,6 +8,7 @@ git archive HEAD | tar -xf - -C "$tmp_dir/tree"
 # Include the complete presentation artifacts, including untracked files if present.
 if [[ -d deck ]]; then mkdir -p "$tmp_dir/tree/deck"; cp -R deck/. "$tmp_dir/tree/deck/"; fi
 if [[ -f VIDEO.md ]]; then cp VIDEO.md "$tmp_dir/tree/VIDEO.md"; fi
+if [[ -f demo/Shikayat-demo.mp4 ]]; then mkdir -p "$tmp_dir/tree/demo"; cp demo/Shikayat-demo.mp4 "$tmp_dir/tree/demo/Shikayat-demo.mp4"; fi
 python3 - "$tmp_dir/tree" "$tmp_dir/submission.zip" <<'PY'
 import re
 import shlex

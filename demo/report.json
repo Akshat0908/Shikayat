@@ -1,0 +1,15 @@
+{
+  "2 screenshot and extraction": "PASS: live case created; original recorder confirmation timed out",
+  "3 real sandbox preview": "SKIPPED: onboarding dialog blocked the action on both attempts; no email was sent",
+  "4 real auto-reply": "SKIPPED: no preview was sent",
+  "5 simulated partial offer": "SKIPPED: deployed controls do not support custom Leaf replies",
+  "6 simulated dated promise": "SKIPPED: deployed controls do not support custom Leaf replies",
+  "7 simulated clock and draft": "SKIPPED: no dated promise",
+  "8 measured proof": "PASS",
+  "10 post-recording reset": "PASS",
+  "duration_seconds": 121.44,
+  "size_bytes": 1292076,
+  "1 initial sandbox reset": "PASS",
+  "9 end card": "PASS",
+  "editing": "Combined opening and continuation; shortened idle waits and slowed playback to fit the requested runtime."
+}

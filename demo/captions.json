@@ -1,0 +1,14 @@
+{
+  "title": "Shikayat — your AI consumer advocate.",
+  "reset": "Start with a clean sandbox before the demonstration.",
+  "input": "One screenshot and one line in Hinglish.",
+  "facts": "Shikayat extracts the facts, assesses the case and suggests a complaint route.",
+  "preview": "Real users send from their own email. This goes to a test company inbox.",
+  "waiting": "Waiting for a real reply from the test company inbox.",
+  "forensics": "Forwarded to the team is not a resolution. Acknowledged ≠ Resolved.",
+  "offer": "Simulated reply: it compares the offer with what you asked for. You decide.",
+  "promise": "Simulated reply: now they have committed to a date, and Shikayat holds them to it.",
+  "missed": "Simulated time: the missed promise and the next action are shown on the case board.",
+  "proof": "Measured against a held-out set, published honestly.",
+  "end": "AI reads. Rules decide. You approve."
+}
