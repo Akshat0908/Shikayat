@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: sqlite:////app/var/shikayat.db
+      SEND_ENABLED: 'false'
+    ports:
+      - '8000:8000'
+    volumes:
+      - evaluator_data:/app/var
+volumes:
+  evaluator_data:

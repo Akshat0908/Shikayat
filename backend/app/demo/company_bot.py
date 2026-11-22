@@ -56,7 +56,10 @@ def respond(engine) -> list[Event]:
 
 
 async def company_loop(app) -> None:
-    config=get_settings()
+    config=app.state.config
+    if not (config.demo_mode and config.send_enabled and config.demo_company_email and config.demo_company_app_password.get_secret_value()):
+        import logging
+        logging.getLogger(__name__).info('Demo bot disabled: Gmail credentials or sending not configured')
     while True:
         if config.demo_mode and config.send_enabled and config.demo_company_email and config.demo_company_app_password.get_secret_value():
             try:
