@@ -11,7 +11,7 @@ from ..ai.transcribe import transcribe
 from ..config import ROOT, get_settings
 from ..engine.company import match_company, provisional_company
 from ..engine.strength import strength, rationale
-from ..models import Case, Evidence, Event
+from ..models import Case, CaseStatus, Evidence, Event, now_utc
 
 router=APIRouter(prefix='/api/cases')
 
@@ -93,10 +93,15 @@ async def _create(request: Request, text: str, images: list[UploadFile], audio: 
         case.amount_inr=facts.amount_inr
         case.demand=facts.user_demand
         case.strength_score=score;case.strength_label=label
+        from ..engine.receipt import user_confirmed_receipt
+        confirmed=bool(not replay and not images and not audio and user_confirmed_receipt(original_text,case.amount_inr))
+        if confirmed:
+            case.status=CaseStatus.RESOLVED;case.resolved_at=now_utc();case.recovered_inr=case.amount_inr or 0
         with Session(request.app.state.engine) as session:
             session.add(case);session.commit()
             session.add_all(evidence)
             session.add(Event(case_id=case.id,actor='ai',type='understood',title='Case understood',reason=reason,payload_json={'mode':mode,'replay_reason':replay_reason}))
+            if confirmed: session.add(Event(case_id=case.id,actor='user',type='resolved',title='Receipt confirmed',reason='User explicitly reported receiving the full refund in their typed input.'))
             session.commit();session.refresh(case)
         from ..ai.sample_detection import ensure_sample_scan
         await ensure_sample_scan(request.app.state.engine,case.id)

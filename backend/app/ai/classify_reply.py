@@ -24,6 +24,7 @@ class ReplyAnalysis(BaseModel):
     templated_signals: list[str] = []
     summary_hinglish: str = ''
     concrete_action: str | None = None
+    needs_refund_proof: bool = False
     category: Literal['acknowledged','deflection','info_requested','resolution_offered','partial_resolution','rejected','auto_reply'] = 'acknowledged'
 
 
@@ -39,7 +40,15 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     amount=bool(re.search(r'(?:₹|rs\.?|inr)\s*[\d,]+|[\d,]+\s*(?:rupees|inr)',lower))
     reference=bool(re.search(r'\b(?:utr|transaction|txn|reference|ref)\s*(?:id|no\.?|number|#|:|-)?\s*[:#-]?\s*[a-z0-9][a-z0-9-]{3,}',lower))
     completed=bool(re.search(r'\b(?:refund(?:ed)?|refunded)\b.{0,70}\b(?:completed|credited|successfully processed|successfully refunded)\b|\b(?:completed|credited)\b.{0,50}\brefund\b',lower))
-    result.refund_confirmed=bool(result.refund_confirmed and ((amount and reference) or completed))
+    # Explicit completed/credited statements are evidence even if the model missed them;
+    # a promised or merely initiated refund is never enough on its own.
+    negated=bool(re.search(r'\b(?:not|never|isn.t|hasn.t|haven.t|will|may|pending)\b.{0,55}\b(?:credit|process|complet|refund)',lower))
+    if completed and not negated:
+        result.refund_confirmed=True
+    else:
+        result.refund_confirmed=bool(result.refund_confirmed and amount and reference and not re.search(r'\b(?:initiat|pending|will be|may take)\w*',lower))
+    initiated=bool(re.search(r'\brefund\b.{0,65}\b(?:initiat|processing|started)\w*',lower))
+    result.needs_refund_proof=bool(initiated and not result.refund_confirmed and not reference)
     voucher=bool(re.search(r'\b(voucher|store credit|coupon|gift card)\b',lower))
     if voucher or (result.offered_amount_inr is not None and demanded is not None and result.offered_amount_inr<demanded):
         result.reply_type='partial_offer';result.resolution_status='partially_resolved';result.refund_confirmed=False
@@ -52,7 +61,14 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     has_date=bool(re.search(r'\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b|\b\d+\s*(?:working |business )?days?\b|\b(?:\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2})\b',lower))
     concrete=bool(result.concrete_action and result.concrete_action.casefold() in lower and not re.search(r'forward|concerned team|look(?:ing)? into|investigat|review|earliest',result.concrete_action.casefold()))
     vague_promise=bool(re.search(r'\b(?:will|shall|promise)\b.{0,80}\b(?:refund|resolve|credit|replace|deliver)\w*\b',lower)) and not (amount or has_date or has_reference or result.offered_amount_inr is not None)
-    if result.reply_type in ('acknowledgment','deflection'):
+    referral=bool(re.search(r'\b(?:contact|reach|speak to|call)\b.{0,70}\b(?:courier|logistics|delivery partner)\b',lower))
+    if referral and not result.refund_confirmed and not amount and not has_date:
+        result.reply_type='deflection';result.acknowledged=True
+        result.reason='The reply redirects the customer to the delivery partner without a remedy.'
+    if result.needs_refund_proof and not amount and not has_date:
+        result.reply_type='acknowledgment';result.acknowledged=True
+        result.reason='Refund initiation lacks a traceable reference; request proof.'
+    if result.reply_type in ('acknowledgment','deflection') and not referral and not result.needs_refund_proof:
         if result.acknowledged and not (amount or result.offered_amount_inr is not None or has_date or has_reference or (concrete and not vague_promise)) and response_signal and not re.search(r'\bautomat(?:ed|ic)\b',lower):
             result.reply_type='deflection';result.reason='Complaint acknowledged, but no concrete remedy, date, amount or reference was provided.'
         elif result.reply_type=='deflection':

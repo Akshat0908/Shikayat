@@ -22,3 +22,8 @@ def test_non_ecommerce_requires_review(sector):
     decision=decide('L2','deflection',deflections=2,ack_breached=True,sector=sector)
     assert decision.action=='user_review'
     assert 'Sector-specific rules not configured' in decision.reason
+
+
+def test_active_chargeback_requires_review_before_followup():
+    decision=decide('L2','deflection',chargeback_pending=True)
+    assert decision.action=='user_review' and 'bank' in decision.reason.lower()

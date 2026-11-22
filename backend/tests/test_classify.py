@@ -45,3 +45,34 @@ def test_scripted_replies_support_followup_and_escalation():
         checked=enforce_forensics(result,text,4299,'refund')
         assert checked.acknowledged and checked.reply_type=='deflection'
         assert checked.original_remedy=='Refund of ₹4,299'
+
+
+def make_analysis(kind='acknowledgment',confirmed=False,action=None):
+    return ReplyAnalysis(reply_type=kind,acknowledged=True,original_remedy=None,promised_action=None,refund_confirmed=confirmed,offered_amount_inr=None,resolution_status='unresolved',evidence_quotes=[],next_action='review',reason='test',concrete_action=action)
+
+
+def test_courier_referral_is_not_a_remedy():
+    text='Please contact the delivery partner directly about your missing parcel.'
+    result=enforce_forensics(make_analysis(action='contact the delivery partner'),text,2300,'refund')
+    assert result.reply_type=='deflection' and result.acknowledged
+
+
+def test_untraceable_initiated_refund_requests_proof():
+    text='Your refund has been initiated. Please wait for your bank to process it.'
+    result=enforce_forensics(make_analysis('substantive_resolution'),text,2300,'refund')
+    assert result.reply_type=='acknowledgment' and result.needs_refund_proof and not result.refund_confirmed
+    from backend.app.engine.policy import decide
+    assert decide('L2',result.category,needs_refund_proof=result.needs_refund_proof).action=='reply_info'
+
+
+def test_completed_refund_evidence_overrides_model_false_without_assuming_receipt():
+    text='Your refund of ₹2,300 was credited. UTR: ABCD123456.'
+    result=enforce_forensics(make_analysis('substantive_resolution'),text,2300,'refund')
+    assert result.refund_confirmed and result.reply_type=='substantive_resolution'
+    from backend.app.engine.policy import decide
+    assert decide('L2',result.category,offered=2300,demand=2300).action=='confirm_receipt'
+
+
+def test_negative_credit_is_not_confirmed():
+    text='The refund was not credited; a transaction reference is pending.'
+    assert not enforce_forensics(make_analysis('substantive_resolution',True),text,2300,'refund').refund_confirmed
