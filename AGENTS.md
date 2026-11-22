@@ -54,9 +54,9 @@ PUBLIC_DEMO=false
 
 Simulation is deliberately labelled and does **not** send a complaint or receive Gmail. The ShopKart sample's extraction may use replay; free-text uploads, reply classification and drafts call OpenAI. The owner `/admin/` panel can start simulated tracking, inject scripted or custom replies and advance the simulated clock. These tools are limited to the ShopKart sample. Never send to real companies while evaluating.
 
-## Install, build and run
+## Install, build and run — primary verified native path
 
-From the repository root, with Python 3.11 and Node installed:
+This native (non-Docker) path was verified in a fresh clone. From the repository root, with Python 3.11 and Node installed:
 
 ```sh
 python3.11 -m venv .venv
@@ -74,7 +74,7 @@ curl -s http://localhost:8000/api/health | python3 -m json.tool
 
 Expected JSON has `"status": "ok"`, a dynamic `instance_id` and `pid`, and `workers`: `inbox_poller` and `demo_bot` have `enabled: false`, `deadline_ticker` has `enabled: true`. Idle Gmail workers log that they are disabled. Ctrl-C stops the server.
 
-Optional Docker Compose alternative (run instead of the venv/server commands, with the same `.env`):
+Docker Compose is an alternative (not verified in the fresh-clone run). Run it instead of the native venv/server commands, with the same `.env`:
 
 ```sh
 docker compose -f docker-compose.evaluator.yml up --build
