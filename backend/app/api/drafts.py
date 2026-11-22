@@ -134,34 +134,81 @@ async def approve(case_id: str, request: Request) -> dict[str,str]:
     await request.app.state.events.publish('sent',{'case_id':case_id,'reason':'Approved complaint delivered to SMTP'})
     return {'message_id':message_id}
 
+def record_sandbox_send(session: Session, case: Case, company: dict | None, email: EmailDraft, message_id: str, sent_at, config) -> None:
+    from ..mail.tracking import tracked_subject, plus_address
+    existing=session.exec(select(Message).where(Message.message_id==message_id,Message.direction=='out')).first()
+    if existing: return
+    name=' '.join(str((company or {}).get('name') or case.facts_json.get('company_name') or 'unknown company').split())[:100]
+    subject=tracked_subject(f'[TEST — would go to {name}] {email.subject}',case.id)
+    session.add(Message(case_id=case.id,direction='out',level=case.level,to=config.demo_company_email,from_=config.user_email,subject=subject,body_text=email.body,message_id=message_id,sent_at=sent_at))
+    if effective_sector(company,case.facts_json)=='e-commerce':
+        for kind,due in deadlines(sent_at).items(): session.add(Deadline(case_id=case.id,kind=kind,due_at=due))
+    case.facts_json={**case.facts_json,'sandbox_test':True,'owner_controlled':False}
+    case.status=CaseStatus.WAITING;session.add(case)
+    session.add(Event(case_id=case.id,actor='user',type='sent',title='Sent (sandbox test)',reason='Real test email sent only to the sandbox inbox; deadlines are test tracking.',payload_json={'message_id':message_id,'sandbox_test':True,'tracking_address':plus_address(config.user_email,case.id)}))
+    session.commit()
+
+
 @router.post('/{case_id}/test-send',dependencies=[Depends(require_admin)])
 async def test_send(case_id: str, request: Request) -> dict:
-    """Send an explicitly labelled preview only to the configured demo mailbox."""
+    """Send a labelled test only to the sandbox and track its reply."""
     from ..ai.sample_detection import ensure_sample_scan
+    from ..workers import _send_lock
+    from datetime import datetime, timezone
     await ensure_sample_scan(request.app.state.engine,case_id)
-    with Session(request.app.state.engine) as session:
-        case=session.get(Case,case_id)
-        if not case: raise HTTPException(404,'Case not found')
-        if case.facts_json.get('paused'): raise HTTPException(409,'Case is paused')
-        if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Create a draft first')
-        company=next((c for c in load_companies() if c['id']==case.company_id),None)
-        contact=(company or {}).get('nodal_officer' if case.level.value=='L3' else 'grievance_officer') or {}
-        if not case.facts_json.get('looks_like_sample') and contact.get('verified') and contact.get('email'):
-            raise HTTPException(409,'Test send is available for sample or unverified cases')
-        event=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
-        if not event: raise HTTPException(409,'Create a draft first')
-        email=EmailDraft.model_validate(event.payload_json)
-        name=' '.join(str((company or {}).get('name') or case.facts_json.get('company_name') or 'unknown company').split())[:100]
-        config=request.app.state.config
-        if not config.demo_company_email: raise HTTPException(422,'Demo inbox is not configured')
-    subject=f'[TEST — would go to {name}] {email.subject}'
-    try:
-        message_id=await send_email({'email':config.demo_company_email,'verified':True},subject,email.body,True,True,case_id=case_id)
-    except ValueError as error: raise HTTPException(422,str(error)) from error
-    with Session(request.app.state.engine) as session:
-        session.add(Event(case_id=case_id,actor='user',type='test_send',title='Test email sent to demo inbox',reason='Explicit test send; no company was contacted and no deadlines were started.',payload_json={'message_id':message_id,'simulated':True}));session.commit()
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id)
+            if not case: raise HTTPException(404,'Case not found')
+            if case.facts_json.get('paused'): raise HTTPException(409,'Case is paused')
+            if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Create a draft first')
+            company=next((c for c in load_companies() if c['id']==case.company_id),None)
+            contact=(company or {}).get('nodal_officer' if case.level.value=='L3' else 'grievance_officer') or {}
+            if not case.facts_json.get('looks_like_sample') and contact.get('verified') and contact.get('email'):
+                raise HTTPException(409,'Test send is available for sample or unverified cases')
+            event=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft').order_by(Event.at.desc())).first()
+            if not event: raise HTTPException(409,'Create a draft first')
+            email=EmailDraft.model_validate(event.payload_json)
+            name=' '.join(str((company or {}).get('name') or case.facts_json.get('company_name') or 'unknown company').split())[:100]
+            config=request.app.state.config
+            if not config.demo_company_email: raise HTTPException(422,'Demo inbox is not configured')
+        subject=f'[TEST — would go to {name}] {email.subject}'
+        sent_at=datetime.now(timezone.utc)
+        try: message_id=await send_email({'email':config.demo_company_email,'verified':True},subject,email.body,True,True,case_id=case_id)
+        except ValueError as error: raise HTTPException(422,str(error)) from error
+        with Session(request.app.state.engine) as session:
+            current=session.get(Case,case_id)
+            if not current: raise HTTPException(404,'Case not found')
+            session.add(Event(case_id=case_id,actor='user',type='test_send',title='Test email sent to sandbox',reason='Real test email; no company contacted.',payload_json={'message_id':message_id,'sandbox_test':True}))
+            record_sandbox_send(session,current,company,email,message_id,sent_at,config)
+    from ..mail.threading_gmail import schedule_sent_lookup
+    schedule_sent_lookup(request.app.state.engine,message_id)
     await request.app.state.events.publish('case_changed',{'case_id':case_id})
-    return {'status':'test_sent','recipient':'demo inbox','message_id':message_id}
+    return {'status':'test_sent','recipient':'sandbox','message_id':message_id}
+
+
+@router.post('/{case_id}/recover-preview',dependencies=[Depends(require_admin)])
+async def recover_preview(case_id: str, request: Request) -> dict:
+    """Recover a previously sent preview by its recorded Message-ID; never resend it."""
+    from ..workers import _send_lock
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id)
+            if not case: raise HTTPException(404,'Case not found')
+            event=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='test_send').order_by(Event.at.desc())).first()
+            if not event or not event.payload_json.get('message_id'): raise HTTPException(404,'No recorded preview found')
+            mid=event.payload_json['message_id']
+            existing=session.exec(select(Message).where(Message.message_id==mid,Message.direction=='out')).first()
+            if not existing:
+                if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Case is not awaiting approval')
+                draft=session.exec(select(Event).where(Event.case_id==case_id,Event.type=='draft',Event.at<=event.at).order_by(Event.at.desc())).first()
+                if not draft: raise HTTPException(409,'Original preview draft not found')
+                company=next((c for c in load_companies() if c['id']==case.company_id),None)
+                record_sandbox_send(session,case,company,EmailDraft.model_validate(draft.payload_json),mid,event.at,request.app.state.config)
+    from ..mail.threading_gmail import schedule_sent_lookup
+    schedule_sent_lookup(request.app.state.engine,mid)
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'tracking_restored'}
 
 @router.post('/{case_id}/confirm-recipient')
 async def confirm_recipient(case_id: str, request: Request) -> dict:

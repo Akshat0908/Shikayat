@@ -30,11 +30,17 @@ def queries(case: Case, sent: list[Message], company: dict, user_email: str, dem
     domains=verified_domains(company,demo_address)
     earliest=min(m.sent_at for m in sent)
     after=int(earliest.timestamp())
-    senders=[demo_address] if company.get('demo') and demo_address else domains
+    senders=[demo_address] if (company.get('demo') or case.facts_json.get('sandbox_test')) and demo_address else domains
     for sender in senders:
         if sender and all(c.isalnum() or c in '@.-_' for c in sender):
             result.append(f'X-GM-RAW "in:anywhere from:{sender} after:{after}"')
     return list(dict.fromkeys(result))
+
+
+def sandbox_authentication(headers: list[str], sender: str, address: str) -> tuple[bool,str]:
+    if not address or sender.casefold()!=address.casefold():
+        return False,'Sender does not match the configured sandbox address.'
+    return sender_authentication(headers,sender,verified_domains({'demo':True},address))
 
 
 def apply_label(box, mail) -> bool:
@@ -82,7 +88,8 @@ def poll(engine) -> list[dict]:
     found=[];candidates={};examined=set();query_cache={}
     ranks={'thread_id':0,'in_reply_to':1,'plus_address':2,'case_tag':3,'ticket_id':4,'order_id':5,'domain_only':6}
     for case,sent,company,criteria in work:
-        domains=verified_domains(company,config.demo_company_email)
+        sandbox=bool(case.facts_json.get('sandbox_test'))
+        domains=verified_domains({'demo':True} if sandbox else company,config.demo_company_email)
         for query in criteria:
             if query not in query_cache:
                 fetched=[]
@@ -118,15 +125,15 @@ def poll(engine) -> list[dict]:
                 if not match or (bounce and match not in ('thread_id','in_reply_to')):
                     log_decision(case.id,mid,match,'skipped','no case match' if not match else 'bounce lacks strong thread match');continue
                 log_decision(case.id,mid,match,'candidate','matched; checking sender and ambiguity')
-                if company.get('demo') and sender!=config.demo_company_email.casefold() and not bounce:
-                    verified,detail=False,'Sender does not match the configured demo address.'
+                if (company.get('demo') or sandbox) and not bounce:
+                    verified,detail=sandbox_authentication(list(headers.get('authentication-results',())),sender,config.demo_company_email)
                 else: verified,detail=sender_authentication(list(headers.get('authentication-results',())),sender,domains)
                 if bounce: verified=False;detail='Delivery status notification needs user confirmation.'
                 from .threading_gmail import extract_message_ids
                 in_reply_to=next(iter(extract_message_ids(headers.get('in-reply-to',()))),None)
                 references=extract_message_ids(headers.get('references',()))
                 source=next((m for m in sent if m.message_id==in_reply_to),None)
-                data=dict(folder=folder,case_id=case.id,message_id=mid,sender=sender,subject=mail.subject,body=mail.text or '',in_reply_to=in_reply_to,references=references,gmail_thread_id=thread_id,reply_level=source.level.value if source else None,bounced=bounce,match_method=match,sender_verified=verified,verification_detail=detail,needs_confirmation=match=='domain_only' or not verified,uid=str(mail.uid))
+                data=dict(folder=folder,case_id=case.id,message_id=mid,sender=sender,subject=mail.subject,body=mail.text or '',in_reply_to=in_reply_to,references=references,gmail_thread_id=thread_id,reply_level=source.level.value if source else None,bounced=bounce,match_method=match,sender_verified=verified,verification_detail=detail,needs_confirmation=match=='domain_only' or not verified,uid=str(mail.uid),sandbox_test=sandbox)
                 previous=candidates.get(mid);rank=ranks[match]
                 if previous is None or rank<previous[0]: candidates[mid]=(rank,[data])
                 elif rank==previous[0]: previous[1].append(data)

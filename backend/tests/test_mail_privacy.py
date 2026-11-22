@@ -146,3 +146,20 @@ def test_plus_match_returns_before_slow_header_search(tmp_path,monkeypatch):
     monkeypatch.setattr(imap_poll,'label_confirmed',lambda *args:True)
     result=imap_poll.poll(engine)
     assert len(calls)==1 and result[0]['sender_verified'] and result[0]['label_applied']
+
+
+def test_sandbox_case_queries_exact_test_sender_and_plus_address():
+    case=Case(title='Test',facts_json={'sandbox_test':True});company={'verified_domains':['merchant.example']}
+    sent=Message(case_id=case.id,direction='out',to='sandbox@gmail.com',from_='user@gmail.com',subject='s',body_text='b',message_id='<abc>')
+    queries_=queries(case,[sent],company,'user@gmail.com','sandbox@gmail.com')
+    assert any('from:sandbox@gmail.com' in q for q in queries_)
+    assert any(plus_address('user@gmail.com',case.id) in q for q in queries_)
+    assert not any('from:merchant.example' in q for q in queries_)
+
+
+def test_sandbox_authentication_requires_exact_sender_and_gmail_pass():
+    from backend.app.mail.imap_poll import sandbox_authentication
+    headers=['mx.google.com; dkim=pass header.d=gmail.com']
+    assert sandbox_authentication(headers,'sandbox@gmail.com','sandbox@gmail.com')[0]
+    assert not sandbox_authentication(headers,'other@gmail.com','sandbox@gmail.com')[0]
+    assert not sandbox_authentication(['mx.google.com; dkim=fail header.d=gmail.com'],'sandbox@gmail.com','sandbox@gmail.com')[0]

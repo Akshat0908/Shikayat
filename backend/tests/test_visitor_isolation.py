@@ -108,3 +108,21 @@ def test_sse_stream_drops_other_visitors_events(tmp_path):
             assert aid in result and bid not in result and 'private' not in result
             await stream.aclose()
         asyncio.run(exercise())
+
+
+def test_authorized_screenshot_has_browser_content_type(tmp_path):
+    app=create_app(Settings(database_url=f'sqlite:///{tmp_path}/db',admin_passcode='owner-secret'))
+    with TestClient(app,base_url='https://testserver') as client:
+        client.get('/api/session');visitor=client.cookies.get(COOKIE)
+        image=tmp_path/'upload.image';image.write_bytes(b'\x89PNG\r\n\x1a\nfixture')
+        with Session(app.state.engine) as db:
+            case=Case(title='Screenshot',owner_id=visitor);db.add(case);db.commit();cid=case.id
+            evidence=Evidence(case_id=cid,kind='screenshot',path=str(image));db.add(evidence);db.commit();eid=evidence.id
+        url=f'/api/cases/{cid}/evidence/{eid}/file'
+        response=client.get(url);assert response.status_code==200 and response.headers['content-type']=='image/png'
+        assert client.get(url,headers={'cookie':f'{COOKIE}={uuid4()}'}).status_code==404
+        client.post('/api/admin/login',json={'passcode':'owner-secret'})
+        assert client.get(url).status_code==404
+        with Session(app.state.engine) as db:
+            case=db.get(Case,cid);case.owner_id='owner';db.add(case);db.commit()
+        assert client.get(url).headers['content-type']=='image/png'

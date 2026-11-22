@@ -67,7 +67,30 @@ async def preview_compose(case_id: str,request: Request) -> dict:
         name=' '.join(str((company or {}).get('name') or case.facts_json.get('company_name') or 'unknown company').split())[:100]
         tracking=plus_address(config.user_email,case_id)
         subject=tracked_subject(f'[TEST — would go to {name}] {email.subject}',case_id)
-        return {**compose_urls(config.demo_company_email,subject,email.body,tracking),'tracking_address':tracking,'note':'This preview is addressed to the sandbox merchant. It does not contact the company, start tracking, or trigger an automatic reply.'}
+        return {**compose_urls(config.demo_company_email,subject,email.body,tracking),'tracking_address':tracking,'note':'Send this labelled preview to the sandbox, then confirm below to start test tracking. Ask for a reply-all so the tracking address stays copied.'}
+
+@router.post('/{case_id}/preview-sent')
+async def preview_sent(case_id: str,request: Request) -> dict:
+    """Track a user-confirmed manual sandbox send; its external Message-ID is unavailable."""
+    from urllib.parse import parse_qs,urlparse
+    from ..workers import _send_lock
+    payload=await preview_compose(case_id,request)
+    fields=parse_qs(urlparse(payload['mailto']).query)
+    async with _send_lock:
+        with Session(request.app.state.engine) as session:
+            case=session.get(Case,case_id)
+            if not case: raise HTTPException(404,'Case not found')
+            if case.status!=CaseStatus.AWAITING_APPROVAL: raise HTTPException(409,'Case is not awaiting approval')
+            config=request.app.state.config
+            timestamp=datetime.now(timezone.utc)
+            company=next((c for c in load_companies() if c['id']==case.company_id),None)
+            session.add(Message(case_id=case_id,direction='out',level=case.level,to=config.demo_company_email,from_='User’s email app',subject=fields['subject'][0],body_text=fields['body'][0],message_id=None,sent_at=timestamp))
+            if effective_sector(company,case.facts_json)=='e-commerce':
+                for kind,due in deadlines(timestamp).items(): session.add(Deadline(case_id=case_id,kind=kind,due_at=due))
+            case.facts_json={**case.facts_json,'sandbox_test':True,'owner_controlled':False};case.status=CaseStatus.WAITING;session.add(case)
+            session.add(Event(case_id=case_id,actor='user',type='sent',title='Sent (sandbox test)',reason='User confirmed sending a labelled preview from their email app; the external Message-ID is not available.',payload_json={'manual':True,'sandbox_test':True,'tracking_address':payload['tracking_address']}));session.commit()
+    await request.app.state.events.publish('case_changed',{'case_id':case_id})
+    return {'status':'sandbox_tracking_started'}
 
 @router.post('/{case_id}/manual-compose')
 async def manual_compose(case_id: str,request: Request) -> dict:

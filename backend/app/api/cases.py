@@ -156,4 +156,11 @@ def evidence_file(case_id: str,evidence_id: str,request: Request):
         item=session.get(Evidence,evidence_id)
         if not item or item.case_id!=case_id or item.kind not in ('screenshot','voice') or not item.path or not Path(item.path).is_file():
             raise HTTPException(404,'Evidence file not found')
-        return FileResponse(item.path)
+        media_type=None
+        if item.kind=='screenshot':
+            with open(item.path,'rb') as image: header=image.read(12)
+            if header.startswith(b'\x89PNG\r\n\x1a\n'): media_type='image/png'
+            elif header.startswith(b'\xff\xd8\xff'): media_type='image/jpeg'
+            elif header.startswith(b'RIFF') and header[8:12]==b'WEBP': media_type='image/webp'
+            else: raise HTTPException(404,'Evidence file not found')
+        return FileResponse(item.path,media_type=media_type,headers={'X-Content-Type-Options':'nosniff'})
