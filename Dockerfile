@@ -14,6 +14,7 @@ COPY backend/ backend/
 COPY data/ data/
 COPY eval/results/ eval/results/
 COPY eval/heldout/ eval/heldout/
+COPY eval/heldout_v2/ eval/heldout_v2/
 COPY --from=frontend /build/frontend/out frontend/out
 RUN useradd --create-home appuser && mkdir -p /app/var && chown -R appuser:appuser /app/var /app/data
 USER appuser

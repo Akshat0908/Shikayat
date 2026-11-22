@@ -68,3 +68,15 @@ def latest_heldout() -> dict:
     if data.get('data_source')!='measured' or data.get('case_count')!=10 or len(data.get('cases',[]))!=10:
         raise HTTPException(404,'Held-out evaluation incomplete')
     return data
+
+
+@router.get('/heldout-v2/latest')
+def latest_heldout_v2() -> dict:
+    import json
+    from fastapi import HTTPException
+    path=ROOT/'eval'/'heldout_v2'/'result.json'
+    if not path.is_file(): raise HTTPException(404,'Held-out v2 evaluation pending')
+    data=json.loads(path.read_text())
+    if data.get('data_source')!='measured' or data.get('case_count')!=10 or len(data.get('cases',[]))!=10:
+        raise HTTPException(404,'Held-out v2 evaluation incomplete')
+    return data
