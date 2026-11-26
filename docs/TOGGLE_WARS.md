@@ -38,6 +38,12 @@ node frontend/scripts/simulate-flagsmith.mjs --ack-synthetic
 
 The script creates 40 random synthetic identities by default (set `FLAGSMITH_SYNTHETIC_COUNT` to 1–200), uses Flagsmith’s official Node SDK to record exposures, and queues `case_started` with a 40% probability in **both** arms. Metadata and identifier prefix identify the traffic as synthetic. It flushes events on close. Queued counts are not proof of delivery; check the Flagsmith dashboard. Results from this deliberately modelled traffic do not support a claim that either design works better. The script requires an explicit acknowledgement, requires a primary `FLAGSMITH_ENVIRONMENT_ID` in the shell or project `.env`, and refuses to run when its test key equals that primary key. Distinct keys do not by themselves prove the environments are separate; verify the test environment in Flagsmith first.
 
+## Recorded synthetic wiring check (26 November 2026)
+
+A separate, explicitly synthetic Flagsmith experiment enrolled 100 scripted identities. The Flagsmith dashboard reported control **17/52 (32.7%)** and guided **16/48 (33.3%)** case starts, with a “collecting data” status. Both arms were generated with the same 40% probability. These are generated test observations, not real customer outcomes, and no winner is claimed. [Open the synthetic dashboard](https://app.flagsmith.com/project/56571/environment/4WAeDJFxNvKzMN9F5rjFLc/experiments/684) (owner sign-in required). The snapshot is in `data/flagsmith_synthetic_results.json`.
+
+The separate Development visitor experiment was started on 26 November. One identity named as synthetic diagnostics was evaluated through `getExperimentFlag` during setup; an exposure was attempted in that environment and must be treated as test traffic if it appears in results. The app had not yet been deployed with the experiment at the time of this snapshot.
+
 ## Demo checklist
 
 1. Show the real `/experiment/` page and explain the question, control, guided variant and opt-in privacy boundary.

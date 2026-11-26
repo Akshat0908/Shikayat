@@ -16,3 +16,12 @@ def test_unconfigured_experiment_has_no_keys(tmp_path):
     config=Settings(database_url=f'sqlite:///{tmp_path}/empty.db',flagsmith_environment_id='',flagsmith_api_url='',flagsmith_events_url='')
     with TestClient(create_app(config),base_url='https://testserver') as client:
         assert client.get('/api/experiment/config').json()=={'environment_id':'','api_url':None,'events_url':None}
+
+
+def test_experiment_results_are_explicitly_synthetic(tmp_path):
+    config=Settings(database_url=f'sqlite:///{tmp_path}/snapshot.db',flagsmith_environment_id='')
+    with TestClient(create_app(config),base_url='https://testserver') as client:
+        result=client.get('/api/experiment/synthetic-results').json()
+        assert result['data_source']=='synthetic'
+        assert sum(arm['exposures'] for arm in result['arms'])==100
+        assert sum(arm['case_starts'] for arm in result['arms'])==33

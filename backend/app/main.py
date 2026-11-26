@@ -75,6 +75,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # Environment keys are public SDK keys, never management credentials.
         return {'environment_id': config.flagsmith_environment_id, 'api_url': config.flagsmith_api_url or None, 'events_url': config.flagsmith_events_url or None}
 
+    @app.get('/api/experiment/synthetic-results')
+    def experiment_synthetic_results() -> dict:
+        import json
+        from .config import ROOT
+        return json.loads((ROOT / 'data' / 'flagsmith_synthetic_results.json').read_text())
+
     @app.get('/api/session')
     def visitor_session() -> dict:
         return {'ready': True}

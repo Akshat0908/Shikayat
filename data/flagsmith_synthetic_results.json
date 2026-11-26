@@ -1,0 +1,11 @@
+{
+  "data_source": "synthetic",
+  "captured_at": "2026-11-26T15:39:00Z",
+  "description": "Simulated visitors, generated with the same 40% case-start probability in each arm. Not real user behaviour.",
+  "dashboard_url": "https://app.flagsmith.com/project/56571/environment/4WAeDJFxNvKzMN9F5rjFLc/experiments/684",
+  "arms": [
+    {"name": "Control", "exposures": 52, "case_starts": 17, "rate_percent": 32.7},
+    {"name": "Guided", "exposures": 48, "case_starts": 16, "rate_percent": 33.3}
+  ],
+  "notes": "A snapshot of a separate synthetic-only Flagsmith environment, not the visitor experiment. No winner claimed."
+}

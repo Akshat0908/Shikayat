@@ -8,7 +8,7 @@ Share evidence, review a complaint, and track company replies with evidence-base
 
 [Experiment design and setup](docs/TOGGLE_WARS.md) · [Experiment page](http://localhost:8000/experiment/) · [Existing AI evaluation](http://localhost:8000/proof/)
 
-**Status:** integration implemented; a Flagsmith environment and real experiment results are not yet connected. There is no claimed winner. Shikayat existed before Toggle Wars; the Flagsmith integration and experiment are new work for the event.
+**Status:** the Development visitor experiment is running in Flagsmith; app integration is configured locally, and live deployment and visitor results are pending. A separate synthetic-only experiment recorded 100 test exposures and 33 simulated case starts; those are not real-user results. One diagnostic exposure was attempted in the Development experiment and must be treated as test traffic if it appears. No winner is claimed. Shikayat existed before Toggle Wars; the Flagsmith integration and experiments are new work for the event.
 
 ## Run locally
 
