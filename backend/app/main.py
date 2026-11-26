@@ -70,6 +70,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             response.headers['Cache-Control'] = 'no-store'
         return response
 
+    @app.get('/api/experiment/config')
+    def experiment_config() -> dict:
+        # Environment keys are public SDK keys, never management credentials.
+        return {'environment_id': config.flagsmith_environment_id, 'api_url': config.flagsmith_api_url or None, 'events_url': config.flagsmith_events_url or None}
+
     @app.get('/api/session')
     def visitor_session() -> dict:
         return {'ready': True}

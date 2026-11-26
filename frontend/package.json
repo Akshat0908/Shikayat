@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@flagsmith/flagsmith": "^12.6.0",
     "@fontsource/geist": "^5.3.0",
     "@fontsource/tiro-devanagari-hindi": "^5.3.0",
     "@radix-ui/react-slot": "latest",
@@ -25,6 +26,7 @@
     "tailwind-merge": "latest"
   },
   "devDependencies": {
+    "@flagsmith/nodejs": "^9.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",

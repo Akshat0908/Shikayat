@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     send_enabled: bool = True
     autopilot_allowlist: str = ""
     database_url: str = f"sqlite:///{ROOT / 'var' / 'shikayat.db'}"
+    flagsmith_environment_id: str = ""
+    flagsmith_api_url: str = ""
+    flagsmith_events_url: str = ""
     frontend_dist: Path = ROOT / "frontend" / "out"
 
 @lru_cache

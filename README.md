@@ -2,6 +2,14 @@ Shikayat — your AI consumer advocate. It doesn't stop when customer care repli
 
 Share evidence, review a complaint, and track company replies with evidence-based forensics and a deterministic next-action policy. Verified contacts and your approval are required before a complaint is sent. ShopKart is a fictional sandbox merchant with automated replies for testing.
 
+## Toggle Wars: one experiment, clearly measured
+
+**Track 01 — Test Something Real.** Can a short, three-step introduction help people start a consumer case? Flagsmith assigns opted-in visitors to the original or guided introduction and measures the `case_started` occurrence event. Participation is optional; Flagsmith receives a random session identifier, exposure and case-start events, SDK version and timestamps, never complaint text, screenshots, email addresses or contact details. Like any web service, Flagsmith can receive network information such as the client IP address.
+
+[Experiment design and setup](docs/TOGGLE_WARS.md) · [Experiment page](http://localhost:8000/experiment/) · [Existing AI evaluation](http://localhost:8000/proof/)
+
+**Status:** integration implemented; a Flagsmith environment and real experiment results are not yet connected. There is no claimed winner. Shikayat existed before Toggle Wars; the Flagsmith integration and experiment are new work for the event.
+
 ## Run locally
 
 Requires Python 3.11, `uv`, Node.js and npm.
@@ -20,7 +28,7 @@ Visitors use **Send from my email** to open a draft in Gmail or another mail app
 
 Set `ADMIN_PASSCODE` in `.env` and restart to enable owner sign-in at `/admin`. Signed-in owners can approve direct sending through the configured Gmail mailbox and access sandbox controls. A passcode is never shipped by default. `PUBLIC_DEMO=true` does not grant direct SMTP access to visitors; direct sending requires the owner session. Automated follow-ups remain restricted to allowlisted sandbox recipients and owner-started cases. The `SEND_ENABLED` switch blocks sending, and sample-labelled evidence cannot be sent to a real company.
 
-This is a **single shared workspace**, not a multi-user service. Anyone who can access an instance can access its cases; `PUBLIC_DEMO` does not isolate visitor data. Do not expose a database containing private cases to the public.
+Cases are scoped to a browser visitor or the owner session. This is a prototype; use a dedicated test environment and synthetic evidence for public demonstrations.
 
 ## Evidence and safeguards
 
