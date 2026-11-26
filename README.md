@@ -6,9 +6,11 @@ Share evidence, review a complaint, and track company replies with evidence-base
 
 **Track 01 — Test Something Real.** Can a short, three-step introduction help people start a consumer case? Flagsmith assigns opted-in visitors to the original or guided introduction and measures the `case_started` occurrence event. Participation is optional; Flagsmith receives a random session identifier, exposure and case-start events, SDK version and timestamps, never complaint text, screenshots, email addresses or contact details. Like any web service, Flagsmith can receive network information such as the client IP address.
 
-[Experiment design and setup](docs/TOGGLE_WARS.md) · [Experiment page](http://localhost:8000/experiment/) · [Existing AI evaluation](http://localhost:8000/proof/)
+[Live app](https://shikayat-toggle-wars.onrender.com/) · [Experiment page](https://shikayat-toggle-wars.onrender.com/experiment/) · [Experiment design and setup](docs/TOGGLE_WARS.md) · [Existing AI evaluation](https://shikayat-toggle-wars.onrender.com/proof/)
 
-**Status:** the Development visitor experiment is running in Flagsmith; app integration is configured locally, and live deployment and visitor results are pending. A separate synthetic-only experiment recorded 100 test exposures and 33 simulated case starts; those are not real-user results. One diagnostic exposure was attempted in the Development experiment and must be treated as test traffic if it appears. No winner is claimed. Shikayat existed before Toggle Wars; the Flagsmith integration and experiments are new work for the event.
+**Status:** the Development visitor experiment is running in Flagsmith and the integration is live. A separate synthetic-only experiment recorded 100 test exposures and 33 simulated case starts; those are not real-user results. One diagnostic exposure was attempted in the Development experiment and must be treated as test traffic if it appears. No winner is claimed. Shikayat existed before Toggle Wars; the Flagsmith integration and experiments are new work for the event. The [organisers explicitly permit simulated traffic](https://www.wemakedevs.org/hackathons/flagsmith#tracks); the reported run is a wiring check, not evidence of user preference.
+
+The public preview uses OpenRouter's free model router, not paid OpenAI calls. Free models can be unavailable or rate-limited and their extraction can be inaccurate: check all facts. Voice transcription, contact web search and email sending are disabled. Storage is temporary and can disappear on restart or inactivity; use fictional evidence only. See [preview hosting](docs/HACKATHON_HOSTING.md).
 
 ## Run locally
 

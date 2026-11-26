@@ -42,7 +42,7 @@ The script creates 40 random synthetic identities by default (set `FLAGSMITH_SYN
 
 A separate, explicitly synthetic Flagsmith experiment enrolled 100 scripted identities. The Flagsmith dashboard reported control **17/52 (32.7%)** and guided **16/48 (33.3%)** case starts, with a “collecting data” status. Both arms were generated with the same 40% probability. These are generated test observations, not real customer outcomes, and no winner is claimed. [Open the synthetic dashboard](https://app.flagsmith.com/project/56571/environment/4WAeDJFxNvKzMN9F5rjFLc/experiments/684) (owner sign-in required). The snapshot is in `data/flagsmith_synthetic_results.json`.
 
-The separate Development visitor experiment was started on 26 November. One identity named as synthetic diagnostics was evaluated through `getExperimentFlag` during setup; an exposure was attempted in that environment and must be treated as test traffic if it appears in results. The app had not yet been deployed with the experiment at the time of this snapshot.
+The separate Development visitor experiment was started on 26 November and is wired to the [live preview](https://shikayat-toggle-wars.onrender.com/). One identity named as synthetic diagnostics was evaluated through `getExperimentFlag` during setup; an exposure was attempted in that environment and must be treated as test traffic if it appears in results. No real-user conversion numbers are claimed here. The organiser permits simulated traffic for Track 01, but these simulated results cannot establish user preferences.
 
 ## Demo checklist
 

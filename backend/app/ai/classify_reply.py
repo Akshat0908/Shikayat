@@ -52,6 +52,15 @@ def enforce_forensics(result: ReplyAnalysis, text: str, demanded: float | None =
     initiated=bool(re.search(r'\brefund\b.{0,65}\b(?:initiat|processing|started)\w*',lower))
     result.needs_refund_proof=bool(initiated and not result.refund_confirmed and not reference)
     voucher=bool(re.search(r'\b(voucher|store credit|coupon|gift card)\b',lower))
+    # A model can invent an offered amount or a partial offer. Require an
+    # offer signal in the new company text before showing accept/counter UI.
+    if not amount:
+        result.offered_amount_inr=None
+    offer_signal=bool(re.search(r'\b(?:offer|offering|offered|offer you|refund you|credit you)\b',lower))
+    if result.reply_type=='partial_offer' and not (voucher or (amount and offer_signal)):
+        result.reply_type='acknowledgment'
+        result.next_action='Follow up for a concrete remedy and timeline.'
+        result.reason='The reply contains no substantiated offer.'
     if voucher or (result.offered_amount_inr is not None and demanded is not None and result.offered_amount_inr<demanded):
         result.reply_type='partial_offer';result.resolution_status='partially_resolved';result.refund_confirmed=False
         result.reason='Offer is a voucher or less than the requested amount; user must decide.'
