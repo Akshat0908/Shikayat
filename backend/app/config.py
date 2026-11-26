@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
     openai_api_key: SecretStr = SecretStr("")
+    llm_provider: str = "openai"
+    openrouter_api_key: SecretStr = SecretStr("")
     transcribe_model: str = "gpt-transcribe"
     model_smart: str = ""
     model_fast: str = ""

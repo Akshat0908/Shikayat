@@ -20,7 +20,7 @@ logger=logging.getLogger(__name__)
 def worker_failure(app, worker: str, error: Exception) -> bool:
     config=get_settings()
     safe=str(error)
-    for secret in (config.openai_api_key.get_secret_value(),config.user_email_app_password.get_secret_value(),config.demo_company_app_password.get_secret_value()):
+    for secret in (config.openai_api_key.get_secret_value(),config.openrouter_api_key.get_secret_value(),config.user_email_app_password.get_secret_value(),config.demo_company_app_password.get_secret_value()):
         if secret: safe=safe.replace(secret,'[REDACTED]')
     errors=getattr(app.state,'worker_errors',{})
     count=errors.get(worker,{}).get('count',0)+1

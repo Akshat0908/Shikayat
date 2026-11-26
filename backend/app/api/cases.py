@@ -50,7 +50,10 @@ async def _create(request: Request, text: str, images: list[UploadFile], audio: 
         if suffix not in ('.webm','.mp3','.wav','.m4a','.ogg','.mp4'):
             raise HTTPException(422,'Unsupported audio format')
         path=directory/f'{uuid4()}{suffix}';path.write_bytes(data)
-        transcript=await transcribe(path)
+        try:
+            transcript=await transcribe(path)
+        except ValueError as error:
+            raise HTTPException(503,str(error)) from error
         text+='\n'+transcript
         evidence.append(Evidence(case_id=case.id,kind='voice',path=str(path),transcript=transcript))
     if original_text:
@@ -58,7 +61,9 @@ async def _create(request: Request, text: str, images: list[UploadFile], audio: 
     try:
         mode='live'
         replay_reason=None
-        if replay and (get_settings().replay_mode or not get_settings().openai_api_key.get_secret_value()):
+        settings=get_settings()
+        available_key=(settings.openrouter_api_key if settings.llm_provider=='openrouter' else settings.openai_api_key).get_secret_value()
+        if replay and (settings.replay_mode or not available_key):
             facts=replay;mode='replay';replay_reason='Explicit replay mode or API key unavailable'
         else:
             try:

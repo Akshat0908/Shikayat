@@ -7,6 +7,8 @@ from ..config import get_settings
 
 async def transcribe(path: Path) -> str:
     config=get_settings()
+    if config.llm_provider != 'openai':
+        raise ValueError('Voice transcription is unavailable in the free preview; please type your complaint.')
     prompt="Hindi aur English Hinglish audio. Roman script mein likho. Preserve order IDs, amounts and ticket numbers exactly."
     import hashlib
     key=cache_key(config.transcribe_model,prompt,hashlib.sha256(path.read_bytes()).hexdigest())

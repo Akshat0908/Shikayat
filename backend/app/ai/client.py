@@ -83,11 +83,23 @@ async def call_structured(task: str, model: str, schema: type[T], instructions: 
             await asyncio.to_thread(record,task,model,0,0,(time.monotonic()-started)*1000,True)
             return result
         config=get_settings()
-        if not model or not config.openai_api_key.get_secret_value():
-            raise ValueError('Configure OPENAI_API_KEY and the requested model in .env')
+        if config.llm_provider == 'openrouter':
+            if model != 'openrouter/free':
+                raise ValueError('OpenRouter preview permits only openrouter/free')
+            if search_domains is not None:
+                raise ValueError('Web search is unavailable in the free preview')
+            api_key=config.openrouter_api_key.get_secret_value()
+            base_url='https://openrouter.ai/api/v1'
+        elif config.llm_provider == 'openai':
+            api_key=config.openai_api_key.get_secret_value()
+            base_url=None
+        else:
+            raise ValueError('Unsupported LLM provider')
+        if not model or not api_key:
+            raise ValueError('Configure the requested model and provider API key')
         guard(model)
         content=[{'type':'input_text','text':text}]+[{'type':'input_image','image_url':image,'detail':'auto'} for image in images or []]
-        async with AsyncOpenAI(api_key=config.openai_api_key.get_secret_value(),timeout=30,max_retries=2) as client:
+        async with AsyncOpenAI(api_key=api_key,base_url=base_url,timeout=30,max_retries=2) as client:
             options={'tools':[{'type':'web_search',**({'filters':{'allowed_domains':search_domains}} if search_domains else {})}], 'tool_choice':'required', 'include':['web_search_call.action.sources']} if search_domains is not None else {}
             response=await client.responses.parse(model=model,instructions=instructions,input=[{'role':'user','content':content}],text_format=schema,store=False,**options)
         usage=response.usage
